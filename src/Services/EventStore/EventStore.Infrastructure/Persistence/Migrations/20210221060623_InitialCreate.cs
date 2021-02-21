@@ -42,10 +42,89 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Events", x => x.EventId);
                 });
+
+            const string addEventStoredProcedure = @"
+                create or replace procedure ""EventStore"".""AddEvent""(
+                    ""eventId"" uuid,
+                    ""data"" json,
+                    ""occurred"" timestamp,
+                    ""raisedBy"" character varying,
+                    ""details"" character varying,
+                    ""aggregateId"" uuid,
+                    ""aggregateType"" character varying
+                )
+                language plpgsql
+                as
+                $$
+                declare
+                    version integer;
+                begin
+                    if ""aggregateId"" is not null then
+                        select ""Version""
+                        into version
+                        from ""EventStore"".""Aggregates""
+                        where ""EventStore"".""Aggregates"".""AggregateId"" = ""aggregateId"";
+
+                        if version is null then
+                            version := 0;
+                        end if;
+
+                        version:= version + 1;
+                    else
+                        version:= 0;
+                    end if;
+
+                    insert into ""EventStore"".""Events""(
+                        ""EventId"",
+                        ""AggregateId"",
+                        ""Version"",
+                        ""Data"",
+                        ""Occurred"",
+                        ""RaisedBy"",
+                        ""Details""
+                    ) values(
+                        ""eventId"",
+                        ""aggregateId"",
+                        ""version"",
+                        ""data"",
+                        ""occurred"",
+                        ""raisedBy"",
+                        ""details""
+                    );
+
+                    if version = 1 then
+                        insert into ""EventStore"".""Aggregates""(
+                            ""AggregateId"",
+                            ""AggregateType"",
+                            ""Version""
+                        ) values(
+                            ""aggregateId"",
+                            ""aggregateType"",
+                            version
+                        );
+                    end if;
+
+                    if version > 1 then
+                        update ""EventStore"".""Aggregates""
+                        set ""Version"" = version
+                        where ""AggregateId"" = ""aggregateId"";
+                    end if;
+
+                    commit;
+                end;
+                $$;
+            ";
+            migrationBuilder.Sql(addEventStoredProcedure);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            const string dropAddEventStoredProcedure = @"
+                drop procedure ""EventStore"".""AddEvent"";
+            ";
+
+            migrationBuilder.Sql(dropAddEventStoredProcedure);
+
             migrationBuilder.DropTable(
                 name: "Aggregates",
                 schema: "EventStore");
