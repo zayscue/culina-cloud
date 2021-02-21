@@ -8,9 +8,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{5CB01D37-30F8-465E-B45A-B1AE33E5D60F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Registration", "Registration", "{B8E0F7BB-0983-4B37-AF11-0364651DF2D4}"
-	ProjectSection(SolutionItems) = preProject
-		src\Services\EventStore\EventStore.Infrastructure\Persistence\ApplicationDbContext.cs = src\Services\EventStore\EventStore.Infrastructure\Persistence\ApplicationDbContext.cs
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Registration.Domain", "src\Services\Registration\Registration.Domain\Registration.Domain.csproj", "{F40CAFCD-96C2-44E0-AF20-3DE9C5B003E1}"
 EndProject
@@ -30,11 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.API", "src\Servi
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{A9FA448E-22F7-4197-812A-63C6724E78B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Domain", "src\Services\EventStore\EventStore.Domain\EventStore.Domain.csproj", "{A5080628-B74A-4084-B906-7550552EA505}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Domain", "src\Services\EventStore\EventStore.Domain\EventStore.Domain.csproj", "{A5080628-B74A-4084-B906-7550552EA505}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Application", "src\Services\EventStore\EventStore.Application\EventStore.Application.csproj", "{C2A105E3-ADC1-4C08-8683-2AAB822F853C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Application", "src\Services\EventStore\EventStore.Application\EventStore.Application.csproj", "{C2A105E3-ADC1-4C08-8683-2AAB822F853C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Infrastructure", "src\Services\EventStore\EventStore.Infrastructure\EventStore.Infrastructure.csproj", "{8A40AC30-6AF5-4A34-BC88-F385E2FC22A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Infrastructure", "src\Services\EventStore\EventStore.Infrastructure\EventStore.Infrastructure.csproj", "{8A40AC30-6AF5-4A34-BC88-F385E2FC22A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
