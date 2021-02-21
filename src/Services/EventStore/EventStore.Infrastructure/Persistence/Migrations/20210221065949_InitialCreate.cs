@@ -122,7 +122,6 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
             const string dropAddEventStoredProcedure = @"
                 drop procedure ""EventStore"".""AddEvent"";
             ";
-
             migrationBuilder.Sql(dropAddEventStoredProcedure);
 
             migrationBuilder.DropTable(
