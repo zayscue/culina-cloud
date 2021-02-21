@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  eventstore.api:
+    image: ${DOCKER_REGISTRY-}eventstoreapi
+    build:
+      context: .
+      dockerfile: src/Services/EventStore/EventStore.API/Dockerfile
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    hostname: postgres
+volumes:
+  postgres-data:

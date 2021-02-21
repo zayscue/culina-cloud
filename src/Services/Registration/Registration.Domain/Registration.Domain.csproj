@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.Registration.Domain</RootNamespace>
+    <AssemblyName>CulinaCloud.Registration.Domain</AssemblyName>
+  </PropertyGroup>
+
+</Project>
