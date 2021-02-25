@@ -66,10 +66,7 @@ WebHost.CreateDefaultBuilder()
                     var response = await mediator.Send(storeEventCommand);
                     context.Response.StatusCode = StatusCodes.Status201Created;
                     context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsJsonAsync(new
-                    {
-                        AggregateId = response
-                    });
+                    await context.Response.WriteAsJsonAsync(response);
                 } 
                 catch (ValidationException ve)
                 {

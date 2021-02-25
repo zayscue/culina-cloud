@@ -8,13 +8,13 @@ using CulinaCloud.EventStore.Domain.Entities;
 
 namespace CulinaCloud.EventStore.Application.Events.Commands.StoreEvent
 {
-    public class StoreEventCommand : IRequest<Guid>
+    public class StoreEventCommand : IRequest<StoreEventResponse>
     {
         public Guid AggregateId { get; set; }
         public List<GenericAggregateEvent> Events { get; set; }
     }
 
-    public class StoreEventCommandHandler : IRequestHandler<StoreEventCommand, Guid>
+    public class StoreEventCommandHandler : IRequestHandler<StoreEventCommand, StoreEventResponse>
     {
         private readonly IEventStore _eventStore;
 
@@ -23,7 +23,7 @@ namespace CulinaCloud.EventStore.Application.Events.Commands.StoreEvent
             _eventStore = eventStore;
         }
 
-        public async Task<Guid> Handle(StoreEventCommand request, CancellationToken cancellationToken)
+        public async Task<StoreEventResponse> Handle(StoreEventCommand request, CancellationToken cancellationToken)
         {
             var aggregateId = request.AggregateId;
             var genericAggregateEvents = request.Events;
@@ -49,7 +49,10 @@ namespace CulinaCloud.EventStore.Application.Events.Commands.StoreEvent
             }
             await _eventStore.StoreEventsAsync(aggregateId, events, cancellationToken);
 
-            return aggregateId;
+            return new StoreEventResponse
+            {
+                AggregateId = aggregateId
+            };
         }
     }
 }
