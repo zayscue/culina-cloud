@@ -28,16 +28,19 @@ namespace CulinaCloud.EventStore.Infrastructure.Services
 
         public async Task StoreEventsAsync(Guid aggregateId, IEnumerable<Event> events, CancellationToken cancellationToken = default)
         {
-            foreach (var @event in events)
+            var trn = _context.Database.CurrentTransaction ?? (await _context.Database.BeginTransactionAsync(cancellationToken));
+            try
             {
-                var eventId = @event.EventId;
-                var eventName = @event.EventName;
-                var data = @event.Data;
-                var occurred = @event.Occurred;
-                var raisedBy = !string.IsNullOrWhiteSpace(@event.RaisedBy) ? @event.RaisedBy : "";
-                var details = !string.IsNullOrWhiteSpace(@event.Details) ? @event.Details : "";
-                var aggregateType = @event.Aggregate.AggregateType;
-                await _context.Database.ExecuteSqlInterpolatedAsync(@$"
+                foreach (var @event in events)
+                {
+                    var eventId = @event.EventId;
+                    var eventName = @event.EventName;
+                    var data = @event.Data;
+                    var occurred = @event.Occurred;
+                    var raisedBy = !string.IsNullOrWhiteSpace(@event.RaisedBy) ? @event.RaisedBy : "";
+                    var details = !string.IsNullOrWhiteSpace(@event.Details) ? @event.Details : "";
+                    var aggregateType = @event.Aggregate.AggregateType;
+                    await _context.Database.ExecuteSqlInterpolatedAsync(@$"
                     call ""EventStore"".""StoreEvent""(
                       {eventId},
                       {eventName},
@@ -49,6 +52,13 @@ namespace CulinaCloud.EventStore.Infrastructure.Services
                       {aggregateType}
                     );
                 ", cancellationToken);
+                }
+                await trn.CommitAsync(cancellationToken);
+            } 
+            catch (Exception)
+            {
+                await trn.RollbackAsync(cancellationToken);
+                throw;
             }
         }
     }

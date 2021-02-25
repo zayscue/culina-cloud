@@ -126,8 +126,6 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                         ""raisedBy"",
                         ""details""
                     );
-
-                    commit;
                 end;
                 $$;
             ";
