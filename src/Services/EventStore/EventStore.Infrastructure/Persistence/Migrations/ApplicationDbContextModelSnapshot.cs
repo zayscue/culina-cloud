@@ -50,7 +50,7 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("EventId");
 
-                    b.Property<Guid?>("AggregateId")
+                    b.Property<Guid>("AggregateId")
                         .HasColumnType("uuid")
                         .HasColumnName("AggregateId");
 
@@ -63,6 +63,11 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("Details");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("EventName");
 
                     b.Property<DateTimeOffset>("Occurred")
                         .HasColumnType("timestamp with time zone")
@@ -79,7 +84,25 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
 
                     b.HasKey("EventId");
 
+                    b.HasIndex("AggregateId");
+
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("CulinaCloud.EventStore.Domain.Entities.Event", b =>
+                {
+                    b.HasOne("CulinaCloud.EventStore.Domain.Entities.Aggregate", "Aggregate")
+                        .WithMany("Events")
+                        .HasForeignKey("AggregateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Aggregate");
+                });
+
+            modelBuilder.Entity("CulinaCloud.EventStore.Domain.Entities.Aggregate", b =>
+                {
+                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }

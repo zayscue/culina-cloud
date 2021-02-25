@@ -15,8 +15,13 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Configurations
                 .HasColumnName("EventId")
                 .IsRequired();
 
+            builder.Property(e => e.EventName)
+                .HasColumnName("EventName")
+                .IsRequired();
+
             builder.Property(e => e.AggregateId)
-                .HasColumnName("AggregateId");
+                .HasColumnName("AggregateId")
+                .IsRequired();
 
             builder.Property(e => e.Version)
                 .HasColumnName("Version")
@@ -37,6 +42,9 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Configurations
             builder.Property(e => e.Details)
                 .HasColumnName("Details")
                 .HasMaxLength(255);
+
+            builder.HasOne(e => e.Aggregate)
+                .WithMany(a => a.Events);
         }
     }
 }

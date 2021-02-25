@@ -31,7 +31,8 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AggregateId = table.Column<Guid>(type: "uuid", nullable: true),
+                    EventName = table.Column<string>(type: "text", nullable: false),
+                    AggregateId = table.Column<Guid>(type: "uuid", nullable: false),
                     Version = table.Column<int>(type: "integer", nullable: false),
                     Data = table.Column<JsonDocument>(type: "jsonb", nullable: false),
                     Occurred = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -41,17 +42,31 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.EventId);
+                    table.ForeignKey(
+                        name: "FK_Events_Aggregates_AggregateId",
+                        column: x => x.AggregateId,
+                        principalSchema: "EventStore",
+                        principalTable: "Aggregates",
+                        principalColumn: "AggregateId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
-            const string addEventStoredProcedure = @"
-                create or replace procedure ""EventStore"".""AddEvent""(
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_AggregateId",
+                schema: "EventStore",
+                table: "Events",
+                column: "AggregateId");
+
+            const string storeEventStoredProcedure = @"
+                create or replace procedure ""EventStore"".""StoreEvent""(
                     ""eventId"" uuid,
-                    ""data"" json,
-                    ""occurred"" timestamp,
-                    ""raisedBy"" character varying,
-                    ""details"" character varying,
+                    ""eventName"" text,
+                    ""data"" jsonb,
+                    ""occurred"" timestamptz,
+                    ""raisedBy"" text,
+                    ""details"" text,
                     ""aggregateId"" uuid,
-                    ""aggregateType"" character varying
+                    ""aggregateType"" text
                 )
                 language plpgsql
                 as
@@ -74,24 +89,6 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                         version:= 0;
                     end if;
 
-                    insert into ""EventStore"".""Events""(
-                        ""EventId"",
-                        ""AggregateId"",
-                        ""Version"",
-                        ""Data"",
-                        ""Occurred"",
-                        ""RaisedBy"",
-                        ""Details""
-                    ) values(
-                        ""eventId"",
-                        ""aggregateId"",
-                        ""version"",
-                        ""data"",
-                        ""occurred"",
-                        ""raisedBy"",
-                        ""details""
-                    );
-
                     if version = 1 then
                         insert into ""EventStore"".""Aggregates""(
                             ""AggregateId"",
@@ -110,26 +107,47 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                         where ""AggregateId"" = ""aggregateId"";
                     end if;
 
+                    insert into ""EventStore"".""Events""(
+                        ""EventId"",
+                        ""EventName"",
+                        ""AggregateId"",
+                        ""Version"",
+                        ""Data"",
+                        ""Occurred"",
+                        ""RaisedBy"",
+                        ""Details""
+                    ) values(
+                        ""eventId"",
+                        ""eventName"",
+                        ""aggregateId"",
+                        version,
+                        ""data"",
+                        ""occurred"",
+                        ""raisedBy"",
+                        ""details""
+                    );
+
                     commit;
                 end;
                 $$;
             ";
-            migrationBuilder.Sql(addEventStoredProcedure);
+            migrationBuilder.Sql(storeEventStoredProcedure);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            const string dropAddEventStoredProcedure = @"
-                drop procedure ""EventStore"".""AddEvent"";
+            const string dropStoreEventStoredProcedure = @"
+                drop procedure ""EventStore"".""StoreEvent"";
             ";
-            migrationBuilder.Sql(dropAddEventStoredProcedure);
 
-            migrationBuilder.DropTable(
-                name: "Aggregates",
-                schema: "EventStore");
+            migrationBuilder.Sql(dropStoreEventStoredProcedure);
 
             migrationBuilder.DropTable(
                 name: "Events",
+                schema: "EventStore");
+
+            migrationBuilder.DropTable(
+                name: "Aggregates",
                 schema: "EventStore");
         }
     }
