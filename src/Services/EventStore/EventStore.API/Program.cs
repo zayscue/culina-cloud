@@ -13,7 +13,8 @@ using MediatR;
 using CulinaCloud.EventStore.Application;
 using CulinaCloud.EventStore.Infrastructure;
 using CulinaCloud.EventStore.Application.Events.Commands.StoreEvent;
-using CulinaCloud.EventStore.Application.Common.Interfaces;
+using CulinaCloud.EventStore.Application.Events.Queries.LoadEvents;
+using CulinaCloud.EventStore.Application.Common.Exceptions;
 
 IConfiguration GetConfiguration()
 {
@@ -60,13 +61,49 @@ WebHost.CreateDefaultBuilder()
                     AggregateId = aggregateId,
                     Events = genericAggregateEvents
                 };
-                await mediator.Send(storeEventCommand);
-                context.Response.StatusCode = StatusCodes.Status201Created;
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsJsonAsync(new 
+                try
+                {
+                    var response = await mediator.Send(storeEventCommand);
+                    context.Response.StatusCode = StatusCodes.Status201Created;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        AggregateId = response
+                    });
+                } 
+                catch (ValidationException ve)
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        ve.Message,
+                        ve.Errors
+                    });
+                }
+                catch (Exception)
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "An unexpected error occurred."
+                    });
+                }
+            });
+
+            e.MapGet("/load/{aggregateId:guid}", async context =>
+            {
+                var mediator = context.RequestServices.GetRequiredService<ISender>();
+                var aggregateId = new Guid(context.Request.RouteValues["aggregateId"].ToString());
+                var loadEventsQuery = new LoadEventsQuery
                 {
                     AggregateId = aggregateId
-                });
+                };
+                var response = await mediator.Send(loadEventsQuery);
+                context.Response.StatusCode = StatusCodes.Status200OK;
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(response);
             });
         });
     })
