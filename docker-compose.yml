@@ -11,5 +11,12 @@ services:
   postgres:
     image: postgres
     hostname: postgres
+  frontend:
+    image: ${DOCKER_REGISTRY-}frontend
+    build:
+      context: .
+      dockerfile: src/Web/FrontEnd/Dockerfile
+
 volumes:
   postgres-data:
+
