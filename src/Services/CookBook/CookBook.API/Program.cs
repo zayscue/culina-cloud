@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Culina.CookBook.API.Services;
 using Serilog;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +9,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Culina.CookBook.Application;
+using Culina.CookBook.Application.Common.Interfaces;
+using Culina.CookBook.Application.Ingredients.Commands.CreateIngredient;
 using Culina.CookBook.Infrastructure;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 IConfiguration GetConfiguration()
 {
@@ -35,6 +40,10 @@ try
         {
             services.AddApplication();
             services.AddInfrastructure(configuration);
+
+            services.AddHttpContextAccessor();
+
+            services.AddSingleton<ICurrentUserService, CurrentUserService>();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
@@ -50,6 +59,29 @@ try
                 e.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Hello World!");
+                });
+
+                e.MapPost("/ingredients", async context =>
+                {
+                    var mediator = context.RequestServices.GetRequiredService<ISender>();
+                    var createIngredientCommand = await context.Request.ReadFromJsonAsync<CreateIngredientCommand>();
+                    if (createIngredientCommand == null)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsJsonAsync(new
+                        {
+                            Message = "An error occurred while reading the request content."
+                        });
+                    }
+                    var response = await mediator.Send(createIngredientCommand!);
+                    context.Response.StatusCode = StatusCodes.Status201Created;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Id = response,
+                        createIngredientCommand.IngredientName,
+                    });
                 });
             });
         })

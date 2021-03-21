@@ -1,5 +1,6 @@
 ﻿using Culina.CookBook.Application.Common.Interfaces;
 using Culina.CookBook.Infrastructure.Persistence;
+using Culina.CookBook.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ namespace Culina.CookBook.Infrastructure
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
+            services.AddTransient<IDateTime, DateTimeService>();
 
             return services;
         }
