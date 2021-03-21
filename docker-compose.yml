@@ -17,6 +17,13 @@ services:
       context: .
       dockerfile: src/Web/FrontEnd/Dockerfile
 
+  cookbook.api:
+    image: ${DOCKER_REGISTRY-}cookbookapi
+    build:
+      context: .
+      dockerfile: src/Services/CookBook/CookBook.API/Dockerfile
+
 volumes:
   postgres-data:
+
 
