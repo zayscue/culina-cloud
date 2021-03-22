@@ -31,7 +31,9 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
 
         public async Task<PaginatedList<GetIngredientsResponse>> Handle(GetIngredientsQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.Ingredients.AsQueryable();
+            var query = _context.Ingredients
+                .OrderBy(x => x.IngredientName)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
