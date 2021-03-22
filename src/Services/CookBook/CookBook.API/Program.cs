@@ -14,7 +14,7 @@ using Culina.CookBook.API.Actions;
 using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
 
-IConfiguration GetConfiguration()
+static IConfiguration GetConfiguration()
 {
     var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     return new ConfigurationBuilder()
