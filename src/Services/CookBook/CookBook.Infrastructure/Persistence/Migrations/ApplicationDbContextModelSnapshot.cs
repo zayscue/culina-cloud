@@ -54,6 +54,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IngredientName")
+                        .IsUnique();
+
                     b.ToTable("Ingredients");
                 });
 
@@ -470,6 +473,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("TagName");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagName")
+                        .IsUnique();
 
                     b.ToTable("Tags");
                 });

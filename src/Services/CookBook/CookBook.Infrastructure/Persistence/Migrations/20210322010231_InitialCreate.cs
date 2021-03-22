@@ -250,6 +250,13 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Ingredients_IngredientName",
+                schema: "CookBook",
+                table: "Ingredients",
+                column: "IngredientName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RecipeIngredients_Ingredient",
                 schema: "CookBook",
                 table: "RecipeIngredients",
@@ -260,6 +267,13 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 schema: "CookBook",
                 table: "RecipeTags",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tags_TagName",
+                schema: "CookBook",
+                table: "Tags",
+                column: "TagName",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

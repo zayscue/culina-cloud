@@ -21,6 +21,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
                 .HasMaxLength(128)
                 .IsRequired();
 
+            builder.HasIndex(i => i.IngredientName)
+                .IsUnique();
+
             builder.Property(i => i.Created)
                 .HasColumnName("Created")
                 .IsRequired();

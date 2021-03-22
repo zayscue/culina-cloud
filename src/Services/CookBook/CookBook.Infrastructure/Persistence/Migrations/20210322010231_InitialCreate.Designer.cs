@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210321031214_InitialCreate")]
+    [Migration("20210322010231_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,6 +55,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IngredientName")
+                        .IsUnique();
 
                     b.ToTable("Ingredients");
                 });
@@ -472,6 +475,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("TagName");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagName")
+                        .IsUnique();
 
                     b.ToTable("Tags");
                 });
