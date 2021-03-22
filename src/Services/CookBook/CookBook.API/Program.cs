@@ -4,7 +4,6 @@ using Serilog;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +55,7 @@ try
             {
                 e.MapHealthChecks("/health");
                 e.MapPost("/ingredients", PostIngredient.Perform);
+                e.MapGet("/ingredients", GetIngredients.Perform);
             });
         })
         .Build()
