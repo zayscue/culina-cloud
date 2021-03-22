@@ -7,7 +7,7 @@ namespace Culina.CookBook.API.Actions
 {
     public static class PostIngredient
     {
-        public static RequestDelegate Perform = async context =>
+        public static readonly RequestDelegate Perform = async context =>
         {
             var mediator = context.RequestServices.GetRequiredService<ISender>();
             var createIngredientCommand = await context.Request.ReadFromJsonAsync<CreateIngredientCommand>();
