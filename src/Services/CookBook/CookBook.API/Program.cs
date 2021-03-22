@@ -49,12 +49,19 @@ try
         {
             var env = webHostBuilderContext.HostingEnvironment;
             app.ConfigureExceptionHandler(env);
+
+            app.UseStaticFiles();
+            
             app.UseRouting();
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
                 e.MapPost("/ingredients", PostIngredient.Perform);
                 e.MapGet("/ingredients", GetIngredients.Perform);
+            });
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "CookBook API");
             });
         })
         .Build()
