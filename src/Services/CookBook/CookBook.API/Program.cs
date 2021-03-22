@@ -14,6 +14,7 @@ using Culina.CookBook.Infrastructure;
 using Culina.CookBook.API.Services;
 using Culina.CookBook.API.Actions;
 using Culina.CookBook.API.Extensions;
+using Culina.CookBook.Infrastructure.Persistence;
 
 IConfiguration GetConfiguration()
 {
@@ -41,25 +42,19 @@ try
         {
             services.AddApplication();
             services.AddInfrastructure(configuration);
-
             services.AddHttpContextAccessor();
-
+            services.AddHealthChecks()
+                .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
             var env = webHostBuilderContext.HostingEnvironment;
-
             app.ConfigureExceptionHandler(env);
-
             app.UseRouting();
             app.UseEndpoints(e =>
             {
-                e.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
-
+                e.MapHealthChecks("/health");
                 e.MapPost("/ingredients", PostIngredient.Perform);
             });
         })
