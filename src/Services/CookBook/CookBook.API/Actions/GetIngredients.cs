@@ -7,7 +7,7 @@ namespace Culina.CookBook.API.Actions
 {
     public static class GetIngredients
     {
-        public static RequestDelegate Perform = async context =>
+        public static readonly RequestDelegate Perform = async context =>
         {
             var mediator = context.RequestServices.GetRequiredService<ISender>();
             var query = new GetIngredientsQuery();
