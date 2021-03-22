@@ -18,7 +18,8 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
         public int Limit { get; set; } = 1000;
     }
 
-    public class GetIngredientsQueryHandler : IRequestHandler<GetIngredientsQuery, PaginatedList<GetIngredientsResponse>>
+    public class
+        GetIngredientsQueryHandler : IRequestHandler<GetIngredientsQuery, PaginatedList<GetIngredientsResponse>>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -29,7 +30,8 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
             _mapper = mapper;
         }
 
-        public async Task<PaginatedList<GetIngredientsResponse>> Handle(GetIngredientsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedList<GetIngredientsResponse>> Handle(GetIngredientsQuery request,
+            CancellationToken cancellationToken)
         {
             var query = _context.Ingredients
                 .OrderBy(x => x.IngredientName)
@@ -37,7 +39,8 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
 
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
-                query = query.Where(x => EF.Functions.Like(x.IngredientName.ToLower(), $"%{request.Name.Trim().ToLower()}%"));
+                query = query.Where(x =>
+                    EF.Functions.Like(x.IngredientName.ToLower(), $"%{request.Name.Trim().ToLower()}%"));
             }
 
             return await query

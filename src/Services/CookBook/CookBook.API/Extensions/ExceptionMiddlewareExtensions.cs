@@ -14,20 +14,20 @@ namespace Culina.CookBook.API.Extensions
         {
             app.UseExceptionHandler(appError =>
             {
-                const string ApplicationJSONContentType = "application/json";
-                const string ErrorCodePrefix = "cookbook.api-e-";
-                const string EmptyPayloadErrorMessage = "Unable to read the request as JSON because the request content type '' is not a known JSON content type.";
+                const string applicationJsonContentType = "application/json";
+                const string errorCodePrefix = "cookbook.api-e-";
+                const string emptyPayloadErrorMessage = "Unable to read the request as JSON because the request content type '' is not a known JSON content type.";
 
                 appError.Run(async context =>
                 {
                     var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
                     var error = exceptionHandlerPathFeature.Error;
                     dynamic errorResponse = new ExpandoObject();
-                    if (error.Message.Equals(EmptyPayloadErrorMessage))
+                    if (error.Message.Equals(emptyPayloadErrorMessage))
                     {
                         context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                        context.Response.ContentType = ApplicationJSONContentType;
-                        errorResponse.errorCode = $"{ErrorCodePrefix}002";
+                        context.Response.ContentType = applicationJsonContentType;
+                        errorResponse.errorCode = $"{errorCodePrefix}002";
                         errorResponse.message = "Unable to read an empty request as JSON.";
                         if (env.IsDevelopment())
                         {
@@ -38,83 +38,86 @@ namespace Culina.CookBook.API.Extensions
                                 source = error.Source
                             };
                         }
-                        await context.Response.WriteAsJsonAsync(errorResponse as object);
+                        await context.Response.WriteAsJsonAsync((object) errorResponse);
                         return;
                     }
 
-                    if (error is ValidationException ve)
+                    switch (error)
                     {
-                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                        context.Response.ContentType = ApplicationJSONContentType;
-                        errorResponse.errorCode = $"{ErrorCodePrefix}003";
-                        errorResponse.message = ve.Message;
-                        errorResponse.validationErrors = ve.Errors;
-                        if (env.IsDevelopment())
+                        case ValidationException ve:
                         {
-                            errorResponse.exception = new
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            context.Response.ContentType = applicationJsonContentType;
+                            errorResponse.errorCode = $"{errorCodePrefix}003";
+                            errorResponse.message = ve.Message;
+                            errorResponse.validationErrors = ve.Errors;
+                            if (env.IsDevelopment())
                             {
-                                message = ve.Message,
-                                stackTrace = ve.StackTrace,
-                                source = ve.Source
-                            };
+                                errorResponse.exception = new
+                                {
+                                    message = ve.Message,
+                                    stackTrace = ve.StackTrace,
+                                    source = ve.Source
+                                };
+                            }
+                            await context.Response.WriteAsJsonAsync((object) errorResponse);
+                            return;
                         }
-                        await context.Response.WriteAsJsonAsync(errorResponse as object);
-                        return;
-                    }
-
-                    if (error is EntityConflictException ce)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status409Conflict;
-                        context.Response.ContentType = ApplicationJSONContentType;
-                        errorResponse.errorCode = $"{ErrorCodePrefix}004";
-                        errorResponse.message = ce.Message;
-                        if (env.IsDevelopment())
+                        case EntityConflictException ce:
                         {
-                            errorResponse.exception = new
+                            context.Response.StatusCode = StatusCodes.Status409Conflict;
+                            context.Response.ContentType = applicationJsonContentType;
+                            errorResponse.errorCode = $"{errorCodePrefix}004";
+                            errorResponse.message = ce.Message;
+                            if (env.IsDevelopment())
                             {
-                                message = ce.Message,
-                                stackTrace = ce.StackTrace,
-                                source = ce.Source
-                            };
+                                errorResponse.exception = new
+                                {
+                                    message = ce.Message,
+                                    stackTrace = ce.StackTrace,
+                                    source = ce.Source
+                                };
+                            }
+                            await context.Response.WriteAsJsonAsync((object) errorResponse);
+                            return;
                         }
-                        await context.Response.WriteAsJsonAsync(errorResponse as object);
-                        return;
-                    }
-
-                    if (error is NotFoundException ne)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status409Conflict;
-                        context.Response.ContentType = ApplicationJSONContentType;
-                        errorResponse.errorCode = $"{ErrorCodePrefix}005";
-                        errorResponse.message = ne.Message;
-                        if (env.IsDevelopment())
+                        case NotFoundException ne:
                         {
-                            errorResponse.exception = new
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            context.Response.ContentType = applicationJsonContentType;
+                            errorResponse.errorCode = $"{errorCodePrefix}005";
+                            errorResponse.message = ne.Message;
+                            if (env.IsDevelopment())
                             {
-                                message = ne.Message,
-                                stackTrace = ne.StackTrace,
-                                source = ne.Source
-                            };
+                                errorResponse.exception = new
+                                {
+                                    message = ne.Message,
+                                    stackTrace = ne.StackTrace,
+                                    source = ne.Source
+                                };
+                            }
+                            await context.Response.WriteAsJsonAsync((object) errorResponse);
+                            return;
                         }
-                        await context.Response.WriteAsJsonAsync(errorResponse as object);
-                        return;
-                    }
-
-
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    context.Response.ContentType = ApplicationJSONContentType;
-                    errorResponse.errorCode = $"{ErrorCodePrefix}001";
-                    errorResponse.message = "Internal Server Error.";
-                    if (env.IsDevelopment())
-                    {
-                        errorResponse.exception = new
+                        default:
                         {
-                            message = error.Message,
-                            stackTrace = error.StackTrace,
-                            source = error.Source
-                        };
+                            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                            context.Response.ContentType = applicationJsonContentType;
+                            errorResponse.errorCode = $"{errorCodePrefix}001";
+                            errorResponse.message = "Internal Server Error.";
+                            if (env.IsDevelopment())
+                            {
+                                errorResponse.exception = new
+                                {
+                                    message = error.Message,
+                                    stackTrace = error.StackTrace,
+                                    source = error.Source
+                                };
+                            }
+                            await context.Response.WriteAsJsonAsync((object) errorResponse);
+                            return;
+                        }
                     }
-                    await context.Response.WriteAsJsonAsync(errorResponse as object);
                 });
             });
         }    

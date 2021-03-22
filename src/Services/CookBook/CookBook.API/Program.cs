@@ -5,7 +5,6 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Culina.CookBook.Application;
 using Culina.CookBook.Application.Common.Interfaces;
@@ -59,6 +58,7 @@ try
             });
         })
         .Build()
+        .MigrateDbContext<ApplicationDbContext>()
         .Run();
     return 0;
 }
