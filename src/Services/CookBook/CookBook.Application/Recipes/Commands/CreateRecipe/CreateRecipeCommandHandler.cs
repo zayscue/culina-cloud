@@ -96,6 +96,19 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 }
             }
 
+            if (request.Metadata != null)
+            {
+                foreach (var metadata in request.Metadata)
+                {
+                    entity.Metadata.Add(new RecipeMetadata()
+                    {
+                        RecipeId = recipeId,
+                        Type = metadata.Type,
+                        Value = metadata.Value
+                    });
+                }
+            }
+
             await _context.Recipes.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
 using Culina.CookBook.Application.Common.Mapping;
 using Culina.CookBook.Domain.Entities;
 
@@ -18,6 +19,16 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
 
         public IList<GetRecipeResponseRecipeStep> Steps { get; set; }
         public IList<GetRecipeResponseRecipeIngredient> Ingredients { get; set; }
+        
+        public IList<GetRecipeResponseRecipeMetadata> Metadata { get; set; }
+        
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<Recipe, GetRecipeResponse>()
+                .ForMember(d => d.Metadata, 
+                    opt =>
+                        opt.Condition(((src, dest, srcMember) => srcMember != null && srcMember.Count > 0)));
+        }
     }
 
     public class GetRecipeResponseRecipeStep : IMapFrom<RecipeStep>
@@ -42,5 +53,12 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
     {
         public Guid Id { get; set; }
         public string IngredientName { get; set; }
+    }
+    
+    public class GetRecipeResponseRecipeMetadata : IMapFrom<RecipeMetadata>
+    {
+        public Guid RecipeId { get; set; }
+        public string Type { get; set; }
+        public string Value { get; set; }
     }
 }

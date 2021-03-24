@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Culina.CookBook.Application.Recipes.Queries.GetRecipe;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +20,11 @@ namespace Culina.CookBook.API.Actions
             };
             var response = await mediator.Send(query);
             context.Response.StatusCode = StatusCodes.Status200OK;
-            await context.Response.WriteAsJsonAsync(response);
+            await context.Response.WriteAsJsonAsync(response, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            });
         };
     }
 }

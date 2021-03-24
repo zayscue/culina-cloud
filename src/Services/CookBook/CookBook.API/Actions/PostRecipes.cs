@@ -1,4 +1,6 @@
-﻿using Culina.CookBook.Application.Recipes.Commands.CreateRecipe;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Culina.CookBook.Application.Recipes.Commands.CreateRecipe;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +16,11 @@ namespace Culina.CookBook.API.Actions
             var response = await mediator.Send(createIngredientCommand!);
             context.Response.StatusCode = StatusCodes.Status201Created;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(response);
+            await context.Response.WriteAsJsonAsync(response, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            });
         };
     }
 }

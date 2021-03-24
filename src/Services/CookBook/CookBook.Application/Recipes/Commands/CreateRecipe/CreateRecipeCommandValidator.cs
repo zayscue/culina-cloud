@@ -34,6 +34,9 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             
             RuleForEach(c => c.Ingredients)
                 .SetValidator(new CreateRecipeCommandRecipeIngredientValidator());
+
+            RuleForEach(c => c.Metadata)
+                .SetValidator(new CreateRecipeCommandRecipeMetadataValidator());
         }
     }
 
@@ -49,6 +52,18 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 .MaximumLength(128);
 
             RuleFor(c => c.Type)
+                .MaximumLength(128);
+        }
+    }
+
+    public class CreateRecipeCommandRecipeMetadataValidator : AbstractValidator<CreateRecipeCommandRecipeMetadata>
+    {
+        public CreateRecipeCommandRecipeMetadataValidator()
+        {
+            RuleFor(c => c.Type)
+                .MaximumLength(64);
+
+            RuleFor(c => c.Value)
                 .MaximumLength(128);
         }
     }

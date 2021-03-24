@@ -15,6 +15,14 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
 
         public IList<string> Steps { get; set; }
         public IList<CreateRecipeCommandRecipeIngredient> Ingredients { get; set; }
+        
+        public IList<CreateRecipeCommandRecipeMetadata> Metadata { get; set; }
+    }
+
+    public class CreateRecipeCommandRecipeMetadata
+    {
+        public string Type { get; set; }
+        public string Value { get; set; }
     }
 
     public class CreateRecipeCommandRecipeIngredient
