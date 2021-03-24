@@ -56,8 +56,10 @@ try
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
-                e.MapPost("/ingredients", PostIngredient.Perform);
+                e.MapPost("/ingredients", PostIngredients.Perform);
                 e.MapGet("/ingredients", GetIngredients.Perform);
+                e.MapPost("/tags", PostTags.Perform);
+                e.MapGet("/tags", GetTags.Perform);
             });
             app.UseSwaggerUI(c =>
             {

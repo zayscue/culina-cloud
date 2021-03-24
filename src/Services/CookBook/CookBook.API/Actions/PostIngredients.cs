@@ -5,7 +5,7 @@ using Culina.CookBook.Application.Ingredients.Commands.CreateIngredient;
 
 namespace Culina.CookBook.API.Actions
 {
-    public static class PostIngredient
+    public static class PostIngredients
     {
         public static readonly RequestDelegate Perform = async context =>
         {
