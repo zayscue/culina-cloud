@@ -34,7 +34,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Description = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Description = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     EstimatedMinutes = table.Column<int>(type: "integer", nullable: false),
                     Serves = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
                     Yield = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
@@ -96,10 +96,11 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 schema: "CookBook",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     RecipeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Ingredient = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
-                    Part = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    IngredientId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Quantity = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    Part = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -107,14 +108,14 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecipeIngredients", x => new { x.RecipeId, x.Ingredient });
+                    table.PrimaryKey("PK_RecipeIngredients", x => new { x.RecipeId, x.Id });
                     table.ForeignKey(
-                        name: "FK_RecipeIngredients_Ingredients_Ingredient",
-                        column: x => x.Ingredient,
+                        name: "FK_RecipeIngredients_Ingredients_IngredientId",
+                        column: x => x.IngredientId,
                         principalSchema: "CookBook",
                         principalTable: "Ingredients",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_RecipeIngredients_Recipes_RecipeId",
                         column: x => x.RecipeId,
@@ -257,10 +258,10 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RecipeIngredients_Ingredient",
+                name: "IX_RecipeIngredients_IngredientId",
                 schema: "CookBook",
                 table: "RecipeIngredients",
-                column: "Ingredient");
+                column: "IngredientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecipeTags_TagId",

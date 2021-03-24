@@ -10,24 +10,26 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("RecipeIngredients");
 
-            builder.HasKey(r => new {r.RecipeId, r.IngredientId});
+            builder.HasKey(r => new {r.RecipeId, r.Id});
 
+            builder.Property(r => r.Id)
+                .HasColumnName("Id")
+                .IsRequired();
+            
             builder.Property(r => r.RecipeId)
                 .HasColumnName("RecipeId")
                 .IsRequired();
 
             builder.Property(r => r.IngredientId)
-                .HasColumnName("Ingredient")
-                .IsRequired();
+                .HasColumnName("IngredientId");
 
             builder.Property(r => r.Quantity)
                 .HasColumnName("Quantity")
-                .HasMaxLength(16)
-                .IsRequired();
+                .HasMaxLength(32);
 
             builder.Property(r => r.Part)
                 .HasColumnName("Part")
-                .HasMaxLength(64)
+                .HasMaxLength(128)
                 .IsRequired();
 
             builder.Property(r => r.Created)

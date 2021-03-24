@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210322010231_InitialCreate")]
+    [Migration("20210324175119_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -19,7 +19,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
             modelBuilder
                 .HasDefaultSchema("CookBook")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("Culina.CookBook.Domain.Entities.Ingredient", b =>
@@ -80,8 +80,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
                         .HasColumnName("Description");
 
                     b.Property<int>("EstimatedMinutes")
@@ -167,9 +167,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("RecipeId");
 
-                    b.Property<Guid>("IngredientId")
+                    b.Property<Guid>("Id")
                         .HasColumnType("uuid")
-                        .HasColumnName("Ingredient");
+                        .HasColumnName("Id");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone")
@@ -180,6 +180,10 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
                         .HasColumnName("CreatedBy");
+
+                    b.Property<Guid?>("IngredientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("IngredientId");
 
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("timestamp without time zone")
@@ -192,17 +196,16 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Part")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("Part");
 
                     b.Property<string>("Quantity")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("Quantity");
 
-                    b.HasKey("RecipeId", "IngredientId");
+                    b.HasKey("RecipeId", "Id");
 
                     b.HasIndex("IngredientId");
 
@@ -497,9 +500,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("Culina.CookBook.Domain.Entities.Ingredient", "Ingredient")
                         .WithMany("RecipeIngredients")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IngredientId");
 
                     b.HasOne("Culina.CookBook.Domain.Entities.Recipe", "Recipe")
                         .WithMany("Ingredients")
