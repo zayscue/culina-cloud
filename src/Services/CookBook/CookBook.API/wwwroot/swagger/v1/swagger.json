@@ -16,6 +16,9 @@
   "paths": {
     "/ingredients": {
       "post": {
+        "tags": [
+          "ingredients"
+        ],
         "summary": "Create new ingredient",
         "requestBody": {
           "content": {
@@ -70,6 +73,9 @@
         }
       },
       "get": {
+        "tags": [
+          "ingredients"
+        ],
         "summary": "Query the ingredients",
         "parameters": [
           {
@@ -123,6 +129,9 @@
     },
     "/tags": {
       "post": {
+        "tags": [
+          "tags"
+        ],
         "summary": "Create new tag",
         "requestBody": {
           "content": {
@@ -177,6 +186,9 @@
         }
       },
       "get": {
+        "tags": [
+          "tags"
+        ],
         "summary": "Query the tags",
         "parameters": [
           {
@@ -230,6 +242,9 @@
     },
     "/recipes": {
       "post": {
+        "tags": [
+          "recipes"
+        ],
         "summary": "Create new recipe",
         "requestBody": {
           "content": {
@@ -257,6 +272,58 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recipes/{recipeId}": {
+      "get": {
+        "tags": [
+          "recipes"
+        ],
+        "summary": "Get a recipe",
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "description": "Recipe ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a recipe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRecipeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorResponse"
                 }
               }
             }
@@ -447,6 +514,109 @@
         }
       },
       "CreateRecipeResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "estimatedMinutes",
+          "steps",
+          "ingredients",
+          "numberOfSteps",
+          "numberOfIngredients"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "estimatedMinutes": {
+            "type": "integer"
+          },
+          "serves": {
+            "type": "string"
+          },
+          "yield": {
+            "type": "string"
+          },
+          "numberOfSteps": {
+            "type": "integer"
+          },
+          "numberOfIngredients": {
+            "type": "integer"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recipeId",
+                "order",
+                "instruction"
+              ],
+              "properties": {
+                "recipeId": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "integer"
+                },
+                "instruction": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "recipeId",
+                "part"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "recipeId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "string"
+                },
+                "part": {
+                  "type": "string"
+                },
+                "ingredientId": {
+                  "type": "string"
+                },
+                "ingredient": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "ingredientName"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "ingredientName": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "GetRecipeResponse": {
         "type": "object",
         "required": [
           "id",

@@ -12,6 +12,6 @@ namespace Culina.CookBook.Domain.Entities
         public string Part { get; set; }
 
         public Recipe Recipe { get; set; }
-        public Ingredient? Ingredient { get; set; }
+        public Ingredient Ingredient { get; set; }
     }
 }

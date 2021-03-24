@@ -61,6 +61,7 @@ try
                 e.MapPost("/tags", PostTags.Perform);
                 e.MapGet("/tags", GetTags.Perform);
                 e.MapPost("/recipes", PostRecipes.Perform);
+                e.MapGet("/recipes/{recipeId:guid}", GetRecipe.Perform);
             });
             app.UseSwaggerUI(c =>
             {
