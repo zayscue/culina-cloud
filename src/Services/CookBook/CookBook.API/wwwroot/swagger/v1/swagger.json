@@ -528,6 +528,12 @@
                 }
               }
             }
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -614,20 +620,8 @@
                 "ingredientId": {
                   "type": "string"
                 },
-                "ingredient": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "ingredientName"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "ingredientName": {
-                      "type": "string"
-                    }
-                  }
+                "ingredientName": {
+                  "type": "string"
                 }
               }
             }
@@ -649,6 +643,28 @@
                   "type": "string"
                 },
                 "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recipeId",
+                "imageId",
+                "url"
+              ],
+              "properties": {
+                "recipeId": {
+                  "type": "string"
+                },
+                "imageId": {
+                  "type": "string"
+                },
+                "url": {
                   "type": "string"
                 }
               }
@@ -739,20 +755,8 @@
                 "ingredientId": {
                   "type": "string"
                 },
-                "ingredient": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "ingredientName"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "ingredientName": {
-                      "type": "string"
-                    }
-                  }
+                "ingredientName": {
+                  "type": "string"
                 }
               }
             }
@@ -774,6 +778,28 @@
                   "type": "string"
                 },
                 "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recipeId",
+                "imageId",
+                "url"
+              ],
+              "properties": {
+                "recipeId": {
+                  "type": "string"
+                },
+                "imageId": {
+                  "type": "string"
+                },
+                "url": {
                   "type": "string"
                 }
               }

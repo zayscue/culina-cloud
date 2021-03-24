@@ -10,15 +10,14 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("RecipeImages");
 
-            builder.HasKey(r => new { r.RecipeId, r.Url });
+            builder.HasKey(r => new { r.RecipeId, r.ImageId });
 
             builder.Property(r => r.RecipeId)
                 .HasColumnName("RecipeId")
                 .IsRequired();
 
-            builder.Property(r => r.Url)
-                .HasColumnName("Url")
-                .HasMaxLength(128)
+            builder.Property(r => r.ImageId)
+                .HasColumnName("ImageId")
                 .IsRequired();
 
             builder.Property(r => r.Created)
@@ -36,6 +35,10 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
             builder.Property(r => r.LastModifiedBy)
                 .HasColumnName("LastModifiedBy")
                 .HasMaxLength(128);
+            
+            builder.HasOne(r => r.Image)
+                .WithMany(i => i.RecipeImages)
+                .HasForeignKey(r => r.ImageId);
         }
     }
 }

@@ -109,6 +109,38 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 }
             }
 
+            if (request.ImageUrls != null)
+            {
+                foreach (var imageUrl in request.ImageUrls)
+                {
+                    var image = await _context.Images.FirstOrDefaultAsync(x =>
+                            x.Url.Equals(imageUrl),
+                        cancellationToken);
+                    if (image == null)
+                    {
+                        var imageId = Guid.NewGuid();
+                        entity.Images.Add(new RecipeImage()
+                        {
+                            RecipeId = recipeId,
+                            ImageId = imageId,
+                            Image = new Image()
+                            {
+                                Id = imageId,
+                                Url = imageUrl
+                            }
+                        });
+                    }
+                    else
+                    {
+                        entity.Images.Add(new RecipeImage()
+                        {
+                            RecipeId = recipeId,
+                            ImageId = image.Id
+                        });
+                    }
+                }
+            }
+
             await _context.Recipes.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 

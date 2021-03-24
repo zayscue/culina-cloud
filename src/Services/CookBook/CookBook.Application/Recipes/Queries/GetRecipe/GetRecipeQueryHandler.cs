@@ -27,6 +27,8 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
                 .Include(x => x.Ingredients)
                     .ThenInclude(x => x.Ingredient)
                 .Include(x => x.Metadata)
+                .Include(x => x.Images)
+                    .ThenInclude(x => x.Image)
                 .Where(r => r.Id == request.Id)
                 .SingleOrDefaultAsync(cancellationToken);
 

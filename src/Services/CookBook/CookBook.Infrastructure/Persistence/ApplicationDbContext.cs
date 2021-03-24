@@ -32,6 +32,7 @@ namespace Culina.CookBook.Infrastructure.Persistence
         public DbSet<RecipeStep> RecipeSteps { get; set; }
         public DbSet<RecipeTag> RecipeTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<Image> Images { get; set; } 
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {

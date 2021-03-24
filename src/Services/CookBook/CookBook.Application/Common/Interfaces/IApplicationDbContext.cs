@@ -16,6 +16,7 @@ namespace Culina.CookBook.Application.Common.Interfaces
         DbSet<RecipeStep> RecipeSteps { get; set; }
         DbSet<RecipeTag> RecipeTags { get; set; }
         DbSet<Tag> Tags { get; set; }
+        DbSet<Image> Images { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
