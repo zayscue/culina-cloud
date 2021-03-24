@@ -11,6 +11,23 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 name: "CookBook");
 
             migrationBuilder.CreateTable(
+                name: "Images",
+                schema: "CookBook",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Url = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ingredients",
                 schema: "CookBook",
                 columns: table => new
@@ -73,7 +90,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     RecipeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Url = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ImageId = table.Column<Guid>(type: "uuid", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -81,7 +98,14 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecipeImages", x => new { x.RecipeId, x.Url });
+                    table.PrimaryKey("PK_RecipeImages", x => new { x.RecipeId, x.ImageId });
+                    table.ForeignKey(
+                        name: "FK_RecipeImages_Images_ImageId",
+                        column: x => x.ImageId,
+                        principalSchema: "CookBook",
+                        principalTable: "Images",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RecipeImages_Recipes_RecipeId",
                         column: x => x.RecipeId,
@@ -251,11 +275,24 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Images_Url",
+                schema: "CookBook",
+                table: "Images",
+                column: "Url",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ingredients_IngredientName",
                 schema: "CookBook",
                 table: "Ingredients",
                 column: "IngredientName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecipeImages_ImageId",
+                schema: "CookBook",
+                table: "RecipeImages",
+                column: "ImageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecipeIngredients_IngredientId",
@@ -301,6 +338,10 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "RecipeTags",
+                schema: "CookBook");
+
+            migrationBuilder.DropTable(
+                name: "Images",
                 schema: "CookBook");
 
             migrationBuilder.DropTable(

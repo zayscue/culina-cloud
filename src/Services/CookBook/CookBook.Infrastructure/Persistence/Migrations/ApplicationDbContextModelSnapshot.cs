@@ -20,6 +20,46 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+            modelBuilder.Entity("Culina.CookBook.Domain.Entities.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("Created");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("Url");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Url")
+                        .IsUnique();
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("Culina.CookBook.Domain.Entities.Ingredient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -130,10 +170,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("RecipeId");
 
-                    b.Property<string>("Url")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("Url");
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ImageId");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone")
@@ -154,7 +193,9 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(128)")
                         .HasColumnName("LastModifiedBy");
 
-                    b.HasKey("RecipeId", "Url");
+                    b.HasKey("RecipeId", "ImageId");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("RecipeImages");
                 });
@@ -485,11 +526,19 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Culina.CookBook.Domain.Entities.RecipeImage", b =>
                 {
+                    b.HasOne("Culina.CookBook.Domain.Entities.Image", "Image")
+                        .WithMany("RecipeImages")
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Culina.CookBook.Domain.Entities.Recipe", "Recipe")
                         .WithMany("Images")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Image");
 
                     b.Navigation("Recipe");
                 });
@@ -561,6 +610,11 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                     b.Navigation("Recipe");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("Culina.CookBook.Domain.Entities.Image", b =>
+                {
+                    b.Navigation("RecipeImages");
                 });
 
             modelBuilder.Entity("Culina.CookBook.Domain.Entities.Ingredient", b =>
