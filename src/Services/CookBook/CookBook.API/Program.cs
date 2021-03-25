@@ -35,6 +35,14 @@ try
 {
     Log.Information("Starting web host");
     WebHost.CreateDefaultBuilder()
+        .ConfigureAppConfiguration((WebHostBuilderContext webHostBuilderContext, IConfigurationBuilder configuration) =>
+        {
+            var env = webHostBuilderContext.HostingEnvironment.EnvironmentName;
+            configuration.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
+        })
         .UseSerilog()
         .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
         {
