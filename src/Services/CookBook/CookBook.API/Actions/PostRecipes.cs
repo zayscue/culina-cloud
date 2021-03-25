@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using Culina.CookBook.Application.Recipes.Commands.CreateRecipe;
 using MediatR;
 using Microsoft.AspNetCore.Http;
