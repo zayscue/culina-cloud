@@ -22,6 +22,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
         
         public IList<CreateRecipeResponseRecipeImage> Images { get; set; }
         public IList<CreateRecipeResponseRecipeMetadata> Metadata { get; set; }
+        public IList<CreateRecipeResponseRecipeTag> Tags { get; set; }
         
         public void Mapping(Profile profile)
         {
@@ -31,6 +32,10 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                         opt.Condition(((src, dest,
                             srcMember) => srcMember != null && srcMember.Count > 0)))
                 .ForMember(d => d.Images,
+                    opt =>
+                        opt.Condition(((src, dest,
+                            srcMember) => srcMember != null && srcMember.Count > 0)))
+                .ForMember(d => d.Tags,
                     opt =>
                         opt.Condition(((src, dest,
                             srcMember) => srcMember != null && srcMember.Count > 0)));
@@ -81,6 +86,21 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 .ForMember(d => d.Url,
                     opt =>
                         opt.MapFrom(src => src.Image.Url));
+        }
+    }
+
+    public class CreateRecipeResponseRecipeTag : IMapFrom<RecipeTag>
+    {
+        public Guid RecipeId { get; set; }
+        public Guid TagId { get; set; }
+        public string TagName { get; set; }
+        
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<RecipeTag, CreateRecipeResponseRecipeTag>()
+                .ForMember(d => d.TagName,
+                    opt =>
+                        opt.MapFrom(src => src.Tag.TagName));
         }
     }
 }

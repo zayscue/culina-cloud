@@ -18,6 +18,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
         
         public IList<string> ImageUrls { get; set; }
         public IList<CreateRecipeCommandRecipeMetadata> Metadata { get; set; }
+        public IList<string> Tags { get; set; }
     }
 
     public class CreateRecipeCommandRecipeMetadata

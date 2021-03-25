@@ -534,6 +534,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -669,6 +675,28 @@
                 }
               }
             }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recipeId",
+                "tagId",
+                "tagName"
+              ],
+              "properties": {
+                "recipeId": {
+                  "type": "string"
+                },
+                "tagId": {
+                  "type": "string"
+                },
+                "tagName": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -800,6 +828,28 @@
                   "type": "string"
                 },
                 "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recipeId",
+                "tagId",
+                "tagName"
+              ],
+              "properties": {
+                "recipeId": {
+                  "type": "string"
+                },
+                "tagId": {
+                  "type": "string"
+                },
+                "tagName": {
                   "type": "string"
                 }
               }

@@ -56,6 +56,14 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             
             RuleForEach(c => c.ImageUrls)
                 .SetValidator(new CreateRecipeCommandRecipeImageUrlValidator());
+            
+            RuleFor(c => c.Tags)
+                .Must(c =>
+                    c == null || c.Distinct().Count() == c.Count)
+                .WithMessage("The image urls are not unique.");
+            
+            RuleForEach(c => c.Tags)
+                .SetValidator(new CreateRecipeCommandRecipeTagValidator());
         }
         
         private class CreateRecipeCommandRecipeIngredientValidator : AbstractValidator<CreateRecipeCommandRecipeIngredient>
@@ -118,6 +126,15 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             {
                 RuleFor(c => c)
                     .MaximumLength(1024);
+            }
+        }
+        
+        private class CreateRecipeCommandRecipeTagValidator : AbstractValidator<string>
+        {
+            public CreateRecipeCommandRecipeTagValidator()
+            {
+                RuleFor(c => c)
+                    .MaximumLength(64);
             }
         }
     }
