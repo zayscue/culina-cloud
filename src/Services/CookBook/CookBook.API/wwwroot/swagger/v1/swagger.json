@@ -967,28 +967,6 @@
               }
             }
           },
-          "metadata": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "recipeId",
-                "type",
-                "value"
-              ],
-              "properties": {
-                "recipeId": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "images": {
             "type": "array",
             "items": {

@@ -23,16 +23,11 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
 
         public IList<GetRecipeResponseRecipeImage> Images { get; set; }
         public GetRecipeResponseRecipeNutrition Nutrition { get; set; }
-        public IList<GetRecipeResponseRecipeMetadata> Metadata { get; set; }
         public IList<GetRecipeResponseRecipeTag> Tags { get; set; }
         
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Recipe, GetRecipeResponse>()
-                .ForMember(d => d.Metadata, 
-                    opt =>
-                        opt.Condition(((src, dest, srcMember) => 
-                            srcMember != null && srcMember.Count > 0)))
                 .ForMember(d => d.Images,
                     opt =>
                         opt.Condition(((src, dest,
@@ -69,13 +64,6 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
         }
     }
 
-    public class GetRecipeResponseRecipeMetadata : IMapFrom<RecipeMetadata>
-    {
-        public Guid RecipeId { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
-    
     public class GetRecipeResponseRecipeImage : IMapFrom<RecipeImage>
     {
         public Guid RecipeId { get; set; }

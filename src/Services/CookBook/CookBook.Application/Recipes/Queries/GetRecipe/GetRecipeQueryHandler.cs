@@ -26,7 +26,6 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
                     .ThenInclude(x => x.Ingredient)
-                .Include(x => x.Metadata)
                 .Include(x => x.Images)
                     .ThenInclude(x => x.Image)
                 .Include(x => x.Tags)
