@@ -19,7 +19,7 @@ namespace Culina.CookBook.API.Actions
             await context.Response.WriteAsJsonAsync(response, new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+                IgnoreNullValues = true
             });
         };
     }
