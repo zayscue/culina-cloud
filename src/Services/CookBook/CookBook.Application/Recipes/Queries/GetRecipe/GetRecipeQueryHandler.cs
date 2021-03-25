@@ -23,6 +23,7 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
         public async Task<GetRecipeResponse> Handle(GetRecipeQuery request, CancellationToken cancellationToken)
         {
             var entity = await _context.Recipes
+                .AsNoTracking()
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
                     .ThenInclude(x => x.Ingredient)

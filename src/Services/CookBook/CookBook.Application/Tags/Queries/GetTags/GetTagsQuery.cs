@@ -6,7 +6,6 @@ using AutoMapper.QueryableExtensions;
 using Culina.CookBook.Application.Common.Interfaces;
 using Culina.CookBook.Application.Common.Mapping;
 using Culina.CookBook.Application.Common.Models;
-using Culina.CookBook.Application.Ingredients.Queries.GetIngredients;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +32,7 @@ namespace Culina.CookBook.Application.Tags.Queries.GetTags
         public async Task<PaginatedList<GetTagsResponse>> Handle(GetTagsQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Tags
+                .AsNoTracking()
                 .OrderBy(x => x.TagName)
                 .AsQueryable();
 

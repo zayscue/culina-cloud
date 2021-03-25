@@ -34,6 +34,7 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
             CancellationToken cancellationToken)
         {
             var query = _context.Ingredients
+                .AsNoTracking()
                 .OrderBy(x => x.IngredientName)
                 .AsQueryable();
 
