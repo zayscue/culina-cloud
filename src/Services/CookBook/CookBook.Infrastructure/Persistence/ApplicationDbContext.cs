@@ -6,22 +6,33 @@ using Microsoft.EntityFrameworkCore;
 using Culina.CookBook.Application.Common.Interfaces;
 using Culina.CookBook.Domain.Entities;
 using CulinaCloud.BuildingBlocks.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Culina.CookBook.Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
 
         public ApplicationDbContext(
             DbContextOptions options,
+            ILoggerFactory loggerFactory,
             ICurrentUserService currentUserService,
             IDateTime dateTime) : base(options)
         {
+            _loggerFactory = loggerFactory;
             _currentUserService = currentUserService;
             _dateTime = dateTime;
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseLoggerFactory(_loggerFactory);
+        }
+
 
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Recipe> Recipes { get; set; }

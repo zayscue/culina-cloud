@@ -36,10 +36,10 @@ try
     Log.Information("Starting web host");
     WebHost.CreateDefaultBuilder()
         .UseSerilog()
-        .ConfigureServices(services =>
+        .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
         {
             services.AddApplication();
-            services.AddInfrastructure(configuration);
+            services.AddInfrastructure(webHostBuilderContext.Configuration);
             services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
