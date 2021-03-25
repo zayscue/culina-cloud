@@ -52,10 +52,12 @@ try
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddResponseCompression();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
             var env = webHostBuilderContext.HostingEnvironment;
+            app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
 
             app.UseStaticFiles();
