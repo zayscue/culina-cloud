@@ -21,6 +21,7 @@ namespace CulinaCloud.EventStore.Infrastructure.Services
         public async Task<IEnumerable<Event>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             var events = await _context.Events
+                .AsNoTracking()
                 .Include(x => x.Aggregate)
                 .Where(x => x.AggregateId == aggregateId)
                 .ToListAsync(cancellationToken);
