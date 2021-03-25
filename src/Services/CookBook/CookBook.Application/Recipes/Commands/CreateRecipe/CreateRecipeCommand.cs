@@ -17,6 +17,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
         public IList<CreateRecipeCommandRecipeIngredient> Ingredients { get; set; }
         
         public IList<string> ImageUrls { get; set; }
+        public CreateRecipeCommandRecipeNutrition Nutrition { get; set; }
         public IList<CreateRecipeCommandRecipeMetadata> Metadata { get; set; }
         public IList<string> Tags { get; set; }
     }
@@ -32,5 +33,30 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
         public string Quantity { get; set; }
         public string Part { get; set; }
         public string Type { get; set; }
+    }
+
+    public class CreateRecipeCommandRecipeNutrition
+    {
+        public string ServingSize { get; set; }
+        public int ServingsPerRecipe { get; set; }
+        public decimal Calories { get; set; }
+        public decimal CaloriesFromFat { get; set; }
+        public decimal CaloriesFromFatPdv { get; set; }
+        public decimal TotalFat { get; set; }
+        public decimal TotalFatPdv { get; set; }
+        public decimal SaturatedFat { get; set; }
+        public decimal SaturatedFatPdv { get; set; }
+        public decimal Cholesterol { get; set; }
+        public decimal CholesterolPdv { get; set; }
+        public decimal DietaryFiber { get; set; }
+        public decimal DietaryFiberPdv { get; set; }
+        public decimal Sugar { get; set; }
+        public decimal SugarPdv { get; set; }
+        public decimal Sodium { get; set; }
+        public decimal SodiumPdv { get; set; }
+        public decimal Protein { get; set; }
+        public decimal ProteinPdv { get; set; }
+        public decimal TotalCarbohydrates { get; set; }
+        public decimal TotalCarbohydratesPdv { get; set; }
     }
 }

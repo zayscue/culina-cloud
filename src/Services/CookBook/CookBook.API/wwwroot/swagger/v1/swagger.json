@@ -540,6 +540,93 @@
             "items": {
               "type": "string"
             }
+          },
+          "nutrition": {
+            "type": "object",
+            "required": [
+              "servingSize",
+              "servingsPerRecipe",
+              "calories",
+              "caloriesFromFat",
+              "totalFat",
+              "totalFatPdv",
+              "saturatedFat",
+              "saturatedFatPdv",
+              "cholesterol",
+              "cholesterolPdv",
+              "sodium",
+              "sodiumPdv",
+              "totalCarbohydrates",
+              "totalCarbohydratesPdv",
+              "dietaryFiber",
+              "dietaryFiberPdv",
+              "sugar",
+              "sugarPdv",
+              "protein",
+              "proteinPdv"
+            ],
+            "properties": {
+              "servingSize": {
+                "type": "string"
+              },
+              "servingsPerRecipe": {
+                "type": "integer"
+              },
+              "calories": {
+                "type": "number"
+              },
+              "caloriesFromFat": {
+                "type": "number"
+              },
+              "totalFat": {
+                "type": "number"
+              },
+              "totalFatPdv": {
+                "type": "number"
+              },
+              "saturatedFat": {
+                "type": "number"
+              },
+              "saturatedFatPdv": {
+                "type": "number"
+              },
+              "cholesterol": {
+                "type": "number"
+              },
+              "cholesterolPdv": {
+                "type": "number"
+              },
+              "sodium": {
+                "type": "number"
+              },
+              "sodiumPdv": {
+                "type": "number"
+              },
+              "totalCarbohydrates": {
+                "type": "number"
+              },
+              "totalCarbohydratesPdv": {
+                "type": "number"
+              },
+              "dietaryFiber": {
+                "type": "number"
+              },
+              "dietaryFiberPdv": {
+                "type": "number"
+              },
+              "sugar": {
+                "type": "number"
+              },
+              "sugarPdv": {
+                "type": "number"
+              },
+              "protein": {
+                "type": "number"
+              },
+              "proteinPdv": {
+                "type": "number"
+              }
+            }
           }
         }
       },
@@ -697,6 +784,97 @@
                 }
               }
             }
+          },
+          "nutrition": {
+            "type": "object",
+            "required": [
+              "recipeId",
+              "servingSize",
+              "servingsPerRecipe",
+              "calories",
+              "caloriesFromFat",
+              "totalFat",
+              "totalFatPdv",
+              "saturatedFat",
+              "saturatedFatPdv",
+              "cholesterol",
+              "cholesterolPdv",
+              "sodium",
+              "sodiumPdv",
+              "totalCarbohydrates",
+              "totalCarbohydratesPdv",
+              "dietaryFiber",
+              "dietaryFiberPdv",
+              "sugar",
+              "sugarPdv",
+              "protein",
+              "proteinPdv"
+            ],
+            "properties": {
+              "recipeId": {
+                "type": "string"
+              },
+              "servingSize": {
+                "type": "string"
+              },
+              "servingsPerRecipe": {
+                "type": "integer"
+              },
+              "calories": {
+                "type": "number"
+              },
+              "caloriesFromFat": {
+                "type": "number"
+              },
+              "totalFat": {
+                "type": "number"
+              },
+              "totalFatPdv": {
+                "type": "number"
+              },
+              "saturatedFat": {
+                "type": "number"
+              },
+              "saturatedFatPdv": {
+                "type": "number"
+              },
+              "cholesterol": {
+                "type": "number"
+              },
+              "cholesterolPdv": {
+                "type": "number"
+              },
+              "sodium": {
+                "type": "number"
+              },
+              "sodiumPdv": {
+                "type": "number"
+              },
+              "totalCarbohydrates": {
+                "type": "number"
+              },
+              "totalCarbohydratesPdv": {
+                "type": "number"
+              },
+              "dietaryFiber": {
+                "type": "number"
+              },
+              "dietaryFiberPdv": {
+                "type": "number"
+              },
+              "sugar": {
+                "type": "number"
+              },
+              "sugarPdv": {
+                "type": "number"
+              },
+              "protein": {
+                "type": "number"
+              },
+              "proteinPdv": {
+                "type": "number"
+              }
+            }
           }
         }
       },
@@ -852,6 +1030,97 @@
                 "tagName": {
                   "type": "string"
                 }
+              }
+            }
+          },
+          "nutrition": {
+            "type": "object",
+            "required": [
+              "recipeId",
+              "servingSize",
+              "servingsPerRecipe",
+              "calories",
+              "caloriesFromFat",
+              "totalFat",
+              "totalFatPdv",
+              "saturatedFat",
+              "saturatedFatPdv",
+              "cholesterol",
+              "cholesterolPdv",
+              "sodium",
+              "sodiumPdv",
+              "totalCarbohydrates",
+              "totalCarbohydratesPdv",
+              "dietaryFiber",
+              "dietaryFiberPdv",
+              "sugar",
+              "sugarPdv",
+              "protein",
+              "proteinPdv"
+            ],
+            "properties": {
+              "recipeId": {
+                "type": "string"
+              },
+              "servingSize": {
+                "type": "string"
+              },
+              "servingsPerRecipe": {
+                "type": "integer"
+              },
+              "calories": {
+                "type": "number"
+              },
+              "caloriesFromFat": {
+                "type": "number"
+              },
+              "totalFat": {
+                "type": "number"
+              },
+              "totalFatPdv": {
+                "type": "number"
+              },
+              "saturatedFat": {
+                "type": "number"
+              },
+              "saturatedFatPdv": {
+                "type": "number"
+              },
+              "cholesterol": {
+                "type": "number"
+              },
+              "cholesterolPdv": {
+                "type": "number"
+              },
+              "sodium": {
+                "type": "number"
+              },
+              "sodiumPdv": {
+                "type": "number"
+              },
+              "totalCarbohydrates": {
+                "type": "number"
+              },
+              "totalCarbohydratesPdv": {
+                "type": "number"
+              },
+              "dietaryFiber": {
+                "type": "number"
+              },
+              "dietaryFiberPdv": {
+                "type": "number"
+              },
+              "sugar": {
+                "type": "number"
+              },
+              "sugarPdv": {
+                "type": "number"
+              },
+              "protein": {
+                "type": "number"
+              },
+              "proteinPdv": {
+                "type": "number"
               }
             }
           }

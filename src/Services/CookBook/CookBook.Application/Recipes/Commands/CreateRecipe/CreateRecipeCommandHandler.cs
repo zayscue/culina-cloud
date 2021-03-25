@@ -173,6 +173,35 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 }
             }
 
+            if (request.Nutrition != null)
+            {
+                entity.Nutrition = new RecipeNutrition()
+                {
+                    RecipeId = recipeId,
+                    ServingSize = request.Nutrition.ServingSize,
+                    ServingsPerRecipe = request.Nutrition.ServingsPerRecipe,
+                    Calories = request.Nutrition.Calories,
+                    CaloriesFromFat = request.Nutrition.CaloriesFromFat,
+                    CaloriesFromFatPdv = request.Nutrition.CaloriesFromFatPdv,
+                    TotalFat = request.Nutrition.TotalFat,
+                    TotalFatPdv = request.Nutrition.TotalFatPdv,
+                    SaturatedFat = request.Nutrition.SaturatedFat,
+                    SaturatedFatPdv = request.Nutrition.SaturatedFatPdv,
+                    Cholesterol = request.Nutrition.Cholesterol,
+                    CholesterolPdv = request.Nutrition.CholesterolPdv,
+                    DietaryFiber = request.Nutrition.DietaryFiber,
+                    DietaryFiberPdv = request.Nutrition.DietaryFiberPdv,
+                    Sugar = request.Nutrition.Sugar,
+                    SugarPdv = request.Nutrition.SugarPdv,
+                    Sodium = request.Nutrition.Sodium,
+                    SodiumPdv = request.Nutrition.SodiumPdv,
+                    Protein = request.Nutrition.Protein,
+                    ProteinPdv = request.Nutrition.ProteinPdv,
+                    TotalCarbohydrates = request.Nutrition.TotalCarbohydrates,
+                    TotalCarbohydratesPdv = request.Nutrition.TotalCarbohydratesPdv
+                };
+            }
+
             await _context.Recipes.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 

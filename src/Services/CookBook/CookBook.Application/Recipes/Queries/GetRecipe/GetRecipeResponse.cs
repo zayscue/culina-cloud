@@ -20,8 +20,10 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
         public IList<GetRecipeResponseRecipeStep> Steps { get; set; }
         public IList<GetRecipeResponseRecipeIngredient> Ingredients { get; set; }
         
-        public IList<GetRecipeResponseRecipeMetadata> Metadata { get; set; }
+
         public IList<GetRecipeResponseRecipeImage> Images { get; set; }
+        public GetRecipeResponseRecipeNutrition Nutrition { get; set; }
+        public IList<GetRecipeResponseRecipeMetadata> Metadata { get; set; }
         public IList<GetRecipeResponseRecipeTag> Tags { get; set; }
         
         public void Mapping(Profile profile)
@@ -102,5 +104,31 @@ namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
                     opt =>
                         opt.MapFrom(src => src.Tag.TagName));
         }
+    }
+    
+    public class GetRecipeResponseRecipeNutrition : IMapFrom<RecipeNutrition>
+    {
+        public Guid RecipeId { get; set; }
+        public string ServingSize { get; set; }
+        public int ServingsPerRecipe { get; set; }
+        public decimal Calories { get; set; }
+        public decimal CaloriesFromFat { get; set; }
+        public decimal CaloriesFromFatPdv { get; set; }
+        public decimal TotalFat { get; set; }
+        public decimal TotalFatPdv { get; set; }
+        public decimal SaturatedFat { get; set; }
+        public decimal SaturatedFatPdv { get; set; }
+        public decimal Cholesterol { get; set; }
+        public decimal CholesterolPdv { get; set; }
+        public decimal DietaryFiber { get; set; }
+        public decimal DietaryFiberPdv { get; set; }
+        public decimal Sugar { get; set; }
+        public decimal SugarPdv { get; set; }
+        public decimal Sodium { get; set; }
+        public decimal SodiumPdv { get; set; }
+        public decimal Protein { get; set; }
+        public decimal ProteinPdv { get; set; }
+        public decimal TotalCarbohydrates { get; set; }
+        public decimal TotalCarbohydratesPdv { get; set; }
     }
 }

@@ -64,6 +64,9 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             
             RuleForEach(c => c.Tags)
                 .SetValidator(new CreateRecipeCommandRecipeTagValidator());
+
+            RuleFor(c => c.Nutrition)
+                .SetValidator(new CreateRecipeCommandRecipeNutritionValidator());
         }
         
         private class CreateRecipeCommandRecipeIngredientValidator : AbstractValidator<CreateRecipeCommandRecipeIngredient>
@@ -135,6 +138,19 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             {
                 RuleFor(c => c)
                     .MaximumLength(64);
+            }
+        }
+        
+        private class CreateRecipeCommandRecipeNutritionValidator : AbstractValidator<CreateRecipeCommandRecipeNutrition>
+        {
+            public CreateRecipeCommandRecipeNutritionValidator()
+            {
+                RuleFor(c => c.ServingSize)
+                    .MaximumLength(32)
+                    .NotEmpty();
+
+                RuleFor(c => c.ServingsPerRecipe)
+                    .NotEmpty();
             }
         }
     }
