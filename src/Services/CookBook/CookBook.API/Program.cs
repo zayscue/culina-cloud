@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json;
 using Serilog;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -12,7 +13,10 @@ using Culina.CookBook.Infrastructure;
 using Culina.CookBook.API.Services;
 using Culina.CookBook.API.Actions;
 using Culina.CookBook.API.Extensions;
+using Culina.CookBook.Application.Recipes.Queries.GetRecipe;
 using Culina.CookBook.Infrastructure.Persistence;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 
 static IConfiguration GetConfiguration()
 {
@@ -52,6 +56,7 @@ try
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddControllers();
             services.AddResponseCompression();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
@@ -66,12 +71,28 @@ try
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
+                e.MapControllers();
                 e.MapPost("/ingredients", PostIngredients.Perform);
                 e.MapGet("/ingredients", GetIngredients.Perform);
                 e.MapPost("/tags", PostTags.Perform);
                 e.MapGet("/tags", GetTags.Perform);
                 e.MapPost("/recipes", PostRecipes.Perform);
-                e.MapGet("/recipes/{recipeId:guid}", GetRecipe.Perform);
+                e.MapGet("/recipes/{recipeId:guid}", async context =>
+                {
+                    var mediator = context.RequestServices.GetRequiredService<ISender>();
+                    var recipeId = new Guid(context.Request.RouteValues["recipeId"]?.ToString() ?? string.Empty);
+                    var query = new GetRecipeQuery()
+                    {
+                        Id = recipeId
+                    };
+                    var response = await mediator.Send(query);
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    await context.Response.WriteAsJsonAsync(response, new JsonSerializerOptions()
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        IgnoreNullValues = true
+                    });
+                });
             });
             app.UseSwaggerUI(c =>
             {

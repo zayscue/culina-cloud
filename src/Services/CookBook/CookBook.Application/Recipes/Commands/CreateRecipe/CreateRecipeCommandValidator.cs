@@ -46,7 +46,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
 
             RuleFor(c => c.Metadata)
                 .Must(c =>
-                    c.Distinct(new CreateRecipeCommandRecipeMetadataComparer()).Count() == c.Count)
+                    c == null || c.Distinct(new CreateRecipeCommandRecipeMetadataComparer()).Count() == c.Count)
                 .WithMessage("The metadata elements are not unique.");
 
             RuleFor(c => c.ImageUrls)

@@ -24,6 +24,7 @@ namespace Culina.CookBook.API.Actions
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 IgnoreNullValues = true
             });
+
         };
     }
 }
