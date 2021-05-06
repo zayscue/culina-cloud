@@ -7,6 +7,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+ARG dll_version=0.1.0.0
 WORKDIR /src
 COPY ["src/Services/EventStore/EventStore.API/EventStore.API.csproj", "src/Services/EventStore/EventStore.API/"]
 RUN dotnet restore "src/Services/EventStore/EventStore.API/EventStore.API.csproj"
