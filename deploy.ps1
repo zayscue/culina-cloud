@@ -88,7 +88,7 @@ foreach ($Service in $Services) {
   $RepositoryInfo = Get-ECR-Repo -RepositoryName $Service.RepositoryName
 
   Write-Output "Packaging the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe build --build-arg $Service.Tag  -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
+  docker.exe build --build-arg dll_version=$Service.Tag  -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
   docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):$($Service.Tag)"
   docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):latest"
   Write-Output "`n"

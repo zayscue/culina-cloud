@@ -12,10 +12,10 @@ COPY ["src/Services/CookBook/CookBook.API/CookBook.API.csproj", "src/Services/Co
 RUN dotnet restore "src/Services/CookBook/CookBook.API/CookBook.API.csproj"
 COPY . .
 WORKDIR "/src/src/Services/CookBook/CookBook.API"
-RUN dotnet build "CookBook.API.csproj" -c Release -o /app/build -p:Version=dll_version
+RUN dotnet build "CookBook.API.csproj" -c Release -o /app/build -p:Version=${dll_version}
 
 FROM build AS publish
-RUN dotnet publish "CookBook.API.csproj" -c Release -o /app/publish -p:Version=dll_version
+RUN dotnet publish "CookBook.API.csproj" -c Release -o /app/publish -p:Version=${dll_version}
 
 FROM base AS final
 WORKDIR /app
