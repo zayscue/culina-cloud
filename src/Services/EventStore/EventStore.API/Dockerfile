@@ -1,5 +1,4 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-ARG dll_version=0.1.0.0
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
@@ -13,10 +12,10 @@ COPY ["src/Services/EventStore/EventStore.API/EventStore.API.csproj", "src/Servi
 RUN dotnet restore "src/Services/EventStore/EventStore.API/EventStore.API.csproj"
 COPY . .
 WORKDIR "/src/src/Services/EventStore/EventStore.API"
-RUN dotnet build "EventStore.API.csproj" -c Release -o /app/build -p:Version=${dll_version}
+RUN dotnet build "EventStore.API.csproj" -c Release -o /app/build -p:Version=$dll_version
 
 FROM build AS publish
-RUN dotnet publish "EventStore.API.csproj" -c Release -o /app/publish -p:Version=${dll_version}
+RUN dotnet publish "EventStore.API.csproj" -c Release -o /app/publish -p:Version=$dll_version
 
 FROM base AS final
 WORKDIR /app
