@@ -15,6 +15,9 @@ Metadata:
           - DesiredCount
 
 Parameters:
+    ContainerVersion:
+      Type: String
+      Default: la
     ContainerPort:
       Type: Number
       Default: 80
@@ -351,10 +354,10 @@ Resources:
       RouteTableId: !Ref 'PrivateSubnetThreeRouteTable'
       DestinationCidrBlock: '0.0.0.0/0'
       NatGatewayId: !Ref 'PublicSubnetThreeNATGateway'
-  NetworkLoadBalancer:
+  ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Type: network
+      Type: application
       Scheme: internal
       Subnets:
         - !Ref PrivateSubnetOne
@@ -362,30 +365,57 @@ Resources:
         - !Ref PrivateSubnetThree
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}-network-load-balancer
+          Value: !Sub ${AWS::StackName}-alb
         - Key: BillingGroup
           Value: network
     DependsOn:
       - PrivateSubnetOne
       - PrivateSubnetTwo
       - PrivateSubnetThree
-  TargetGroup:
+  CookBookAPIServiceTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Ref AWS::StackName
-      Port: !Ref 'ContainerPort'
-      Protocol: TCP
+      Name: !Sub ${AWS::StackName}-cookbookapi-tg
+      Port: 80
+      Protocol: HTTP
       VpcId: !Ref 'VPC'
       TargetType: ip
-  NetworkLoadBalancerListener:
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  EventStoreAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-eventstoreapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  ApplicationLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - TargetGroupArn: !Ref TargetGroup
-          Type: forward
-      LoadBalancerArn: !Ref NetworkLoadBalancer
+        - FixedResponseConfig: 
+            StatusCode: 200
+          Type: fixed-response
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
       Port: 80
-      Protocol: TCP
+      Protocol: HTTP
+  ApplicationLoadBalancerListenerCookBookAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/cookbook*'
   DHCPOptions:
     Type: AWS::EC2::DHCPOptions
     Properties:
@@ -568,7 +598,7 @@ Resources:
         - Name: cookbookapi
           Cpu: 512
           Memory: 1024
-          Image: 065284220307.dkr.ecr.us-east-1.amazonaws.com/culinacloud/cookbookapi:0.1.0-deployment-scripts.46
+          Image: !Sub ${AWS::StackName}.dkr.ecr.${AWS::Region}.amazon.aws.com/culinacloud/cookbookapi:latest
           PortMappings:
             - ContainerPort: 80
           Environment:
@@ -595,18 +625,12 @@ Resources:
         - Name: eventstoreapi
           Cpu: 512
           Memory: 1024
-          Image: 065284220307.dkr.ecr.us-east-1.amazonaws.com/culinacloud/eventstoreapi:0.1.0-deployment-scripts.46
+          Image: !Sub ${AWS::StackName}.dkr.ecr.${AWS::Region}.amazon.aws.com/culinacloud/eventstoreapi:latest
           PortMappings:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
-          HealthCheck:
-            Command:
-              - true
-            Interval: 5
-            Retries: 10
-            StartPeriod: 5
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -615,7 +639,7 @@ Resources:
               awslogs-stream-prefix: ecs
   CookBookAPIService:
     Type: AWS::ECS::Service
-    DependsOn: NetworkLoadBalancerListener
+    DependsOn: ApplicationLoadBalancerListener
     Properties:
       ServiceName: cookbookapi
       Cluster: !Ref ECSCluster
@@ -637,7 +661,7 @@ Resources:
       LoadBalancers:
         - ContainerName: cookbookapi
           ContainerPort: 80
-          TargetGroupArn: !Ref TargetGroup
+          TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
   # EventStoreAPIService:
   #   Type: AWS::ECS::Service
   #   DependsOn: NetworkLoadBalancerListener
@@ -718,3 +742,41 @@ Resources:
         - Key: BillingGroup
           Value: db
 
+#APIGateway
+  HTTPAPIVPCLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties:
+      Name: !Sub ${AWS::StackName}-http-api-vpclink
+      SubnetIds:
+        - !Ref PrivateSubnetOne
+        - !Ref PrivateSubnetTwo
+        - !Ref PrivateSubnetThree
+  HTTPAPI:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub ${AWS::StackName}-http-api
+      ProtocolType: 'HTTP'
+  HTTPAPIDefaultStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HTTPAPI
+      StageName: '$default'
+      AutoDeploy: true
+  HTTPAPIGatewayIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ApiId: !Ref HTTPAPI
+      IntegrationType: 'HTTP_PROXY'
+      ConnectionId: !Ref HTTPAPIVPCLink
+      ConnectionType: 'VPC_LINK'
+      Description: 'API Integration'
+      IntegrationMethod: 'ANY'
+      IntegrationUri: !Ref ApplicationLoadBalancerListener
+      PayloadFormatVersion: '1.0'
+  HTTPAPIProxyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HTTPAPI
+      RouteKey: 'ANY /{proxy+}'
+      Target: !Join ['', ['integrations/', !Ref HTTPAPIGatewayIntegration]]

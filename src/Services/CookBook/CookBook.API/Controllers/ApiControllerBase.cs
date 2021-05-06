@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Culina.CookBook.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("cookbook/[controller]")]
     public class ApiControllerBase : ControllerBase
     {
         private ISender _mediator;

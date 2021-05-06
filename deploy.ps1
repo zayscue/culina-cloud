@@ -88,11 +88,15 @@ foreach ($Service in $Services) {
   $RepositoryInfo = Get-ECR-Repo -RepositoryName $Service.RepositoryName
 
   Write-Output "Packaging the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe build -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
+  docker.exe build --build-arg $Service.Tag  -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
   docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):$($Service.Tag)"
+  docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):latest"
   Write-Output "`n"
 
   Write-Output "Deploying the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe push "$($RepositoryInfo.repositoryUri):$($Service.Tag)"
+  docker.exe push "$($RepositoryInfo.repositoryUri)"
   Write-Output "`n"
 }
+
+# Apply Cloudformation Template
+aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
