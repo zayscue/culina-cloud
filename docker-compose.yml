@@ -1,23 +1,17 @@
 version: '3.4'
 
 services:
-  eventstore.api:
+  postgres:
+    image: postgres
+    hostname: postgres
+  eventstoreapi:
     image: ${DOCKER_REGISTRY-}eventstoreapi
     build:
       context: .
       dockerfile: src/Services/EventStore/EventStore.API/Dockerfile
     depends_on:
       - postgres
-  postgres:
-    image: postgres
-    hostname: postgres
-  frontend:
-    image: ${DOCKER_REGISTRY-}frontend
-    build:
-      context: .
-      dockerfile: src/Web/FrontEnd/Dockerfile
-
-  cookbook.api:
+  cookbookapi:
     image: ${DOCKER_REGISTRY-}cookbookapi
     build:
       context: .

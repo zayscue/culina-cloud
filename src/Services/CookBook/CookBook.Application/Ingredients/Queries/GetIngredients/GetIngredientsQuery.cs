@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using AutoMapper;
@@ -8,6 +9,7 @@ using Culina.CookBook.Application.Common.Mapping;
 using Culina.CookBook.Application.Common.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
 {
@@ -23,11 +25,13 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger<GetIngredientsQueryHandler> _logger;
 
-        public GetIngredientsQueryHandler(IApplicationDbContext context, IMapper mapper)
+        public GetIngredientsQueryHandler(IApplicationDbContext context, IMapper mapper, ILogger<GetIngredientsQueryHandler> logger)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<PaginatedList<GetIngredientsResponse>> Handle(GetIngredientsQuery request,
@@ -44,9 +48,20 @@ namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
                     EF.Functions.Like(x.IngredientName.ToLower(), $"%{request.Name.Trim().ToLower()}%"));
             }
 
-            return await query
-                .ProjectTo<GetIngredientsResponse>(_mapper.ConfigurationProvider)
-                .PaginatedListAsync(request.Page, request.Limit);
+
+            try
+            {
+                var response = await query
+                    .ProjectTo<GetIngredientsResponse>(_mapper.ConfigurationProvider)
+                    .PaginatedListAsync(request.Page, request.Limit);
+                return response;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"The name of the error is: {nameof(e)}", e);
+                throw;
+            }
+
         }
     }
 }
