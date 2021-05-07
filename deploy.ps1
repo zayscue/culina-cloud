@@ -98,5 +98,5 @@ foreach ($Service in $Services) {
   Write-Output "`n"
 }
 
-# Apply Cloudformation Template Up the Version Number
-#aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
+# Apply Cloudformation Template
+aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
