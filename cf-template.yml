@@ -831,6 +831,7 @@ Resources:
       Target: !Join ['', ['integrations/', !Ref HTTPAPIGatewayIntegration]]
   HTTPAPICustomDomainMapping:
     Type: AWS::ApiGatewayV2::ApiMapping
+    DependsOn: HTTPAPIDefaultStage
     Properties:
       ApiId: !Ref HTTPAPI
       DomainName: 'api.culina.io'
