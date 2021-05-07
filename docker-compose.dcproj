@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿
 <Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
@@ -6,7 +6,8 @@
     <ProjectGuid>a9fa448e-22f7-4197-812a-63c6724e78b4</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>eventstore.api</DockerServiceName>
+    <DockerServiceName>culinacloud-cookbookapi</DockerServiceName>
+    <UserSecretsId>de579d1c-2166-4907-a1d2-6d0f5a0b1508</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

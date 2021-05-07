@@ -41,11 +41,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CookBook", "CookBook", "{07
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CookBook.Domain", "src\Services\CookBook\CookBook.Domain\CookBook.Domain.csproj", "{93B21BC8-F137-4E48-9109-48DDBF924EA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookBook.Application", "src\Services\CookBook\CookBook.Application\CookBook.Application.csproj", "{54BA0039-5BDC-413F-B87A-43D5DBEC93C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CookBook.Application", "src\Services\CookBook\CookBook.Application\CookBook.Application.csproj", "{54BA0039-5BDC-413F-B87A-43D5DBEC93C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookBook.Infrastructure", "src\Services\CookBook\CookBook.Infrastructure\CookBook.Infrastructure.csproj", "{30FAB096-503E-49C1-A2FD-01F1276D47D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CookBook.Infrastructure", "src\Services\CookBook\CookBook.Infrastructure\CookBook.Infrastructure.csproj", "{30FAB096-503E-49C1-A2FD-01F1276D47D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookBook.API", "src\Services\CookBook\CookBook.API\CookBook.API.csproj", "{5984C1E1-8A31-4FEF-9DD0-A97E2144CB68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CookBook.API", "src\Services\CookBook\CookBook.API\CookBook.API.csproj", "{5984C1E1-8A31-4FEF-9DD0-A97E2144CB68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5FCDEE2-7174-40ED-9D8B-556D87CB4EB6}"
+	ProjectSection(SolutionItems) = preProject
+		cf-template.yml = cf-template.yml
+		deploy.ps1 = deploy.ps1
+		GitVersion.yml = GitVersion.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

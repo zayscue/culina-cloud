@@ -43,7 +43,7 @@ namespace CulinaCloud.EventStore.Infrastructure.Services
                     var details = !string.IsNullOrWhiteSpace(@event.Details) ? @event.Details : "";
                     var aggregateType = @event.Aggregate.AggregateType;
                     await _context.Database.ExecuteSqlInterpolatedAsync(@$"
-                    call ""EventStore"".""StoreEvent""(
+                    select ""EventStore"".""StoreEvent""(
                       {eventId},
                       {eventName},
                       {data},

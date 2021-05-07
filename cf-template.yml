@@ -1,0 +1,827 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack deploys the core culina cloud services hosted in Amazon ECS using AWS Fargate
+            fronted with AWS API Gateway.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Container configuration"
+        Parameters:
+          - ContainerPort
+          - ContainerCpu
+          - ContainerMemory
+          - DesiredCount
+
+Parameters:
+    ContainerPort:
+      Type: Number
+      Default: 80
+      Description: What port number the application inside the docker container is binding to
+    ContainerCpu:
+      Type: Number
+      Default: 512
+      Description: How much CPU to give the container. 1024 is 1 CPU
+    ContainerMemory:
+      Type: Number
+      Default: 1024
+      Description: How much memory in megabytes to give the container
+    DesiredCount:
+      Type: Number
+      Default: 2
+      Description: How many copies of the service task to run
+
+Mappings:
+  SubnetConfig:
+    VPC:
+      CIDR: '10.0.0.0/16'
+    PublicOne:
+      CIDR: '10.0.0.0/19'
+    PublicTwo:
+      CIDR: '10.0.32.0/19'
+    PublicThree:
+      CIDR: '10.0.64.0/19'
+    PrivateOne:
+      CIDR: '10.0.96.0/19'
+    PrivateTwo:
+      CIDR: '10.0.128.0/19'
+    PrivateThree:
+      CIDR: '10.0.160.0/19'
+
+Conditions:
+    NVirginiaRegionCondition:
+      Fn::Equals:
+      - !Ref AWS::Region
+      - us-east-1
+
+Resources:
+# Network
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc
+        - Key: BillingGroup
+          Value: network
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-internet-gateway
+        - Key: BillingGroup
+          Value: network
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref 'VPC'
+      InternetGatewayId: !Ref 'InternetGateway'
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-one
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetOneRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-one-route-table
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetOneRouteTable'
+      SubnetId: !Ref 'PublicSubnetOne'
+  PublicSubnetOneDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetOneRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+    DependsOn: 'VPCGatewayAttachment'
+  PublicSubnetOneEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: 'vpc'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-one-eip
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetOneNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt PublicSubnetOneEIP.AllocationId
+      SubnetId: !Ref 'PublicSubnetOne'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-one-natgateway
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicTwo', 'CIDR']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-two
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetTwoRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-two-route-table
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetTwoRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetTwoRouteTable'
+      SubnetId: !Ref 'PublicSubnetTwo'
+  PublicSubnetTwoDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetTwoRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+    DependsOn: 'VPCGatewayAttachment'
+  PublicSubnetTwoEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: 'vpc'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-two-eip
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetTwoNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt PublicSubnetTwoEIP.AllocationId
+      SubnetId: !Ref 'PublicSubnetTwo'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-two-natgateway
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetThree:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 2
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicThree', 'CIDR']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-three
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetThreeRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-three-route-table
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetThreeRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetThreeRouteTable'
+      SubnetId: !Ref 'PublicSubnetThree'
+  PublicSubnetThreeDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PublicSubnetThreeRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+    DependsOn: 'VPCGatewayAttachment'
+  PublicSubnetThreeEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: 'vpc'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-three-eip
+        - Key: BillingGroup
+          Value: network
+  PublicSubnetThreeNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt PublicSubnetThreeEIP.AllocationId
+      SubnetId: !Ref 'PublicSubnetThree'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-public-subnet-three-natgateway
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateOne', 'CIDR']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-one
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetOneRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-one-route-table
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetOneRouteTable'
+      SubnetId: !Ref 'PrivateSubnetOne'
+  PrivateSubnetOneDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetOneRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref 'PublicSubnetOneNATGateway'
+  PrivateSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateTwo', 'CIDR']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-two
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetTwoRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-two-route-table
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetTwoRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetTwoRouteTable'
+      SubnetId: !Ref 'PrivateSubnetTwo'
+  PrivateSubnetTwoDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetTwoRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref 'PublicSubnetTwoNATGateway'
+  PrivateSubnetThree:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 2
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateThree', 'CIDR']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-three
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetThreeRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc-private-subnet-three-route-table
+        - Key: BillingGroup
+          Value: network
+  PrivateSubnetThreeRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetThreeRouteTable'
+      SubnetId: !Ref 'PrivateSubnetThree'
+  PrivateSubnetThreeDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnetThreeRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref 'PublicSubnetThreeNATGateway'
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: application
+      Scheme: internal
+      Subnets:
+        - !Ref PrivateSubnetOne
+        - !Ref PrivateSubnetTwo
+        - !Ref PrivateSubnetThree
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-alb
+        - Key: BillingGroup
+          Value: network
+    DependsOn:
+      - PrivateSubnetOne
+      - PrivateSubnetTwo
+      - PrivateSubnetThree
+  CookBookAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-cookbookapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  EventStoreAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-eventstoreapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  ApplicationLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - FixedResponseConfig: 
+            StatusCode: 200
+          Type: fixed-response
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  ApplicationLoadBalancerListenerCookBookAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/cookbook*'
+  ApplicationLoadBalancerListenerEventStoreAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 2
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/eventstore*'
+  DHCPOptions:
+    Type: AWS::EC2::DHCPOptions
+    Properties:
+      DomainName:
+        Fn::If:
+        - NVirginiaRegionCondition
+        - ec2.internal
+        - Fn::Join:
+          - ''
+          - - !Ref AWS::Region
+            - ".compute.internal"
+      DomainNameServers:
+      - AmazonProvidedDNS
+  VPCDHCPOptionsAssociation:
+    Type: AWS::EC2::VPCDHCPOptionsAssociation
+    Properties:
+      VpcId: !Ref VPC
+      DhcpOptionsId: !Ref DHCPOptions
+  FargateContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the Fargate containers
+      VpcId: !Ref VPC
+  EcsSecurityGroupIngressFromClient:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from external clients
+      GroupId: !Ref FargateContainerSecurityGroup
+      CidrIp: '0.0.0.0/0'
+      FromPort: 80
+      ToPort: 80
+      IpProtocol: tcp
+  EcsSecurityGroupIngressFromSelf:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from other containers in the same security group
+      GroupId: !Ref FargateContainerSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref FargateContainerSecurityGroup
+  EcsSecurityGroupEgressFromSelf:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      CidrIp: '0.0.0.0/0'
+      Description: 'Allow all outbound traffic by default'
+      IpProtocol: -1
+      GroupId: !Ref FargateContainerSecurityGroup
+
+#Fargate Cluster
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${AWS::StackName}-ecs-cluster
+  ECSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: ECSServicePolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              # Rules which allow ECS to attach network interfaces to instances
+              # on your behalf in order for awsvpc networking mode to work right
+              - 'ec2:AttachNetworkInterface'
+              - 'ec2:CreateNetworkINterface'
+              - 'ec2:CreateNetworkInterfacePermission'
+              - 'ec2:DeleteNetworkInterface'
+              - 'ec2:DeleteNetworkInterfacePermission'
+              - 'ec2:Describe*'
+              - 'ec2:DetachNetworkInterface'
+
+              # Rules which allow ECS to update load balancers on your behalf
+              # with the information about how to send traffic to your containers
+              - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
+              - 'elasticloadbalancing:DeregisterTargets'
+              - 'elasticloadbalancing:Describe*'
+              - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
+              - 'elasticloadbalancing:RegisterTargets'
+
+              # Rules which allow ECS to run tasks that have IAM roles assigned to them.
+              - 'iam:PassRole'
+
+              # Rules that let ECS interact with container images.
+              - 'ecr:GetAuthorizationToken'
+              - 'ecr:BatchCheckLayerAvailability'
+              - 'ecr:GetDownloadUrlForLayer'
+              - 'ecr:BatchGetImage'
+
+              # Rules that let ECS create and push logs to CloudWatch.
+              - 'logs:DescribeLogStreams'
+              - 'logs:CreateLogStream'
+              - 'logs:CreateLogGroup'
+              - 'logs:PutLogEvents'
+            Resource: '*'
+  CookBookAPIECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+      Policies:
+        - PolicyName: CookBookAPIECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+  EventStoreAPIECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+      Policies:
+        - PolicyName: EventStoreAPIECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+  CookBookAPIServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'cookbookapi']]]]
+        RetentionInDays: 14
+  EventStoreAPIServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
+        RetentionInDays: 14
+  CookBookAPIECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'cookbookapi']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref CookBookAPIECSTaskExecutionRole
+      TaskRoleArn: !Ref 'AWS::NoValue'
+      ContainerDefinitions:
+        - Name: cookbookapi
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/cookbookapi:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ConnectionString
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'cookbookapi']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+  EventStoreAPIECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref EventStoreAPIECSTaskExecutionRole
+      TaskRoleArn: !Ref 'AWS::NoValue'
+      ContainerDefinitions:
+        - Name: eventstoreapi
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/eventstoreapi:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ConnectionString
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+  DNSNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: 'http-api.local'
+      Vpc: !Ref VPC
+      Description: 'Private DnsNamespace for Microservices'
+  CookBookAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'cookbook'
+      NamespaceId: !GetAtt DNSNamespace.Id
+  EventStoreAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'eventstore'
+      NamespaceId: !GetAtt DNSNamespace.Id
+  CookBookAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: cookbookapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt CookBookAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref CookBookAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: cookbookapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+  EventStoreAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: eventstoreapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt EventStoreAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: eventstoreapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+
+  #Database
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub ${AWS::StackName}-db-subnet-group
+      DBSubnetGroupDescription: 'The subnet group for the CulinaCloudDB'
+      SubnetIds:
+        - !Ref PrivateSubnetOne
+        - !Ref PrivateSubnetTwo
+        - !Ref PrivateSubnetThree
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-subnet-group
+        - Key: BillingGroup
+          Value: db
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${AWS::StackName}-db-security-group
+      GroupDescription: 'Access to the CulinaCloudDB'
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-security-group
+        - Key: BillingGroup
+          Value: db
+  DBSecurityGroupIngressFromClient:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: 'tcp'
+      Description: 'Inbound requests from Fargate to Aurora'
+      FromPort: 5432
+      ToPort: 5432
+      GroupId: !Ref DBSecurityGroup
+      SourceSecurityGroupId: !Ref FargateContainerSecurityGroup
+  AuroraDB:
+    Type: AWS::RDS::DBCluster
+    DependsOn: DBSubnetGroup
+    Properties:
+      Engine: 'aurora-postgresql'
+      DatabaseName: 'CulinaCloudDB'
+      DBSubnetGroupName: !Sub ${AWS::StackName}-db-subnet-group
+      EngineMode: 'serverless'
+      MasterUsername: '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}'
+      MasterUserPassword: '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}'
+      Port: 5432
+      VpcSecurityGroupIds:
+        - !Ref DBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db
+        - Key: BillingGroup
+          Value: db
+
+#APIGateway
+  HTTPAPIVPCLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties:
+      Name: !Sub ${AWS::StackName}-http-api-vpclink
+      SubnetIds:
+        - !Ref PrivateSubnetOne
+        - !Ref PrivateSubnetTwo
+        - !Ref PrivateSubnetThree
+  HTTPAPI:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub ${AWS::StackName}-http-api
+      ProtocolType: 'HTTP'
+  HTTPAPIDefaultStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HTTPAPI
+      StageName: '$default'
+      AutoDeploy: true
+  HTTPAPIGatewayIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ApiId: !Ref HTTPAPI
+      IntegrationType: 'HTTP_PROXY'
+      ConnectionId: !Ref HTTPAPIVPCLink
+      ConnectionType: 'VPC_LINK'
+      Description: 'API Integration'
+      IntegrationMethod: 'ANY'
+      IntegrationUri: !Ref ApplicationLoadBalancerListener
+      PayloadFormatVersion: '1.0'
+  HTTPAPIProxyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HTTPAPI
+      RouteKey: 'ANY /{proxy+}'
+      Target: !Join ['', ['integrations/', !Ref HTTPAPIGatewayIntegration]]
