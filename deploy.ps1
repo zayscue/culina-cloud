@@ -94,7 +94,7 @@ foreach ($Service in $Services) {
   Write-Output "`n"
 
   Write-Output "Deploying the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe push "$($RepositoryInfo.repositoryUri):latest"
+  docker.exe push "$($RepositoryInfo.repositoryUri)"
   Write-Output "`n"
 }
 
