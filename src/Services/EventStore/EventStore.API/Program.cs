@@ -78,8 +78,6 @@ try
             app.UseResponseCompression();
 
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
