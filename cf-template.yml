@@ -413,18 +413,18 @@ Resources:
         - Field: 'path-pattern'
           Values:
             - '/cookbook*'
-  ApplicationLoadBalancerListenerEventStoreAPIServiceRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Priority: 2
-      ListenerArn: !Ref ApplicationLoadBalancerListener
-      Actions:
-        - TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
-          Type: forward
-      Conditions:
-        - Field: 'path-pattern'
-          Values:
-            - '/eventstore*'
+#  ApplicationLoadBalancerListenerEventStoreAPIServiceRule:
+#    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+#    Properties:
+#      Priority: 2
+#      ListenerArn: !Ref ApplicationLoadBalancerListener
+#      Actions:
+#        - TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+#          Type: forward
+#      Conditions:
+#        - Field: 'path-pattern'
+#          Values:
+#            - '/eventstore*'
   DHCPOptions:
     Type: AWS::EC2::DHCPOptions
     Properties:
@@ -613,6 +613,8 @@ Resources:
           Environment:
             - Name: ConnectionString
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -640,6 +642,8 @@ Resources:
           Environment:
             - Name: ConnectionString
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -825,3 +829,9 @@ Resources:
       ApiId: !Ref HTTPAPI
       RouteKey: 'ANY /{proxy+}'
       Target: !Join ['', ['integrations/', !Ref HTTPAPIGatewayIntegration]]
+  HTTPAPICustomDomainMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref HTTPAPI
+      DomainName: 'api.culina.io'
+      Stage: '$default'

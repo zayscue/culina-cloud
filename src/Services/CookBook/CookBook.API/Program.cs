@@ -12,6 +12,7 @@ using Culina.CookBook.Infrastructure;
 using Culina.CookBook.API.Services;
 using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 static IConfiguration GetConfiguration()
 {
@@ -45,6 +46,15 @@ try
         .UseSerilog()
         .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
         {
+            services.AddAuthentication(options =>
+            { 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = webHostBuilderContext.Configuration["Auth0:Domain"];
+                options.Audience = webHostBuilderContext.Configuration["Auth0:Audience"];
+            });
             services.AddApplication();
             services.AddInfrastructure(webHostBuilderContext.Configuration);
             services.AddHttpContextAccessor();
@@ -63,6 +73,8 @@ try
             app.UseStaticFiles();
             
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");

@@ -16,6 +16,7 @@ using CulinaCloud.EventStore.Application.Events.Commands.StoreEvent;
 using CulinaCloud.EventStore.Application.Events.Queries.LoadEvents;
 using CulinaCloud.EventStore.Application.Common.Exceptions;
 using CulinaCloud.EventStore.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
 
 IConfiguration GetConfiguration()
@@ -48,8 +49,17 @@ try
                 .AddEnvironmentVariables();
         })
         .UseSerilog()
-        .ConfigureServices(services =>
+        .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services) =>
         {
+            services.AddAuthentication(options =>
+            { 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = webHostBuilderContext.Configuration["Auth0:Domain"];
+                options.Audience = webHostBuilderContext.Configuration["Auth0:Audience"];
+            });
             services.AddApplication();
             services.AddInfrastructure(configuration);
             services.AddHttpContextAccessor();
@@ -68,6 +78,8 @@ try
             app.UseResponseCompression();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
