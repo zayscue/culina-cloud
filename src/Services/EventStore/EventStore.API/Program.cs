@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using MediatR;
 using CulinaCloud.EventStore.Application;
@@ -72,7 +71,7 @@ try
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
-                e.MapGet("/eventstore", async context => { await context.Response.WriteAsync("Hello World!"); });
+                e.MapGet("/eventstore", async context => { await context.Response.WriteAsync("Hello World! 2"); });
 
                 e.MapPost("/eventstore/store/{aggregateId:guid}", async context =>
                 {
