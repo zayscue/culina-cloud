@@ -15,9 +15,6 @@ Metadata:
           - DesiredCount
 
 Parameters:
-    ContainerVersion:
-      Type: String
-      Default: la
     ContainerPort:
       Type: Number
       Default: 80
@@ -598,7 +595,7 @@ Resources:
         - Name: cookbookapi
           Cpu: 512
           Memory: 1024
-          Image: !Sub ${AWS::StackName}.dkr.ecr.${AWS::Region}.amazon.aws.com/culinacloud/cookbookapi:latest
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/cookbookapi:latest
           PortMappings:
             - ContainerPort: 80
           Environment:
@@ -625,7 +622,7 @@ Resources:
         - Name: eventstoreapi
           Cpu: 512
           Memory: 1024
-          Image: !Sub ${AWS::StackName}.dkr.ecr.${AWS::Region}.amazon.aws.com/culinacloud/eventstoreapi:latest
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/eventstoreapi:latest
           PortMappings:
             - ContainerPort: 80
           Environment:
@@ -637,6 +634,25 @@ Resources:
               awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
+  DNSNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: 'http-api.local'
+      Vpc: !Ref VPC
+      Description: 'Private DnsNamespace for Microservices'
+  CookBookAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'cookbook'
+      NamespaceId: !GetAtt DNSNamespace.Id
   CookBookAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -650,13 +666,15 @@ Resources:
       DesiredCount: 2
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref FargateContainerSecurityGroup
           Subnets:
             - !Ref PrivateSubnetOne
             - !Ref PrivateSubnetTwo
             - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt CookBookAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref CookBookAPIECSTaskDefinition
       LoadBalancers:
         - ContainerName: cookbookapi
