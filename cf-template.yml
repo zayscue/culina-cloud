@@ -413,6 +413,18 @@ Resources:
         - Field: 'path-pattern'
           Values:
             - '/cookbook*'
+  ApplicationLoadBalancerListenerEventStoreAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/eventstore*'
   DHCPOptions:
     Type: AWS::EC2::DHCPOptions
     Properties:
@@ -653,6 +665,19 @@ Resources:
         FailureThreshold: 1
       Name: 'cookbook'
       NamespaceId: !GetAtt DNSNamespace.Id
+  EventStoreAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'eventstore'
+      NamespaceId: !GetAtt DNSNamespace.Id
   CookBookAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -680,33 +705,35 @@ Resources:
         - ContainerName: cookbookapi
           ContainerPort: 80
           TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
-  # EventStoreAPIService:
-  #   Type: AWS::ECS::Service
-  #   DependsOn: NetworkLoadBalancerListener
-  #   Properties:
-  #     ServiceName: eventstoreapi
-  #     Cluster: !Ref ECSCluster
-  #     LaunchType: FARGATE
-  #     DeploymentConfiguration:
-  #       MaximumPercent: 200
-  #       MinimumHealthyPercent: 75
-  #     DesiredCount: 2
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: ENABLED
-  #         SecurityGroups:
-  #           - !Ref FargateContainerSecurityGroup
-  #         Subnets:
-  #           - !Ref PrivateSubnetOne
-  #           - !Ref PrivateSubnetTwo
-  #           - !Ref PrivateSubnetThree
-  #     TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
-  #     LoadBalancers:
-  #       - ContainerName: eventstoreapi
-  #         ContainerPort: 80
-  #         TargetGroupArn: !Ref TargetGroup
+  EventStoreAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: eventstoreapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt EventStoreAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: eventstoreapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
 
-#Database
+  #Database
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
