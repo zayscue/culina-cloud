@@ -380,17 +380,17 @@ Resources:
       HealthCheckIntervalSeconds: 300
       HealthCheckPath: /health
       HealthCheckTimeoutSeconds: 120
-  EventStoreAPIServiceTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub ${AWS::StackName}-eventstoreapi-tg
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref 'VPC'
-      TargetType: ip
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /health
-      HealthCheckTimeoutSeconds: 120
+#  EventStoreAPIServiceTargetGroup:
+#    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#    Properties:
+#      Name: !Sub ${AWS::StackName}-eventstoreapi-tg
+#      Port: 80
+#      Protocol: HTTP
+#      VpcId: !Ref 'VPC'
+#      TargetType: ip
+#      HealthCheckIntervalSeconds: 300
+#      HealthCheckPath: /health
+#      HealthCheckTimeoutSeconds: 120
   ApplicationLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -732,10 +732,10 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt EventStoreAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
-      LoadBalancers:
-        - ContainerName: eventstoreapi
-          ContainerPort: 80
-          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+#      LoadBalancers:
+#        - ContainerName: eventstoreapi
+#          ContainerPort: 80
+#          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
 
   #Database
   DBSubnetGroup:
