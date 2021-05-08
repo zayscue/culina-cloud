@@ -13,6 +13,7 @@ using Culina.CookBook.API.Services;
 using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Hosting;
 
 static IConfiguration GetConfiguration()
 {
@@ -42,6 +43,10 @@ try
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
+            if (webHostBuilderContext.HostingEnvironment.IsDevelopment())
+            {
+                config.AddUserSecrets<Culina.CookBook.API.Controllers.ApiControllerBase>();
+            }
         })
         .UseSerilog()
         .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
@@ -56,8 +61,9 @@ try
                 options.Audience = webHostBuilderContext.Configuration["Auth0:Audience"];
             });
             services.AddApplication();
-            services.AddInfrastructure(webHostBuilderContext.Configuration);
-            services.AddHttpContextAccessor();
+            services.AddInfrastructure(webHostBuilderContext.Configuration,
+                webHostBuilderContext.HostingEnvironment.IsDevelopment());
+            services.AddHttpContextAccessor();  
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
