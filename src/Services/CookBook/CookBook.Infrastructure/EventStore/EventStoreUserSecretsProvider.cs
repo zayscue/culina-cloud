@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 namespace Culina.CookBook.Infrastructure.EventStore
@@ -12,7 +13,7 @@ namespace Culina.CookBook.Infrastructure.EventStore
             _config = config;
         }
         
-        public override Task<(string ClientId, string ClientSecret)> GetSecrets()
+        public override Task<(string ClientId, string ClientSecret)> GetSecrets(CancellationToken cancellationToken = default)
         {
             var clientId = _config["ClientId"];
             var clientSecret = _config["ClientSecret"];

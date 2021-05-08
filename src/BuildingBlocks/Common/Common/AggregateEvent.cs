@@ -2,10 +2,10 @@
 
 namespace CulinaCloud.BuildingBlocks.Common
 {
-    public abstract class AggregateEvent<T> : DomainEvent 
+    public abstract class AggregateEvent : DomainEvent 
     {
         public abstract string AggregateType { get; }
-        public Guid AggregateId { get; set; }
-        public T Data { get; set; }
+        protected Guid AggregateId { get; set; }
+        protected object Data { get; set; }
     }
 }

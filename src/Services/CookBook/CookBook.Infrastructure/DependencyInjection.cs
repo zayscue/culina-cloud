@@ -40,6 +40,13 @@ namespace Culina.CookBook.Infrastructure
                 });
             }
 
+            services.AddTransient<IEventStoreService, EventStoreService>(provider =>
+            {
+                var config = provider.GetService<IConfiguration>();
+                var secretsProvider = provider.GetService<EventStoreSecretsProvider>();
+                return new EventStoreService(config, secretsProvider);
+            });
+
             return services;
         }
     }

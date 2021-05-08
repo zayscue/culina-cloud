@@ -1,28 +1,24 @@
-﻿using System.Threading.Tasks;
-using Culina.CookBook.Infrastructure.EventStore;
+﻿using System;
+using System.Threading.Tasks;
+using Culina.CookBook.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Culina.CookBook.API.Controllers
 {
     public class ConfigurationsController : ApiControllerBase
     {
-        private readonly EventStoreSecretsProvider _secretsProvider;
+        private readonly IEventStoreService _eventStoreService;
 
-        public ConfigurationsController(EventStoreSecretsProvider secretsProvider) : base()
+        public ConfigurationsController(IEventStoreService eventStoreService) : base()
         {
-            _secretsProvider = secretsProvider;
+            _eventStoreService = eventStoreService;
         }
         
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var (clientId, clientSecret) = await _secretsProvider.GetSecrets();
-            var response = new
-            {
-                ClientId = clientId,
-                ClientSecret = clientSecret
-            };
+            var aggregateId = new Guid("b84af811-89ff-4953-834c-f37ed1db486d");
+            var response = await _eventStoreService.LoadEventsAsync(aggregateId);
             return Ok(response);
         }
     }
