@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Culina.CookBook.Infrastructure.EventStore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -6,18 +7,17 @@ namespace Culina.CookBook.API.Controllers
 {
     public class ConfigurationsController : ApiControllerBase
     {
-        private readonly IConfiguration _configuration;
+        private readonly EventStoreSecretsProvider _secretsProvider;
 
-        public ConfigurationsController(IConfiguration configuration) : base()
+        public ConfigurationsController(EventStoreSecretsProvider secretsProvider) : base()
         {
-            _configuration = configuration;
+            _secretsProvider = secretsProvider;
         }
         
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var clientId = _configuration["ClientId"];
-            var clientSecret = _configuration["ClientSecret"];
+            var (clientId, clientSecret) = await _secretsProvider.GetSecrets();
             var response = new
             {
                 ClientId = clientId,

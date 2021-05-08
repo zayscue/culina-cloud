@@ -39,7 +39,7 @@ namespace Culina.CookBook.Infrastructure
                     return new EventStoreAWSSecretsProvider(secretsManager);
                 });
             }
-            
+
             return services;
         }
     }
