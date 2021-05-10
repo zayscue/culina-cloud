@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Culina.CookBook.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("cookbook/[controller]")]
     public class ApiControllerBase : ControllerBase

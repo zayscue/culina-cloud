@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Culina.CookBook.Application.Common.Interfaces;
+using Culina.CookBook.Domain.Entities;
+using Culina.CookBook.Domain.Events;
+using CulinaCloud.BuildingBlocks.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Culina.CookBook.API.Controllers
@@ -14,12 +18,25 @@ namespace Culina.CookBook.API.Controllers
             _eventStoreService = eventStoreService;
         }
         
-        [HttpGet]
-        public async Task<ActionResult> Get()
+        [HttpGet("load/{aggregateId:guid}")]
+        public async Task<ActionResult> Load(Guid aggregateId)
         {
-            var aggregateId = new Guid("b84af811-89ff-4953-834c-f37ed1db486d");
-            var response = await _eventStoreService.LoadEventsAsync(aggregateId);
-            return Ok(response);
+            var aggregateEvents = await _eventStoreService.LoadEventsAsync(aggregateId);
+            return Ok(aggregateEvents);
+        }
+        
+        [HttpGet("store/{aggregateId:guid}")]
+        public async Task<ActionResult> Store(Guid aggregateId)
+        {
+            var ingredient = new Ingredient
+            {
+                IngredientName = "Chicken",
+                Id = aggregateId
+            };
+            var ingredientCreatedEvent = new IngredientCreatedEvent(ingredient);
+            var events = new List<AggregateEvent> {ingredientCreatedEvent};
+            await _eventStoreService.StoreEventsAsync(aggregateId, events);
+            return Ok(aggregateId);
         }
     }
 }

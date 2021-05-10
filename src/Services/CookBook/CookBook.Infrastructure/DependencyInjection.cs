@@ -1,11 +1,15 @@
-﻿using Amazon.SecretsManager;
+﻿using System;
+using System.Net.Http.Headers;
+using Amazon.SecretsManager;
 using Culina.CookBook.Application.Common.Interfaces;
+using Culina.CookBook.Infrastructure.Authentication;
 using Culina.CookBook.Infrastructure.EventStore;
 using Culina.CookBook.Infrastructure.Persistence;
 using Culina.CookBook.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Culina.CookBook.Infrastructure
 {
@@ -16,6 +20,8 @@ namespace Culina.CookBook.Infrastructure
         {
             var connectionString = configuration["ConnectionString"];
 
+            services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
+            services.Configure<EventStoreSettings>(configuration.GetSection("EventStore"));
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
@@ -25,26 +31,38 @@ namespace Culina.CookBook.Infrastructure
 
             if (isDevelopment)
             {
-                services.AddTransient<EventStoreSecretsProvider, EventStoreUserSecretsProvider>(provider =>
+                services.AddTransient<Auth0SecretsProvider, Auth0UserSecretsProvider>(provider =>
                 {
                     var config = provider.GetService<IConfiguration>();
-                    return new EventStoreUserSecretsProvider(config);
+                    return new Auth0UserSecretsProvider(config);
                 });
             }
             else
             {
-                services.AddTransient<EventStoreSecretsProvider, EventStoreAWSSecretsProvider>(provider =>
+                services.AddTransient<Auth0SecretsProvider, Auth0AWSSecretsProvider>(provider =>
                 {
                     var secretsManager = new AmazonSecretsManagerClient();
-                    return new EventStoreAWSSecretsProvider(secretsManager);
+                    return new Auth0AWSSecretsProvider(secretsManager);
                 });
             }
 
-            services.AddTransient<IEventStoreService, EventStoreService>(provider =>
+            services.AddSingleton<ITokenServiceManager, Auth0TokenServiceManager>(provider =>
             {
-                var config = provider.GetService<IConfiguration>();
-                var secretsProvider = provider.GetService<EventStoreSecretsProvider>();
-                return new EventStoreService(config, secretsProvider);
+                var dateTime = provider.GetService<IDateTime>();
+                var settings = provider.GetService<IOptions<Auth0Settings>>();
+                var secretsProvider = provider.GetService<Auth0SecretsProvider>();
+                return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
+            });
+
+            services.AddHttpClient<IEventStoreService, EventStoreService>((client, provider) =>
+            {
+                var settings = provider.GetService<IOptions<EventStoreSettings>>();
+                var baseAddress = new Uri(settings.Value.BaseAddress);
+                client.BaseAddress = baseAddress;
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+                var tokenService = tokenServiceManager.GetTokenService(settings.Value.Audience);
+                return new EventStoreService(tokenService, client);
             });
 
             return services;
