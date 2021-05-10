@@ -554,6 +554,13 @@ Resources:
                 - 'logs:CreateLogStream'
                 - 'logs:PutLogEvents'
               Resource: '*'
+        - PolicyName: CookBookAPIECSTaskSecretsManagerPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/CookBookAPI/*
   EventStoreAPIECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -602,7 +609,7 @@ Resources:
       RequiresCompatibilities:
         - FARGATE
       ExecutionRoleArn: !Ref CookBookAPIECSTaskExecutionRole
-      TaskRoleArn: !Ref 'AWS::NoValue'
+      TaskRoleArn: !Ref CookBookAPIECSTaskExecutionRole
       ContainerDefinitions:
         - Name: cookbookapi
           Cpu: 512
@@ -615,6 +622,8 @@ Resources:
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
+            - Name: 'EventStore:BaseAddress'
+              Value: 'http://eventstore.http-api.local'
           LogConfiguration:
             LogDriver: awslogs
             Options:
