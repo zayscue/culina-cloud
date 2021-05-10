@@ -12,6 +12,8 @@ using Culina.CookBook.Infrastructure;
 using Culina.CookBook.API.Services;
 using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Hosting;
 
 static IConfiguration GetConfiguration()
 {
@@ -41,13 +43,27 @@ try
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
+            if (webHostBuilderContext.HostingEnvironment.IsDevelopment())
+            {
+                config.AddUserSecrets<Culina.CookBook.API.Controllers.ApiControllerBase>();
+            }
         })
         .UseSerilog()
         .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
         {
+            services.AddAuthentication(options =>
+            { 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = webHostBuilderContext.Configuration["Auth0:Domain"];
+                options.Audience = webHostBuilderContext.Configuration["Auth0:Audience"];
+            });
             services.AddApplication();
-            services.AddInfrastructure(webHostBuilderContext.Configuration);
-            services.AddHttpContextAccessor();
+            services.AddInfrastructure(webHostBuilderContext.Configuration,
+                webHostBuilderContext.HostingEnvironment.IsDevelopment());
+            services.AddHttpContextAccessor();  
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
@@ -63,6 +79,8 @@ try
             app.UseStaticFiles();
             
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");

@@ -16,6 +16,7 @@ using CulinaCloud.EventStore.Application.Events.Commands.StoreEvent;
 using CulinaCloud.EventStore.Application.Events.Queries.LoadEvents;
 using CulinaCloud.EventStore.Application.Common.Exceptions;
 using CulinaCloud.EventStore.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
 
 IConfiguration GetConfiguration()
@@ -48,13 +49,23 @@ try
                 .AddEnvironmentVariables();
         })
         .UseSerilog()
-        .ConfigureServices(services =>
+        .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services) =>
         {
+            services.AddAuthentication(options =>
+            { 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = webHostBuilderContext.Configuration["Auth0:Domain"];
+                options.Audience = webHostBuilderContext.Configuration["Auth0:Audience"];
+            });
             services.AddApplication();
             services.AddInfrastructure(configuration);
             services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
+            services.AddControllers();
             services.AddResponseCompression();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
@@ -68,10 +79,13 @@ try
             app.UseResponseCompression();
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseEndpoints(e =>
             {
                 e.MapHealthChecks("/health");
-                e.MapGet("/eventstore", async context => { await context.Response.WriteAsync("Hello World! 2"); });
 
                 e.MapPost("/eventstore/store/{aggregateId:guid}", async context =>
                 {
@@ -109,7 +123,7 @@ try
                             Message = "An unexpected error occurred."
                         });
                     }
-                });
+                }).RequireAuthorization();
 
                 e.MapGet("/eventstore/load/{aggregateId:guid}", async context =>
                 {
@@ -123,7 +137,7 @@ try
                     context.Response.StatusCode = StatusCodes.Status200OK;
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsJsonAsync(response);
-                });
+                }).RequireAuthorization();
             });
         })
         .Build()

@@ -57,78 +57,78 @@ namespace CulinaCloud.EventStore.Infrastructure.Persistence.Migrations
                 table: "Events",
                 column: "AggregateId");
 
-            const string storeEventStoredProcedure = @"
-                create or replace procedure ""EventStore"".""StoreEvent""(
-                    ""eventId"" uuid,
-                    ""eventName"" text,
-                    ""data"" jsonb,
-                    ""occurred"" timestamptz,
-                    ""raisedBy"" text,
-                    ""details"" text,
-                    ""aggregateId"" uuid,
-                    ""aggregateType"" text
-                )
-                language plpgsql
-                as
-                $$
-                declare
-                    version integer;
-                begin
-                    if ""aggregateId"" is not null then
-                        select ""Version""
-                        into version
-                        from ""EventStore"".""Aggregates""
-                        where ""EventStore"".""Aggregates"".""AggregateId"" = ""aggregateId"";
-
-                        if version is null then
-                            version := 0;
-                        end if;
-
-                        version:= version + 1;
-                    else
-                        version:= 0;
-                    end if;
-
-                    if version = 1 then
-                        insert into ""EventStore"".""Aggregates""(
-                            ""AggregateId"",
-                            ""AggregateType"",
-                            ""Version""
-                        ) values(
-                            ""aggregateId"",
-                            ""aggregateType"",
-                            version
-                        );
-                    end if;
-
-                    if version > 1 then
-                        update ""EventStore"".""Aggregates""
-                        set ""Version"" = version
-                        where ""AggregateId"" = ""aggregateId"";
-                    end if;
-
-                    insert into ""EventStore"".""Events""(
-                        ""EventId"",
-                        ""EventName"",
-                        ""AggregateId"",
-                        ""Version"",
-                        ""Data"",
-                        ""Occurred"",
-                        ""RaisedBy"",
-                        ""Details""
-                    ) values(
-                        ""eventId"",
-                        ""eventName"",
-                        ""aggregateId"",
-                        version,
-                        ""data"",
-                        ""occurred"",
-                        ""raisedBy"",
-                        ""details""
-                    );
-                end;
-                $$;
-            "; 
+//             const string storeEventStoredProcedure = @"
+//                 create or replace procedure ""EventStore"".""StoreEvent""(
+//                     ""eventId"" uuid,
+//                     ""eventName"" text,
+//                     ""data"" jsonb,
+//                     ""occurred"" timestamptz,
+//                     ""raisedBy"" text,
+//                     ""details"" text,
+//                     ""aggregateId"" uuid,
+//                     ""aggregateType"" text
+//                 )
+//                 language plpgsql
+//                 as
+//                 $$
+//                 declare
+//                     version integer;
+//                 begin
+//                     if ""aggregateId"" is not null then
+//                         select ""Version""
+//                         into version
+//                         from ""EventStore"".""Aggregates""
+//                         where ""EventStore"".""Aggregates"".""AggregateId"" = ""aggregateId"";
+//
+//                         if version is null then
+//                             version := 0;
+//                         end if;
+//
+//                         version:= version + 1;
+//                     else
+//                         version:= 0;
+//                     end if;
+//
+//                     if version = 1 then
+//                         insert into ""EventStore"".""Aggregates""(
+//                             ""AggregateId"",
+//                             ""AggregateType"",
+//                             ""Version""
+//                         ) values(
+//                             ""aggregateId"",
+//                             ""aggregateType"",
+//                             version
+//                         );
+//                     end if;
+//
+//                     if version > 1 then
+//                         update ""EventStore"".""Aggregates""
+//                         set ""Version"" = version
+//                         where ""AggregateId"" = ""aggregateId"";
+//                     end if;
+//
+//                     insert into ""EventStore"".""Events""(
+//                         ""EventId"",
+//                         ""EventName"",
+//                         ""AggregateId"",
+//                         ""Version"",
+//                         ""Data"",
+//                         ""Occurred"",
+//                         ""RaisedBy"",
+//                         ""Details""
+//                     ) values(
+//                         ""eventId"",
+//                         ""eventName"",
+//                         ""aggregateId"",
+//                         version,
+//                         ""data"",
+//                         ""occurred"",
+//                         ""raisedBy"",
+//                         ""details""
+//                     );
+//                 end;
+//                 $$;
+//             "; 
             const string storeEventFunction = @"
                 create or replace function ""EventStore"".""StoreEvent""(
                     ""eventId"" uuid,

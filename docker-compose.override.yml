@@ -25,6 +25,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
+      - EventStore:BaseAddress=http://eventstoreapi
     ports:
       - "80"
       - "443"
