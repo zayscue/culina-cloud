@@ -4,17 +4,15 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Culina.CookBook.Application.Common.Exceptions;
 using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Models;
 using Culina.CookBook.Domain.Entities;
 using Culina.CookBook.Domain.Events;
 using CulinaCloud.BuildingBlocks.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
 {
-    public class CreateIngredientCommand : IRequest<CreateIngredientResponse>
+  public class CreateIngredientCommand : IRequest<CreateIngredientResponse>
     {
         public Guid? Id { get; set; }
         public string IngredientName { get; set; }
@@ -71,7 +69,7 @@ namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
                 await transaction.CommitAsync(cancellationToken);
 
                 await _aggregateEventService.Publish(@event, cancellationToken);
-                
+
                 var response = _mapper.Map<CreateIngredientResponse>(entity);
 
                 return response;
