@@ -57,7 +57,7 @@ namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
                 Details = "A new ingredient was created using the POST \"/cookbook/ingredients\" API.",
                 Occurred = entity.Created,
                 RaisedBy = entity.CreatedBy,
-                Data = {IngredientId = entity.Id, IngredientName = entity.IngredientName}
+                Data = {Id = entity.Id, IngredientName = entity.IngredientName}
             };
             try
             {

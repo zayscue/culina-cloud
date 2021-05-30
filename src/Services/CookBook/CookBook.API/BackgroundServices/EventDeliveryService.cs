@@ -57,7 +57,10 @@ namespace Culina.CookBook.API.BackgroundServices
                 foreach (var unstoredAggregateEventGroup in unstoredAggregateEventGroups)
                 {
                     var aggregateId = unstoredAggregateEventGroup.Key;
-                    var aggregateEventEntities = unstoredAggregateEventGroup.Select(x => x).ToList();
+                    var aggregateEventEntities = unstoredAggregateEventGroup
+                        .Select(x => x)
+                        .OrderBy(x => x.Occurred)
+                        .ToList();
                     var aggregateEvents = aggregateEventEntities.Select(x => x.ToAggregateEvent());
                     await _eventStore.StoreEventsAsync(aggregateId, aggregateEvents, cancellationToken);
                     foreach (var aggregateEventEntity in aggregateEventEntities)

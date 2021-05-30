@@ -5,13 +5,13 @@ namespace Culina.CookBook.Domain.Events
 {
     public interface IIngredientCreated
     {
-        Guid IngredientId { get; set; }
+        Guid Id { get; set; }
         string IngredientName { get; set; }
     }
 
     sealed class EventData : IIngredientCreated
     {
-        public Guid IngredientId { get; set;  }
+        public Guid Id { get; set;  }
         public string IngredientName { get; set; }
     }
 
