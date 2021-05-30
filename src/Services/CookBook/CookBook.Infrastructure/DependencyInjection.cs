@@ -28,6 +28,7 @@ namespace Culina.CookBook.Infrastructure
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
             services.AddTransient<IDateTime, DateTimeService>();
+            services.AddTransient<IAggregateEventService, AggregateEventService>();
 
             if (isDevelopment)
             {

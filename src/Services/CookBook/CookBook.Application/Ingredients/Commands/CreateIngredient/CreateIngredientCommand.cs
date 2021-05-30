@@ -4,9 +4,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Culina.CookBook.Application.Common.Exceptions;
 using Culina.CookBook.Application.Common.Interfaces;
+using Culina.CookBook.Application.Common.Models;
 using Culina.CookBook.Domain.Entities;
+using Culina.CookBook.Domain.Events;
+using CulinaCloud.BuildingBlocks.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
 {
@@ -19,36 +23,67 @@ namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
     public class CreateIngredientCommandHandler : IRequestHandler<CreateIngredientCommand, CreateIngredientResponse>
     {
         private readonly IApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IDateTime _dateTime;
+        private readonly IAggregateEventService _aggregateEventService;
         private readonly IMapper _mapper;
 
-        public CreateIngredientCommandHandler(IApplicationDbContext context, IMapper mapper)
+        public CreateIngredientCommandHandler(
+            IApplicationDbContext context,
+            ICurrentUserService currentUserService,
+            IDateTime dateTime,
+            IAggregateEventService aggregateEventService,
+            IMapper mapper)
         {
             _context = context;
+            _currentUserService = currentUserService;
+            _dateTime = dateTime;
+            _aggregateEventService = aggregateEventService;
             _mapper = mapper;
         }
 
         public async Task<CreateIngredientResponse> Handle(CreateIngredientCommand request, CancellationToken cancellationToken)
         {
-            var entity = new Ingredient()
+            var now = _dateTime.Now;
+            var currentUserId = _currentUserService.UserId;
+            var entity = new Ingredient
             {
                 Id = request.Id ?? Guid.NewGuid(),
-                IngredientName = request.IngredientName
+                IngredientName = request.IngredientName,
+                Created = now,
+                CreatedBy = currentUserId
+            };
+            var @event = new IngredientCreatedEvent
+            {
+                AggregateId = entity.Id,
+                Details = "A new ingredient was created using the POST \"/cookbook/ingredients\" API.",
+                Occurred = entity.Created,
+                RaisedBy = entity.CreatedBy,
+                Data = {IngredientId = entity.Id, IngredientName = entity.IngredientName}
             };
             try
             {
+                await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+                await _context.EventOutbox.AddAsync(new AggregateEventEntity(@event.ToAggregateEvent()),
+                    cancellationToken);
                 await _context.Ingredients.AddAsync(entity, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
+                await _aggregateEventService.Publish(@event, cancellationToken);
+                
                 var response = _mapper.Map<CreateIngredientResponse>(entity);
 
                 return response;
             }
             catch (DbUpdateException e)
             {
-                if (e.InnerException?.Message?.Contains("IX_Ingredients_IngredientName", StringComparison.Ordinal) ?? false)
+                if (e.InnerException?.Message.Contains("IX_Ingredients_IngredientName", StringComparison.Ordinal) ??
+                    false)
                 {
                     throw new EntityConflictException(nameof(Ingredient), entity.IngredientName);
                 }
+
                 throw;
             }
         }

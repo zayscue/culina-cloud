@@ -50,7 +50,7 @@ namespace Culina.CookBook.Infrastructure.EventStore
             await _httpClient.SendAsync(request, cancellationToken);
         }
 
-        public async Task<IEnumerable<GenericAggregateEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<AggregateEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             var (tokenType, accessToken) = await _tokenService.GetToken(cancellationToken);
             var request = new HttpRequestMessage
@@ -64,7 +64,7 @@ namespace Culina.CookBook.Infrastructure.EventStore
             };
             var response = await _httpClient.SendAsync(request, cancellationToken);
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var aggregateEvents = JsonSerializer.Deserialize<List<GenericAggregateEvent>>(responseContent, new JsonSerializerOptions
+            var aggregateEvents = JsonSerializer.Deserialize<List<AggregateEvent>>(responseContent, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
