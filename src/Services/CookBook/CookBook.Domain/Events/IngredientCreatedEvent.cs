@@ -9,7 +9,7 @@ namespace Culina.CookBook.Domain.Events
         string IngredientName { get; set; }
     }
 
-    sealed class EventData : IIngredientCreated
+    sealed class IngredientCreated : IIngredientCreated
     {
         public Guid Id { get; set;  }
         public string IngredientName { get; set; }
@@ -21,7 +21,7 @@ namespace Culina.CookBook.Domain.Events
 
         public IngredientCreatedEvent()
         {
-            Data = new EventData();
+            Data = new IngredientCreated();
         }
     }
 }
