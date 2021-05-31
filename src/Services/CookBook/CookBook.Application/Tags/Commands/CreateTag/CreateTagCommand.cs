@@ -23,18 +23,21 @@ namespace Culina.CookBook.Application.Tags.Commands.CreateTag
         private readonly IApplicationDbContext _context;
         private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
+        private readonly IAggregateEventService _aggregateEventService;
         private readonly IMapper _mapper;
 
         public CreateTagCommandHandler(
             IApplicationDbContext context,
             ICurrentUserService currentUserService,
             IDateTime dateTime,
+            IAggregateEventService aggregateEventService,
             IMapper mapper
             )
         {
             _context = context;
             _currentUserService = currentUserService;
             _dateTime = dateTime;
+            _aggregateEventService = aggregateEventService;
             _mapper = mapper;
         }
 
@@ -65,6 +68,8 @@ namespace Culina.CookBook.Application.Tags.Commands.CreateTag
                 await _context.Tags.AddAsync(entity, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                await _aggregateEventService.Publish(@event, cancellationToken);
 
                 var response = _mapper.Map<CreateTagResponse>(entity);
 
