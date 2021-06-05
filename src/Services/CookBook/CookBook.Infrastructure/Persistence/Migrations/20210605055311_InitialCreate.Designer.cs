@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210603124119_InitialCreate")]
+    [Migration("20210605055311_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,8 +121,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(4096)
-                        .HasColumnType("character varying(4096)")
+                        .HasMaxLength(8192)
+                        .HasColumnType("character varying(8192)")
                         .HasColumnName("Description");
 
                     b.Property<int>("EstimatedMinutes")
@@ -238,8 +238,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Part")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
                         .HasColumnName("Part");
 
                     b.Property<string>("Quantity")
@@ -433,8 +433,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Instruction")
                         .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
                         .HasColumnName("Instruction");
 
                     b.Property<DateTime?>("LastModified")
@@ -515,8 +515,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("TagName")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("TagName");
 
                     b.HasKey("Id");
