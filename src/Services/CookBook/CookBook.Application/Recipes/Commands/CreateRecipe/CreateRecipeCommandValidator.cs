@@ -14,10 +14,10 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 .MaximumLength(128);
 
             RuleFor(c => c.Description)
-                .MaximumLength(512);
+                .MaximumLength(8192);
 
-            RuleFor(c => c.EstimatedMinutes)
-                .NotEmpty();
+            //RuleFor(c => c.EstimatedMinutes)
+                //.NotEmpty();
 
             RuleFor(c => c.Serves)
                 .MaximumLength(16);
@@ -77,7 +77,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
 
                 RuleFor(c => c.Part)
                     .NotEmpty()
-                    .MaximumLength(128);
+                    .MaximumLength(512);
 
                 RuleFor(c => c.Type)
                     .MaximumLength(128);
@@ -118,7 +118,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             public CreateRecipeStepCommandValidator()
             {
                 RuleFor(c => c)
-                    .MaximumLength(512);
+                    .MaximumLength(2048);
             }
         }
 
@@ -136,7 +136,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
             public CreateRecipeTagCommandValidator()
             {
                 RuleFor(c => c)
-                    .MaximumLength(64);
+                    .MaximumLength(128);
             }
         }
 

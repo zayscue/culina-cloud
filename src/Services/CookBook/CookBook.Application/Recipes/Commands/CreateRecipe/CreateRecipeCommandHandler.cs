@@ -124,6 +124,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 });
             }
 
+            var uniqueIngredients = new Dictionary<string, Ingredient>();
             foreach (var recipeIngredient in request.Ingredients)
             {
                 var recipeIngredientId = Guid.NewGuid();
@@ -135,6 +136,15 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                     if (ingredient == null)
                     {
                         var ingredientId = Guid.NewGuid();
+                        var newIngredient = uniqueIngredients.ContainsKey(recipeIngredient.Type) 
+                            ? uniqueIngredients[recipeIngredient.Type]
+                            : new Ingredient
+                            {
+                                Id = ingredientId,
+                                IngredientName = recipeIngredient.Type,
+                                Created = now,
+                                CreatedBy = currentUserId
+                            };
                         entity.Ingredients.Add(new RecipeIngredient
                         {
                             RecipeId = recipeId,
@@ -144,14 +154,9 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                             IngredientId = ingredientId,
                             Created = now,
                             CreatedBy = currentUserId,
-                            Ingredient = new Ingredient
-                            {
-                                Id = ingredientId,
-                                IngredientName = recipeIngredient.Type,
-                                Created = now,
-                                CreatedBy = currentUserId
-                            }
+                            Ingredient = newIngredient
                         });
+                        if (uniqueIngredients.ContainsKey(recipeIngredient.Type)) continue;
                         ingredientCreatedEvents.Add(new IngredientCreatedEvent
                         {
                             AggregateId = ingredientId,
@@ -163,6 +168,7 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                                 IngredientName = recipeIngredient.Type
                             }
                         });
+                        uniqueIngredients.Add(recipeIngredient.Type, newIngredient);
                     }
                     else
                     {
@@ -320,7 +326,9 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                     Protein = request.Nutrition.Protein,
                     ProteinPdv = request.Nutrition.ProteinPdv,
                     TotalCarbohydrates = request.Nutrition.TotalCarbohydrates,
-                    TotalCarbohydratesPdv = request.Nutrition.TotalCarbohydratesPdv
+                    TotalCarbohydratesPdv = request.Nutrition.TotalCarbohydratesPdv,
+                    Created = now,
+                    CreatedBy = currentUserId
                 };
             }
 

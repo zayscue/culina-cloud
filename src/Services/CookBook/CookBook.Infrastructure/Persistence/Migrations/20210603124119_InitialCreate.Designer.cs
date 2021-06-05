@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210530003456_InitialCreate")]
+    [Migration("20210603124119_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,8 +121,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
                         .HasColumnName("Description");
 
                     b.Property<int>("EstimatedMinutes")
@@ -238,8 +238,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Part")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("Part");
 
                     b.Property<string>("Quantity")
@@ -302,23 +302,23 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("RecipeId");
 
                     b.Property<decimal>("Calories")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("Calories");
 
                     b.Property<decimal>("CaloriesFromFat")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("CaloriesFromFat");
 
                     b.Property<decimal>("CaloriesFromFatPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("CaloriesFromFatPdv");
 
                     b.Property<decimal>("Cholesterol")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("Cholesterol");
 
                     b.Property<decimal>("CholesterolPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("CholesterolPdv");
 
                     b.Property<DateTime>("Created")
@@ -332,11 +332,11 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<decimal>("DietaryFiber")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("DietaryFiber");
 
                     b.Property<decimal>("DietaryFiberPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("DietaryFiberPdv");
 
                     b.Property<DateTime?>("LastModified")
@@ -349,20 +349,20 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<decimal>("Protein")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("Protein");
 
                     b.Property<decimal>("ProteinPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("ProteinPdv");
 
                     b.Property<decimal>("SaturatedFat")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("SaturatedFat");
 
                     b.Property<decimal>("SaturatedFatPdv")
                         .HasColumnType("numeric")
-                        .HasColumnName("decimal(5, 2)");
+                        .HasColumnName("decimal(8, 2)");
 
                     b.Property<string>("ServingSize")
                         .IsRequired()
@@ -375,35 +375,35 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                         .HasColumnName("ServingsPerRecipe");
 
                     b.Property<decimal>("Sodium")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("Sodium");
 
                     b.Property<decimal>("SodiumPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("SodiumPdv");
 
                     b.Property<decimal>("Sugar")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("Sugar");
 
                     b.Property<decimal>("SugarPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("SugarPdv");
 
                     b.Property<decimal>("TotalCarbohydrates")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("TotalCarbohydrates");
 
                     b.Property<decimal>("TotalCarbohydratesPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("TotalCarbohydratesPdv");
 
                     b.Property<decimal>("TotalFat")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("TotalFat");
 
                     b.Property<decimal>("TotalFatPdv")
-                        .HasColumnType("numeric(5,2)")
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("TotalFatPdv");
 
                     b.HasKey("RecipeId");
@@ -433,8 +433,8 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Instruction")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
                         .HasColumnName("Instruction");
 
                     b.Property<DateTime?>("LastModified")
