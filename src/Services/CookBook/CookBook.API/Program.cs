@@ -14,6 +14,7 @@ using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
+using Culina.CookBook.API.BackgroundServices;
 
 static IConfiguration GetConfiguration()
 {
@@ -52,7 +53,7 @@ try
         .ConfigureServices((WebHostBuilderContext webHostBuilderContext, IServiceCollection services)  =>
         {
             services.AddAuthentication(options =>
-            { 
+            {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
@@ -63,7 +64,11 @@ try
             services.AddApplication();
             services.AddInfrastructure(webHostBuilderContext.Configuration,
                 webHostBuilderContext.HostingEnvironment.IsDevelopment());
-            services.AddHttpContextAccessor();  
+            services.Configure<EventDeliveryBackgroundServiceSettings>(
+                webHostBuilderContext.Configuration.GetSection("EventDeliveryBackgroundService"));
+            services.AddHostedService<EventDeliveryBackgroundService>();
+            services.AddScoped<IEventDeliveryService, EventDeliveryService>();
+            services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
@@ -77,7 +82,7 @@ try
             app.ConfigureExceptionHandler(env);
 
             app.UseStaticFiles();
-            
+
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

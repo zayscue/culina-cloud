@@ -43,7 +43,8 @@ namespace Culina.CookBook.Infrastructure.Persistence
         public DbSet<RecipeStep> RecipeSteps { get; set; }
         public DbSet<RecipeTag> RecipeTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<Image> Images { get; set; } 
+        public DbSet<Image> Images { get; set; }
+        public DbSet<AggregateEventEntity> EventOutbox { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -52,13 +53,16 @@ namespace Culina.CookBook.Infrastructure.Persistence
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.CreatedBy = _currentUserService.UserId;
-                        entry.Entity.Created = _dateTime.Now;
+                        entry.Entity.CreatedBy ??= _currentUserService.UserId;
+                        if (entry.Entity.Created == default)
+                        {
+                            entry.Entity.Created = _dateTime.Now;
+                        }
                         break;
 
                     case EntityState.Modified:
-                        entry.Entity.LastModifiedBy = _currentUserService.UserId;
-                        entry.Entity.LastModified = _dateTime.Now;
+                        entry.Entity.LastModifiedBy ??= _currentUserService.UserId;
+                        entry.Entity.LastModified ??= _dateTime.Now;
                         break;
                     case EntityState.Detached:
                         break;

@@ -23,7 +23,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.Description)
                 .HasColumnName("Description")
-                .HasMaxLength(512);
+                .HasMaxLength(8192);
 
             builder.Property(r => r.EstimatedMinutes)
                 .HasColumnName("EstimatedMinutes")

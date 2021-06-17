@@ -1,20 +1,27 @@
-﻿using Culina.CookBook.Domain.Entities;
+﻿using System;
 using CulinaCloud.BuildingBlocks.Common;
 
 namespace Culina.CookBook.Domain.Events
 {
-    public class IngredientCreatedEvent : AggregateEvent
+    public interface IIngredientCreated
+    {
+        Guid Id { get; set; }
+        string IngredientName { get; set; }
+    }
+
+    sealed class IngredientCreated : IIngredientCreated
+    {
+        public Guid Id { get; set;  }
+        public string IngredientName { get; set; }
+    }
+
+    public sealed class IngredientCreatedEvent : AggregateEventBase<IIngredientCreated>
     {
         public override string AggregateType => "Ingredient";
 
-        public IngredientCreatedEvent(Ingredient ingredient)
+        public IngredientCreatedEvent()
         {
-            AggregateId = ingredient.Id;
-            Data = new
-            {
-                ingredient.Id,
-                ingredient.IngredientName
-            };
+            Data = new IngredientCreated();
         }
     }
 }

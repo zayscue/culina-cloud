@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Culina.CookBook.Infrastructure.Persistence.Migrations
@@ -9,6 +10,27 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "CookBook");
+
+            migrationBuilder.CreateTable(
+                name: "EventOutbox",
+                schema: "CookBook",
+                columns: table => new
+                {
+                    EventId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsStored = table.Column<bool>(type: "boolean", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    EventName = table.Column<string>(type: "text", nullable: false),
+                    Occurred = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    AggregateType = table.Column<string>(type: "text", nullable: false),
+                    AggregateId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RaisedBy = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Details = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Data = table.Column<JsonDocument>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventOutbox", x => x.EventId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Images",
@@ -51,7 +73,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Description = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
+                    Description = table.Column<string>(type: "character varying(8192)", maxLength: 8192, nullable: true),
                     EstimatedMinutes = table.Column<int>(type: "integer", nullable: false),
                     Serves = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
                     Yield = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
@@ -73,7 +95,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TagName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    TagName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -124,7 +146,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                     RecipeId = table.Column<Guid>(type: "uuid", nullable: false),
                     IngredientId = table.Column<Guid>(type: "uuid", nullable: true),
                     Quantity = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
-                    Part = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Part = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -182,25 +204,25 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                     RecipeId = table.Column<Guid>(type: "uuid", nullable: false),
                     ServingSize = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     ServingsPerRecipe = table.Column<int>(type: "integer", nullable: false),
-                    Calories = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    CaloriesFromFat = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    CaloriesFromFatPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    TotalFat = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    TotalFatPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    SaturatedFat = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    decimal52 = table.Column<decimal>(name: "decimal(5, 2)", type: "numeric", nullable: false),
-                    Cholesterol = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    CholesterolPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    DietaryFiber = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    DietaryFiberPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    Sugar = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    SugarPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    Sodium = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    SodiumPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    Protein = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    ProteinPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    TotalCarbohydrates = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
-                    TotalCarbohydratesPdv = table.Column<decimal>(type: "decimal(5, 2)", nullable: false),
+                    Calories = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    CaloriesFromFat = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    CaloriesFromFatPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    TotalFat = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    TotalFatPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    SaturatedFat = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    decimal82 = table.Column<decimal>(name: "decimal(8, 2)", type: "numeric", nullable: false),
+                    Cholesterol = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    CholesterolPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    DietaryFiber = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    DietaryFiberPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    Sugar = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    SugarPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    Sodium = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    SodiumPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    Protein = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    ProteinPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    TotalCarbohydrates = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
+                    TotalCarbohydratesPdv = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -225,7 +247,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
                 {
                     RecipeId = table.Column<Guid>(type: "uuid", nullable: false),
                     Order = table.Column<int>(type: "integer", nullable: false),
-                    Instruction = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Instruction = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -316,6 +338,10 @@ namespace Culina.CookBook.Infrastructure.Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "EventOutbox",
+                schema: "CookBook");
+
             migrationBuilder.DropTable(
                 name: "RecipeImages",
                 schema: "CookBook");

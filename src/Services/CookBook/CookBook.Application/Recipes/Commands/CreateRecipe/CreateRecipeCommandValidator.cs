@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using FluentValidation;
 
@@ -15,10 +14,10 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 .MaximumLength(128);
 
             RuleFor(c => c.Description)
-                .MaximumLength(512);
+                .MaximumLength(8192);
 
-            RuleFor(c => c.EstimatedMinutes)
-                .NotEmpty();
+            //RuleFor(c => c.EstimatedMinutes)
+                //.NotEmpty();
 
             RuleFor(c => c.Serves)
                 .MaximumLength(16);
@@ -28,66 +27,66 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
 
             RuleFor(c => c.Steps)
                 .Must(x => x.Count > 0);
-            
+
             RuleForEach(c => c.Steps)
-                .SetValidator(new CreateRecipeCommandRecipeStepValidator());
+                .SetValidator(new CreateRecipeStepCommandValidator());
 
             RuleForEach(c => c.Steps)
                 .NotEmpty();
 
             RuleFor(c => c.Ingredients)
                 .Must(x => x.Count > 0);
-            
+
             RuleForEach(c => c.Ingredients)
-                .SetValidator(new CreateRecipeCommandRecipeIngredientValidator());
+                .SetValidator(new CreateRecipeIngredientCommandValidator());
 
             RuleForEach(c => c.Metadata)
-                .SetValidator(new CreateRecipeCommandRecipeMetadataValidator());
+                .SetValidator(new CreateRecipeMetadataCommandValidator());
 
             RuleFor(c => c.Metadata)
                 .Must(c =>
-                    c == null || c.Distinct(new CreateRecipeCommandRecipeMetadataComparer()).Count() == c.Count)
+                    c == null || c.Distinct(new CreateRecipeMetadataCommandComparer()).Count() == c.Count)
                 .WithMessage("The metadata elements are not unique.");
 
             RuleFor(c => c.ImageUrls)
                 .Must(c =>
                     c == null || c.Distinct().Count() == c.Count)
                 .WithMessage("The image urls are not unique.");
-            
+
             RuleForEach(c => c.ImageUrls)
-                .SetValidator(new CreateRecipeCommandRecipeImageUrlValidator());
-            
+                .SetValidator(new CreateRecipeImageUrlCommandValidator());
+
             RuleFor(c => c.Tags)
                 .Must(c =>
                     c == null || c.Distinct().Count() == c.Count)
                 .WithMessage("The image urls are not unique.");
-            
+
             RuleForEach(c => c.Tags)
-                .SetValidator(new CreateRecipeCommandRecipeTagValidator());
+                .SetValidator(new CreateRecipeTagCommandValidator());
 
             RuleFor(c => c.Nutrition)
-                .SetValidator(new CreateRecipeCommandRecipeNutritionValidator());
+                .SetValidator(new CreateRecipeNutritionCommandValidator());
         }
-        
-        private class CreateRecipeCommandRecipeIngredientValidator : AbstractValidator<CreateRecipeCommandRecipeIngredient>
+
+        private class CreateRecipeIngredientCommandValidator : AbstractValidator<CreateRecipeIngredientCommand>
         {
-            public CreateRecipeCommandRecipeIngredientValidator()
+            public CreateRecipeIngredientCommandValidator()
             {
                 RuleFor(c => c.Quantity)
                     .MaximumLength(32);
 
                 RuleFor(c => c.Part)
                     .NotEmpty()
-                    .MaximumLength(128);
+                    .MaximumLength(512);
 
                 RuleFor(c => c.Type)
                     .MaximumLength(128);
             }
         }
 
-        private class CreateRecipeCommandRecipeMetadataValidator : AbstractValidator<CreateRecipeCommandRecipeMetadata>
+        private class CreateRecipeMetadataCommandValidator : AbstractValidator<CreateRecipeMetadataCommand>
         {
-            public CreateRecipeCommandRecipeMetadataValidator()
+            public CreateRecipeMetadataCommandValidator()
             {
                 RuleFor(c => c.Type)
                     .MaximumLength(64);
@@ -96,10 +95,10 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                     .MaximumLength(128);
             }
         }
-    
-        private class CreateRecipeCommandRecipeMetadataComparer : IEqualityComparer<CreateRecipeCommandRecipeMetadata>
+
+        private class CreateRecipeMetadataCommandComparer : IEqualityComparer<CreateRecipeMetadataCommand>
         {
-            public bool Equals(CreateRecipeCommandRecipeMetadata x, CreateRecipeCommandRecipeMetadata y)
+            public bool Equals(CreateRecipeMetadataCommand x, CreateRecipeMetadataCommand y)
             {
                 if (ReferenceEquals(x, y)) return true;
                 if (ReferenceEquals(x, null)) return false;
@@ -108,42 +107,42 @@ namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
                 return x.Type == y.Type;
             }
 
-            public int GetHashCode(CreateRecipeCommandRecipeMetadata obj)
+            public int GetHashCode(CreateRecipeMetadataCommand obj)
             {
                 return HashCode.Combine(obj.Type);
             }
         }
-        
-        private class CreateRecipeCommandRecipeStepValidator : AbstractValidator<string>
+
+        private class CreateRecipeStepCommandValidator : AbstractValidator<string>
         {
-            public CreateRecipeCommandRecipeStepValidator()
+            public CreateRecipeStepCommandValidator()
             {
                 RuleFor(c => c)
-                    .MaximumLength(512);
+                    .MaximumLength(2048);
             }
         }
-        
-        private class CreateRecipeCommandRecipeImageUrlValidator : AbstractValidator<string>
+
+        private class CreateRecipeImageUrlCommandValidator : AbstractValidator<string>
         {
-            public CreateRecipeCommandRecipeImageUrlValidator()
+            public CreateRecipeImageUrlCommandValidator()
             {
                 RuleFor(c => c)
                     .MaximumLength(1024);
             }
         }
-        
-        private class CreateRecipeCommandRecipeTagValidator : AbstractValidator<string>
+
+        private class CreateRecipeTagCommandValidator : AbstractValidator<string>
         {
-            public CreateRecipeCommandRecipeTagValidator()
+            public CreateRecipeTagCommandValidator()
             {
                 RuleFor(c => c)
-                    .MaximumLength(64);
+                    .MaximumLength(128);
             }
         }
-        
-        private class CreateRecipeCommandRecipeNutritionValidator : AbstractValidator<CreateRecipeCommandRecipeNutrition>
+
+        private class CreateRecipeNutritionCommandValidator : AbstractValidator<CreateRecipeNutritionCommand>
         {
-            public CreateRecipeCommandRecipeNutritionValidator()
+            public CreateRecipeNutritionCommandValidator()
             {
                 RuleFor(c => c.ServingSize)
                     .MaximumLength(32)

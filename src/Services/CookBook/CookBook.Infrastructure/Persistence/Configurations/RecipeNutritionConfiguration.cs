@@ -27,97 +27,97 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.Calories)
                 .HasColumnName("Calories")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.CaloriesFromFat)
                 .HasColumnName("CaloriesFromFat")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.CaloriesFromFatPdv)
                 .HasColumnName("CaloriesFromFatPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.TotalFat)
                 .HasColumnName("TotalFat")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.TotalFatPdv)
                 .HasColumnName("TotalFatPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.SaturatedFat)
                 .HasColumnName("SaturatedFat")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.SaturatedFatPdv)
                 .HasColumnName("SaturatedFatPdv")
-                .HasColumnName("decimal(5, 2)")
+                .HasColumnName("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.Cholesterol)
                 .HasColumnName("Cholesterol")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.CholesterolPdv)
                 .HasColumnName("CholesterolPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.DietaryFiber)
                 .HasColumnName("DietaryFiber")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.DietaryFiberPdv)
                 .HasColumnName("DietaryFiberPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.Sugar)
                 .HasColumnName("Sugar")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.SugarPdv)
                 .HasColumnName("SugarPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.Sodium)
                 .HasColumnName("Sodium")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.SodiumPdv)
                 .HasColumnName("SodiumPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.Protein)
                 .HasColumnName("Protein")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.ProteinPdv)
                 .HasColumnName("ProteinPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.TotalCarbohydrates)
                 .HasColumnName("TotalCarbohydrates")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.TotalCarbohydratesPdv)
                 .HasColumnName("TotalCarbohydratesPdv")
-                .HasColumnType("decimal(5, 2)")
+                .HasColumnType("decimal(8, 2)")
                 .IsRequired();
 
             builder.Property(r => r.Created)

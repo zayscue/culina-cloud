@@ -22,7 +22,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.Instruction)
                 .HasColumnName("Instruction")
-                .HasMaxLength(512)
+                .HasMaxLength(2048)
                 .IsRequired();
 
             builder.Property(r => r.Created)

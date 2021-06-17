@@ -29,7 +29,7 @@ namespace Culina.CookBook.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.Part)
                 .HasColumnName("Part")
-                .HasMaxLength(128)
+                .HasMaxLength(512)
                 .IsRequired();
 
             builder.Property(r => r.Created)

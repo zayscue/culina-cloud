@@ -8,12 +8,11 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Models;
 using CulinaCloud.BuildingBlocks.Common;
 
 namespace Culina.CookBook.Infrastructure.EventStore
 {
-    public class EventStoreService : IEventStoreService
+  public class EventStoreService : IEventStoreService
     {
         private readonly ITokenService _tokenService;
         private readonly HttpClient _httpClient;
@@ -23,7 +22,7 @@ namespace Culina.CookBook.Infrastructure.EventStore
             _tokenService = tokenService;
             _httpClient = httpClient;
         }
-        
+
         public async Task StoreEventsAsync(Guid aggregateId, IEnumerable<AggregateEvent> events, CancellationToken cancellationToken = default)
         {
             var (tokenType, accessToken) = await _tokenService.GetToken(cancellationToken);
@@ -50,7 +49,7 @@ namespace Culina.CookBook.Infrastructure.EventStore
             await _httpClient.SendAsync(request, cancellationToken);
         }
 
-        public async Task<IEnumerable<GenericAggregateEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<AggregateEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             var (tokenType, accessToken) = await _tokenService.GetToken(cancellationToken);
             var request = new HttpRequestMessage
@@ -64,11 +63,25 @@ namespace Culina.CookBook.Infrastructure.EventStore
             };
             var response = await _httpClient.SendAsync(request, cancellationToken);
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var aggregateEvents = JsonSerializer.Deserialize<List<GenericAggregateEvent>>(responseContent, new JsonSerializerOptions
+            var aggregateEvents = JsonSerializer.Deserialize<List<AggregateEvent>>(responseContent, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             return aggregateEvents;
         }
-    }
+
+        public async Task<bool> CheckHealth(CancellationToken cancellationToken = default)
+        {
+            var request = new  HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(_httpClient.BaseAddress, $"/health")
+            };
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode) return false;
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!string.Equals(responseContent, "Healthy", StringComparison.OrdinalIgnoreCase)) return false;
+            return true;
+        }
+  }
 }
