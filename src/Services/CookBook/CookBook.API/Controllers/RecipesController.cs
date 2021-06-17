@@ -11,7 +11,7 @@ namespace Culina.CookBook.API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<GetRecipeResponse>> Get(Guid id)
         {
-            var vm = await Mediator.Send(new GetRecipeQuery() {Id = id});
+            var vm = await Mediator.Send(new GetRecipeQuery {Id = id});
             return Ok(vm);
         }
 
