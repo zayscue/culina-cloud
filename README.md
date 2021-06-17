@@ -26,3 +26,33 @@ Example:
 
 docker exec -it a2f5ad6981a0 pg_dump -f /cookbook_culinacloud_db.dump -Fc --no-acl --no-owner --data-only -U postgres CulinaCloudDB --schema '"CookBook"'
 ```
+
+### Copy Postgresql Data Dumps from Docker Container
+
+```
+docker cp {containerName}:/{dumpFileName} {dumpFileName}
+
+Example:
+
+docker cp culina-cloud_postgres_1:/cookbook_culinacloud_db.dump cookbook_culinacloud_db.dump
+```
+
+### Copy Postgresql Data Dumps into Docker Container
+
+```
+docker cp {dumpFileName} {containerName}:/{dumpFileName}
+
+Example:
+
+docker cp cookbook_culinacloud_db.dump culina-cloud_postgres_1:/cookbook_culinacloud_db.dump
+```
+
+### Restore Postgresql Data from Data Dump
+
+```
+docker exec -it {containerId} pg_restore -U {masterUser} -d {databaseName} -1 {dumpFileName}
+
+Example:
+
+docker exec -it a528f9631b34 pg_restore -U postgres -d CulinaCloudDB -1 /cookbook_culinacloud_db.dump
+```
