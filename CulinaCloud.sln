@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31410.414
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76650D41-9C45-4CC3-BB1C-C2D297846B3B}"
 EndProject
@@ -49,15 +49,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reviews", "Reviews", "{C204DB62-7D21-49C9-B6D5-93D82496ED8D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interactions", "Interactions", "{C204DB62-7D21-49C9-B6D5-93D82496ED8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reviews.API", "src\Services\Reviews\Reviews.API\Reviews.API.csproj", "{633DB4AB-E054-4FA1-B3B3-4CA87837553C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactions.API", "src\Services\Interactions\Interactions.API\Interactions.API.csproj", "{633DB4AB-E054-4FA1-B3B3-4CA87837553C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reviews.Application", "src\Services\Reviews\Reviews.Application\Reviews.Application.csproj", "{52951AFA-81A1-449D-8C98-54110087E99D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactions.Application", "src\Services\Interactions\Interactions.Application\Interactions.Application.csproj", "{52951AFA-81A1-449D-8C98-54110087E99D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reviews.Domain", "src\Services\Reviews\Reviews.Domain\Reviews.Domain.csproj", "{987EBEE2-B820-4219-8D2A-BC3EFAA9DAA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactions.Domain", "src\Services\Interactions\Interactions.Domain\Interactions.Domain.csproj", "{987EBEE2-B820-4219-8D2A-BC3EFAA9DAA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reviews.Infrastructure", "src\Services\Reviews\Reviews.Infrastructure\Reviews.Infrastructure.csproj", "{23AA5598-8AA7-4760-9106-9DB300DABB00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactions.Infrastructure", "src\Services\Interactions\Interactions.Infrastructure\Interactions.Infrastructure.csproj", "{23AA5598-8AA7-4760-9106-9DB300DABB00}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{B7EEC455-F602-49AC-BA48-C376FD0C97C4}"
 EndProject
@@ -65,7 +65,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recommendations", "Recommen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authentication", "Authentication", "{FB6131DE-91B6-43F1-A5AC-1E9573E1B785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication", "src\BuildingBlocks\Authentication\Authentication\Authentication.csproj", "{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication", "src\BuildingBlocks\Authentication\Authentication\Authentication.csproj", "{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventStore", "EventStore", "{98ADE1A7-4D4A-43EF-8545-83F117A9EE99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore", "src\BuildingBlocks\EventStore\EventStore\EventStore.csproj", "{D24F8A11-1D48-44AC-B082-EC62356B31BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -281,6 +285,18 @@ Global
 		{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9}.Release|x64.Build.0 = Release|Any CPU
 		{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9}.Release|x86.ActiveCfg = Release|Any CPU
 		{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9}.Release|x86.Build.0 = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|x64.Build.0 = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Debug|x86.Build.0 = Debug|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|x64.ActiveCfg = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|x64.Build.0 = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|x86.ActiveCfg = Release|Any CPU
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -312,6 +328,8 @@ Global
 		{7434E089-9F1E-481B-A753-D9AB25C13786} = {5CB01D37-30F8-465E-B45A-B1AE33E5D60F}
 		{FB6131DE-91B6-43F1-A5AC-1E9573E1B785} = {81DA2AF3-C7FA-48CF-9A99-2AF9D2B7E288}
 		{BDC4F7D5-D8FB-49EA-921F-8146806FD4B9} = {FB6131DE-91B6-43F1-A5AC-1E9573E1B785}
+		{98ADE1A7-4D4A-43EF-8545-83F117A9EE99} = {81DA2AF3-C7FA-48CF-9A99-2AF9D2B7E288}
+		{D24F8A11-1D48-44AC-B082-EC62356B31BF} = {98ADE1A7-4D4A-43EF-8545-83F117A9EE99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72659153-F05E-46FA-B0A0-FC23C4FD47C4}

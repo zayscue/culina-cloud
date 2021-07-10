@@ -62,9 +62,10 @@ namespace CulinaCloud.BuildingBlocks.Authentication.Auth0
             if (!response.IsSuccessStatusCode) throw new Exception("Unable to retrieve access token from Auth0");
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var auth0TokenResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(responseContent);
+            if (auth0TokenResponse == null) throw new Exception("Unable to serialize access token from Auth0");
             var tokenType = auth0TokenResponse["token_type"].ToString();
             var accessToken = auth0TokenResponse["access_token"].ToString();
-            var expiresIn = int.Parse(auth0TokenResponse["expires_in"].ToString());
+            var expiresIn = int.Parse(auth0TokenResponse["expires_in"].ToString() ?? throw new InvalidOperationException());
             return new Auth0Token(_dateTime)
             {
                 AccessToken = accessToken,
