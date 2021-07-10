@@ -6,4 +6,8 @@
     <AssemblyName>CulinaCloud.Reviews.Domain</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Common\Common\Common.csproj" />
+  </ItemGroup>
+
 </Project>

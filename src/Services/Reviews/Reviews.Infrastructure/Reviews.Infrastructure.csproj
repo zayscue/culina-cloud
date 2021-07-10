@@ -9,9 +9,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.5.1" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.0.17" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Authentication\Authentication\Authentication.csproj" />
     <ProjectReference Include="..\Reviews.Application\Reviews.Application.csproj" />
   </ItemGroup>
 
