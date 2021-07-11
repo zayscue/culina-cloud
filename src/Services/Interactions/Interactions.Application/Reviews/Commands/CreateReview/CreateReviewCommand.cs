@@ -82,16 +82,16 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
                     Comments = entity.Comments
                 }
             };
-            var recipeServiceIsHealthy = await _recipesService.CheckHealth(cancellationToken);
-            if (!recipeServiceIsHealthy)
-            {
-                throw new RecipeServiceIsNotHealthyException();
-            }
-            var recipeExists = await _recipesService.RecipeExistsAsync(entity.RecipeId, cancellationToken);
-            if (!recipeExists)
-            {
-                throw new RecipeDoesNotExistException(entity.RecipeId);
-            }
+            //var recipeServiceIsHealthy = await _recipesService.CheckHealth(cancellationToken);
+            //if (!recipeServiceIsHealthy)
+            //{
+            //    throw new RecipeServiceIsNotHealthyException();
+            //}
+            //var recipeExists = await _recipesService.RecipeExistsAsync(entity.RecipeId, cancellationToken);
+            //if (!recipeExists)
+            //{
+            //    throw new RecipeDoesNotExistException(entity.RecipeId);
+            //}
             try
             {
                 await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);

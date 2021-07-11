@@ -27,6 +27,16 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "WSL 2": {
+      "commandName": "WSL2",
+      "launchBrowser": true,
+      "launchUrl": "https://localhost:5005/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "https://localhost:5005;http://localhost:5004",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "distributionName": ""
+    },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
