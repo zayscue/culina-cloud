@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
-using CulinaCloud.Interactions.Application.Common.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.BuildingBlocks.PostMaster.Persistence</RootNamespace>
+    <AssemblyName>CulinaCloud.BuildingBlocks.PostMaster.Persistence</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PostMaster.Abstractions\PostMaster.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

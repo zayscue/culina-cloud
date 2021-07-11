@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
 
 namespace CulinaCloud.BuildingBlocks.Authentication.Auth0

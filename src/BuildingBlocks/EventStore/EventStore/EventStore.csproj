@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\Common\Common.csproj" />
+    <ProjectReference Include="..\EventStore.Abstractions\EventStore.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

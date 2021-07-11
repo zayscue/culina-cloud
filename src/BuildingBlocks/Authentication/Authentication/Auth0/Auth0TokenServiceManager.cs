@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
+using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
 

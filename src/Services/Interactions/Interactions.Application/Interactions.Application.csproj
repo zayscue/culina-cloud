@@ -15,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Application\Application.Common\Application.Common.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\CurrentUser\CurrentUser.Abstractions\CurrentUser.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\PostMaster\PostMaster.Persistence\PostMaster.Persistence.csproj" />
     <ProjectReference Include="..\Interactions.Domain\Interactions.Domain.csproj" />
   </ItemGroup>
 

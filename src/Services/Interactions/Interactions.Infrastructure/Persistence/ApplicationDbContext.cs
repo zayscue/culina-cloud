@@ -4,7 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
-using CulinaCloud.Interactions.Application.Common.Interfaces;
+using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
+using CulinaCloud.BuildingBlocks.PostMaster.Persistence;
+using CulinaCloud.Interactions.Application.Interfaces;
 using CulinaCloud.Interactions.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -74,6 +76,7 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence
             builder.HasDefaultSchema("Interactions");
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            builder.ApplyConfiguration(new EventOutboxConfiguration());
 
             base.OnModelCreating(builder);
         }

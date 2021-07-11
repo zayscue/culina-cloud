@@ -1,5 +1,5 @@
 using System.Reflection;
-using CulinaCloud.Interactions.Application.Common.Behaviours;
+using CulinaCloud.BuildingBlocks.Application.Common.Behaviours;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;

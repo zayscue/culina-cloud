@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Authentication\Authentication\Authentication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\EventStore\EventStore.Abstractions\EventStore.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\EventStore\EventStore\EventStore.csproj" />
     <ProjectReference Include="..\Interactions.Application\Interactions.Application.csproj" />
   </ItemGroup>

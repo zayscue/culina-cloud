@@ -1,12 +1,14 @@
 using System;
 using System.Net.Http.Headers;
 using Amazon.SecretsManager;
+using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.BuildingBlocks.EventStore;
-using CulinaCloud.Interactions.Application.Common.Interfaces;
+using CulinaCloud.BuildingBlocks.EventStore.Abstractions;
+using CulinaCloud.Interactions.Application.Interfaces;
 using CulinaCloud.Interactions.Infrastructure.Persistence;
 using CulinaCloud.Interactions.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

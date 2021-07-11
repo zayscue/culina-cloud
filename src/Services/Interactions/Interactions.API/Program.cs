@@ -1,5 +1,7 @@
+using CulinaCloud.BuildingBlocks.WebHost.Customization;
+using CulinaCloud.Interactions.Infrastructure.Persistence;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace CulinaCloud.Interactions.API
 {
@@ -7,14 +9,14 @@ namespace CulinaCloud.Interactions.API
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args)
+                .Build()
+                .MigrateDbContext<ApplicationDbContext>()
+                .Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
     }
 }

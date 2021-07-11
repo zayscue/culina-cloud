@@ -6,6 +6,7 @@
     <AssemblyName>CulinaCloud.Interactions.API</AssemblyName>
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <UserSecretsId>bc209627-d5e2-422c-805f-8784bfb9f96a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\CurrentUser\CurrentUser\CurrentUser.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WebHostCustomization\WebHost.Customization\WebHost.Customization.csproj" />
     <ProjectReference Include="..\Interactions.Application\Interactions.Application.csproj" />
     <ProjectReference Include="..\Interactions.Infrastructure\Interactions.Infrastructure.csproj" />
   </ItemGroup>

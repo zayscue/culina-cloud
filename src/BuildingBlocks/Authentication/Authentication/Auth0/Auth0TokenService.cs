@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
-using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
+using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
+using CulinaCloud.BuildingBlocks.Common.Interfaces;
 
 namespace CulinaCloud.BuildingBlocks.Authentication.Auth0
 {

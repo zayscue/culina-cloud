@@ -2,7 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.Interactions.Application.Common.Interfaces;
+using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
+using CulinaCloud.Interactions.Application.Interfaces;
 using CulinaCloud.Interactions.Domain.Entities;
 using MediatR;
 
