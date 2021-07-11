@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\API\API\API.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\CurrentUser\CurrentUser\CurrentUser.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\WebHostCustomization\WebHost.Customization\WebHost.Customization.csproj" />
     <ProjectReference Include="..\Interactions.Application\Interactions.Application.csproj" />

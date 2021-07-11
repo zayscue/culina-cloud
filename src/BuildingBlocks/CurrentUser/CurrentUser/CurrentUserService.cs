@@ -6,7 +6,7 @@ namespace CulinaCloud.BuildingBlocks.CurrentUser
 {
     public class CurrentUserService : ICurrentUserService
     {
-        private const string Anonymous = "Anonymous";
+        public static readonly string Anonymous = "Anonymous";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)

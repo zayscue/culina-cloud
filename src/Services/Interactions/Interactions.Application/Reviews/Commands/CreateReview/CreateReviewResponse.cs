@@ -4,7 +4,7 @@ using CulinaCloud.Interactions.Domain.Entities;
 
 namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
 {
-    public class CreateReviewResponse : MapFrom<Review>
+    public class CreateReviewResponse : IMapFrom<Review>
     {
         public Guid Id { get; set; }
         public Guid RecipeId { get; set; }

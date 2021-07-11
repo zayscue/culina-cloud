@@ -7,9 +7,9 @@ namespace CulinaCloud.BuildingBlocks.Application.Common.Mapping
 {
     public class MappingProfile : Profile
     {
-        public MappingProfile()
+        public MappingProfile(Assembly assembly)
         {
-            ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
+            ApplyMappingsFromAssembly(assembly);
         }
 
         private void ApplyMappingsFromAssembly(Assembly assembly)

@@ -37,17 +37,10 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
         public async Task<CreateReviewResponse> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            var userId = string.IsNullOrWhiteSpace(request.UserId)
-                ? currentUserId 
-                : request.UserId;
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                throw new ArgumentException("A non empty/null string must be provided as the user id");
-            }
             var entity = new Review
             {
                 Id = request.Id ?? Guid.NewGuid(),
-                UserId = userId,
+                UserId = currentUserId,
                 RecipeId = request.RecipeId,
                 Rating = request.Rating,
                 Comments = request.Comments

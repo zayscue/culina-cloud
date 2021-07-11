@@ -87,13 +87,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CurrentUser", "CurrentUser"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrentUser", "src\BuildingBlocks\CurrentUser\CurrentUser\CurrentUser.csproj", "{662CC478-5802-4B9A-B288-82B38916FB56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrentUser.Abstractions", "src\BuildingBlocks\CurrentUser\CurrentUser.Abstractions\CurrentUser.Abstractions.csproj", "{04100B97-6FB5-43BE-9C5C-798554D79979}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrentUser.Abstractions", "src\BuildingBlocks\CurrentUser\CurrentUser.Abstractions\CurrentUser.Abstractions.csproj", "{04100B97-6FB5-43BE-9C5C-798554D79979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostMaster.BackgroundService", "src\BuildingBlocks\PostMaster\PostMaster.BackgroundService\PostMaster.BackgroundService.csproj", "{8C5ACD9E-71A7-429F-A51E-F09841D46548}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostMaster.BackgroundService", "src\BuildingBlocks\PostMaster\PostMaster.BackgroundService\PostMaster.BackgroundService.csproj", "{8C5ACD9E-71A7-429F-A51E-F09841D46548}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{3F0D0254-0281-4FC2-A12B-50340C22150D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Common", "src\BuildingBlocks\Application\Application.Common\Application.Common.csproj", "{746BD4D5-7F18-49A1-AE5B-B89BC156632A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Common", "src\BuildingBlocks\Application\Application.Common\Application.Common.csproj", "{746BD4D5-7F18-49A1-AE5B-B89BC156632A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{BED40454-20E2-4718-B093-89B5197C161A}"
 EndProject
@@ -103,7 +103,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Host", "Host", "{4FB695AA-9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostMaster", "PostMaster", "{1354EEAE-145E-4540-A5A4-FBDCE3613E17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostMaster.Persistence", "src\BuildingBlocks\PostMaster\PostMaster.Persistence\PostMaster.Persistence.csproj", "{AD8FC58E-9319-4056-906F-DB26D36D1DCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostMaster.Persistence", "src\BuildingBlocks\PostMaster\PostMaster.Persistence\PostMaster.Persistence.csproj", "{AD8FC58E-9319-4056-906F-DB26D36D1DCD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{CAA19F05-51B7-4A3E-BEBE-B4D3008CC3FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "src\BuildingBlocks\API\API\API.csproj", "{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -439,6 +443,18 @@ Global
 		{AD8FC58E-9319-4056-906F-DB26D36D1DCD}.Release|x64.Build.0 = Release|Any CPU
 		{AD8FC58E-9319-4056-906F-DB26D36D1DCD}.Release|x86.ActiveCfg = Release|Any CPU
 		{AD8FC58E-9319-4056-906F-DB26D36D1DCD}.Release|x86.Build.0 = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|x64.Build.0 = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -489,6 +505,8 @@ Global
 		{4FB695AA-9EF3-42DB-9C87-668F7ACC19CA} = {81DA2AF3-C7FA-48CF-9A99-2AF9D2B7E288}
 		{1354EEAE-145E-4540-A5A4-FBDCE3613E17} = {BED40454-20E2-4718-B093-89B5197C161A}
 		{AD8FC58E-9319-4056-906F-DB26D36D1DCD} = {12DE116D-AC9F-40FB-AB9D-72B4B493A915}
+		{CAA19F05-51B7-4A3E-BEBE-B4D3008CC3FD} = {4FB695AA-9EF3-42DB-9C87-668F7ACC19CA}
+		{42B02421-BB9D-492B-A98F-CD2F0A35B5B0} = {CAA19F05-51B7-4A3E-BEBE-B4D3008CC3FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72659153-F05E-46FA-B0A0-FC23C4FD47C4}
