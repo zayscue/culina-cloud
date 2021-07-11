@@ -1,7 +1,7 @@
 using System;
 using CulinaCloud.BuildingBlocks.Common;
 
-namespace Culina.CookBook.Domain.Events
+namespace CulinaCloud.CookBook.Domain.Events
 {
     public interface ITagCreated
     {

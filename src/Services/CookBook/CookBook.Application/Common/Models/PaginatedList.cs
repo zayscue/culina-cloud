@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Common.Models
+namespace CulinaCloud.CookBook.Application.Common.Models
 {
     public class PaginatedList<T>
     {

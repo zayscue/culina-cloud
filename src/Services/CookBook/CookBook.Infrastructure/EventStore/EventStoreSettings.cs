@@ -1,4 +1,4 @@
-﻿namespace Culina.CookBook.Infrastructure.EventStore
+﻿namespace CulinaCloud.CookBook.Infrastructure.EventStore
 {
     public class EventStoreSettings
     {

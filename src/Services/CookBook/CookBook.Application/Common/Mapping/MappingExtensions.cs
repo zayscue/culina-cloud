@@ -1,12 +1,12 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Culina.CookBook.Application.Common.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CulinaCloud.CookBook.Application.Common.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Common.Mapping
+namespace CulinaCloud.CookBook.Application.Common.Mapping
 {
     public static class MappingExtensions
     {

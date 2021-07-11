@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
-using Culina.CookBook.Application.Common.Behaviours;
+using CulinaCloud.CookBook.Application.Common.Behaviours;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Culina.CookBook.Application
+namespace CulinaCloud.CookBook.Application
 {
     public static class DependencyInjection
     {

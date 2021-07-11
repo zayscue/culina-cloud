@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CulinaCloud.Interactions.Infrastructure.Persistence.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Interactions_InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,6 +51,13 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Reviews", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_UserId_RecipeId",
+                schema: "Interactions",
+                table: "Reviews",
+                columns: new[] { "UserId", "RecipeId" },
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

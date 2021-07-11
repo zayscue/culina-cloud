@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace Culina.CookBook.Application.Common.Mapping
+namespace CulinaCloud.CookBook.Application.Common.Mapping
 {
     public interface IMapFrom<T>
     {

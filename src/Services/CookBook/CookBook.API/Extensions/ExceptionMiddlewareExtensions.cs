@@ -1,12 +1,12 @@
 ﻿using System.Dynamic;
+using CulinaCloud.CookBook.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-using Culina.CookBook.Application.Common.Exceptions;
 
-namespace Culina.CookBook.API.Extensions
+namespace CulinaCloud.CookBook.API.Extensions
 {
     public static class ExceptionMiddlewareExtensions
     {
@@ -83,7 +83,7 @@ namespace Culina.CookBook.API.Extensions
                         }
                         case NotFoundException ne:
                         {
-                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
                             context.Response.ContentType = applicationJsonContentType;
                             errorResponse.errorCode = $"{errorCodePrefix}005";
                             errorResponse.message = ne.Message;

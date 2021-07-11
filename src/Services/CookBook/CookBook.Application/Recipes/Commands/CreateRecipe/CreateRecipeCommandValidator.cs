@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 
-namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
+namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
 {
     public class CreateRecipeCommandValidator : AbstractValidator<CreateRecipeCommand>
     {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Culina.CookBook.API.Controllers
+namespace CulinaCloud.CookBook.API.Controllers
 {
     [Authorize]
     [ApiController]

@@ -12,6 +12,9 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence.Configurations
 
             builder.HasKey(r => r.Id);
 
+            builder.HasIndex(r => new { r.UserId, r.RecipeId })
+                .IsUnique();
+
             builder.Property(r => r.Id)
                 .HasColumnName("Id")
                 .IsRequired();
@@ -23,6 +26,10 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence.Configurations
             builder.Property(r => r.UserId)
                 .HasColumnName("UserId")
                 .HasMaxLength(128)
+                .IsRequired();
+
+            builder.Property(r => r.Rating)
+                .HasColumnName("Rating")
                 .IsRequired();
 
             builder.Property(r => r.Comments)

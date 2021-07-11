@@ -1,7 +1,7 @@
 ﻿using System;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 
-namespace Culina.CookBook.Infrastructure.Services
+namespace CulinaCloud.CookBook.Infrastructure.Services
 {
     public class DateTimeService : IDateTime
     {

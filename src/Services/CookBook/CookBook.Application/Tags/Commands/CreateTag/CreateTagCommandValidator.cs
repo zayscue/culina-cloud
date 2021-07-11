@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Culina.CookBook.Application.Tags.Commands.CreateTag
+namespace CulinaCloud.CookBook.Application.Tags.Commands.CreateTag
 {
     public class CreateTagCommandValidator : AbstractValidator<CreateTagCommand>
     {

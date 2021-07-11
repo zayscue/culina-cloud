@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MediatR;
 
-namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
+namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
 {
     public class CreateRecipeCommand : IRequest<CreateRecipeResponse>
     {

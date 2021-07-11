@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Domain.Entities;
-using Culina.CookBook.Domain.Events;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Domain.Entities;
+using CulinaCloud.CookBook.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Recipes.Commands.CreateRecipe
+namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
 {
     public class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, CreateRecipeResponse>
     {

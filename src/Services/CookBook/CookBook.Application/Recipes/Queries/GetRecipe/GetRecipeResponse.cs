@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
-using Culina.CookBook.Application.Common.Mapping;
-using Culina.CookBook.Domain.Entities;
+using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.CookBook.Domain.Entities;
 
-namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
+namespace CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe
 {
     public class GetRecipeResponse : IMapFrom<Recipe>
     {

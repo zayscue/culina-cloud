@@ -3,13 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Mapping;
-using Culina.CookBook.Application.Common.Models;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.CookBook.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Tags.Queries.GetTags
+namespace CulinaCloud.CookBook.Application.Tags.Queries.GetTags
 {
     public class GetTagsQuery : IRequest<PaginatedList<GetTagsResponse>>
     {

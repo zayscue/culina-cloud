@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Culina.CookBook.Application.Common.Exceptions
+namespace CulinaCloud.CookBook.Application.Common.Exceptions
 {
     public class EntityConflictException : Exception
     {

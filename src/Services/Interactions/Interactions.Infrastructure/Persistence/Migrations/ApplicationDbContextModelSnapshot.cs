@@ -106,7 +106,8 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("Rating");
 
                     b.Property<Guid>("RecipeId")
                         .HasColumnType("uuid")
@@ -119,6 +120,9 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence.Migrations
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RecipeId")
+                        .IsUnique();
 
                     b.ToTable("Reviews");
                 });

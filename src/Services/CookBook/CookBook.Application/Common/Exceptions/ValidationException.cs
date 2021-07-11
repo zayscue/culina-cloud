@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 
-namespace Culina.CookBook.Application.Common.Exceptions
+namespace CulinaCloud.CookBook.Application.Common.Exceptions
 {
     public class ValidationException : Exception
     {

@@ -1,8 +1,8 @@
 ﻿using System;
-using Culina.CookBook.Application.Common.Mapping;
-using Culina.CookBook.Domain.Entities;
+using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.CookBook.Domain.Entities;
 
-namespace Culina.CookBook.Application.Tags.Commands.CreateTag
+namespace CulinaCloud.CookBook.Application.Tags.Commands.CreateTag
 {
     public class CreateTagResponse : IMapFrom<Tag>
     {

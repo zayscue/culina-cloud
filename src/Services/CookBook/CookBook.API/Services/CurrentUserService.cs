@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 
-namespace Culina.CookBook.API.Services
+namespace CulinaCloud.CookBook.API.Services
 {
     public class CurrentUserService : ICurrentUserService
     {

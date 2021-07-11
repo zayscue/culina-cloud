@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Common;
-using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.BuildingBlocks.EventStore.Abstractions;
 
 namespace CulinaCloud.BuildingBlocks.EventStore

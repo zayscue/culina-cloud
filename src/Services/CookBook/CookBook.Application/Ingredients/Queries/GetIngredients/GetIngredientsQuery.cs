@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Mapping;
-using Culina.CookBook.Application.Common.Models;
-using System.Linq;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.CookBook.Application.Common.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
+namespace CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredients
 {
     public class GetIngredientsQuery : IRequest<PaginatedList<GetIngredientsResponse>>
     {

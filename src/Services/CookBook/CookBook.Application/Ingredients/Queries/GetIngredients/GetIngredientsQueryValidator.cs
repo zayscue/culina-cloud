@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredients
+namespace CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredients
 {
     public class GetIngredientsQueryValidator : AbstractValidator<GetIngredientsQuery>
     {

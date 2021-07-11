@@ -1,12 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Models;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.Infrastructure.Services
+namespace CulinaCloud.CookBook.Infrastructure.Services
 {
     public class AggregateEventService : IAggregateEventService
     {

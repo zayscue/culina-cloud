@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CulinaCloud.CookBook.Application.Common.Models;
+using CulinaCloud.CookBook.Application.Tags.Commands.CreateTag;
+using CulinaCloud.CookBook.Application.Tags.Queries.GetTag;
+using CulinaCloud.CookBook.Application.Tags.Queries.GetTags;
 using Microsoft.AspNetCore.Mvc;
-using Culina.CookBook.Application.Common.Models;
-using Culina.CookBook.Application.Tags.Commands.CreateTag;
-using Culina.CookBook.Application.Tags.Queries.GetTag;
-using Culina.CookBook.Application.Tags.Queries.GetTags;
 
-namespace Culina.CookBook.API.Controllers
+namespace CulinaCloud.CookBook.API.Controllers
 {
     public class TagsController : ApiControllerBase
     {

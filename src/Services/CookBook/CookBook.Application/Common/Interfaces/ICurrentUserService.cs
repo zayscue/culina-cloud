@@ -1,4 +1,4 @@
-﻿namespace Culina.CookBook.Application.Common.Interfaces
+﻿namespace CulinaCloud.CookBook.Application.Common.Interfaces
 {
     public interface ICurrentUserService
     {
