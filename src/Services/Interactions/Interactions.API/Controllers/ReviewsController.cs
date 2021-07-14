@@ -26,7 +26,7 @@ namespace CulinaCloud.Interactions.API.Controllers
                                 && currentUser.Equals(command.UserId, StringComparison.Ordinal);
             switch (scopesExists)
             {
-                case false when userIdExists && !userIdMatches:
+                case false:
                     return Unauthorized();
                 case true when userIdExists && !containsCreateReviewsScope && !userIdMatches:
                     return Unauthorized();
@@ -41,8 +41,21 @@ namespace CulinaCloud.Interactions.API.Controllers
         [HttpGet]
         public async Task<ActionResult<PaginatedList<GetReviewsResponse>>> Get([FromQuery] GetReviewsQuery query)
         {
-            var vm = await Mediator.Send(query);
-            return Ok(vm);
+            var scopes = User.FindFirstValue("scope");
+            var scopesExists = !string.IsNullOrWhiteSpace(scopes);
+            var containsReadReviewsScope = scopesExists && scopes.Contains("read:reviews");
+            switch (scopesExists)
+            {
+                case false:
+                    return Unauthorized();
+                case true when !containsReadReviewsScope:
+                    return Unauthorized();
+                default:
+                {
+                    var vm = await Mediator.Send(query);
+                    return vm;
+                }
+            }
         }
     }
 }
