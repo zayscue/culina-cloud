@@ -1,10 +1,13 @@
-﻿using CulinaCloud.Analytics.Application.Interfaces;
+﻿using System.IO;
+using CulinaCloud.Analytics.Application.Interfaces;
 using CulinaCloud.Analytics.Infrastructure.Persistence;
+using CulinaCloud.Analytics.Infrastructure.Recommendations;
 using CulinaCloud.Analytics.Infrastructure.Services;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ML;
 
 namespace CulinaCloud.Analytics.Infrastructure
 {
@@ -21,6 +24,19 @@ namespace CulinaCloud.Analytics.Infrastructure
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
             services.AddTransient<IDateTime, DateTimeService>();
+
+            var file = File.Exists("./CollaborativeFilteringRecipeRecommendations.zip");
+            var getCurrentDirectory = Directory.GetCurrentDirectory();
+
+            services
+                .AddPredictionEnginePool<
+                    CollaborativeFilteringRecipeRecommendations.
+                    ModelInput,
+                    CollaborativeFilteringRecipeRecommendations.
+                    ModelOutput>().FromFile("CollaborativeFilteringRecipeRecommendations.zip");
+
+            services.AddTransient<ICollaborativeFilteringModel, CollaborativeFilteringModel>();
+            services.AddTransient<IRecommendationService, RecommendationService>();
 
 
             return services;

@@ -52,7 +52,7 @@ namespace CulinaCloud.Analytics.API
             services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interactions.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Analytics.API", Version = "v1" });
             });
         }
 
@@ -71,7 +71,7 @@ namespace CulinaCloud.Analytics.API
             });
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Interactions.API v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Analytics.API v1"));
         }
     }
 }

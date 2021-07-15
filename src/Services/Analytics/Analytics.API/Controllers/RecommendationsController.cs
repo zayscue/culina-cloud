@@ -1,16 +1,27 @@
-﻿using CulinaCloud.BuildingBlocks.API.Controllers;
-using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Threading.Tasks;
+using CulinaCloud.Analytics.Application.Recommendations.Queries.GetPersonalRecipeRecommendations;
+using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.Analytics.API.Controllers
 {
-    [Route("analytics/[controller]")]
+    [Route("analytics/recommendations")]
     public class RecommendationsController : ApiControllerBase
     {
-        [HttpGet]
-        public ActionResult Get()
+        [HttpGet("personal-recipe-recommendations")]
+        public async Task<ActionResult<PaginatedList<Guid>>> GetPersonalRecipeRecommendations(
+            [FromQuery] GetPersonalRecipeRecommendationsQuery query)
         {
-            return Ok("Hello World!");
+            var response = await Mediator.Send(query);
+            return Ok(response);
+        }
+
+        [HttpGet("similar-recipes")]
+        public ActionResult GetSimilarRecipes()
+        {
+            return Ok("Work in-progress!");
         }
     }
 }

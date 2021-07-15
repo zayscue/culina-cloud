@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
+using CulinaCloud.Analytics.Infrastructure;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
