@@ -25,9 +25,6 @@ namespace CulinaCloud.Analytics.Infrastructure
 
             services.AddTransient<IDateTime, DateTimeService>();
 
-            var file = File.Exists("./CollaborativeFilteringRecipeRecommendations.zip");
-            var getCurrentDirectory = Directory.GetCurrentDirectory();
-
             services
                 .AddPredictionEnginePool<
                     CollaborativeFilteringRecipeRecommendations.

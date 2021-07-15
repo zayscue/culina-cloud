@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup Label="CollaborativeFilteringRecipeRecommendations">
-    <None Include="CollaborativeFilteringRecipeRecommendations.consumption.cs">
-      <DependentUpon>CollaborativeFilteringRecipeRecommendations.mbconfig</DependentUpon>
+    <None Include="Recommendations\CollaborativeFilteringRecipeRecommendations.consumption.cs">
+      <DependentUpon>Recommendations\CollaborativeFilteringRecipeRecommendations.mbconfig</DependentUpon>
     </None>
-    <None Include="CollaborativeFilteringRecipeRecommendations.training.cs">
-      <DependentUpon>CollaborativeFilteringRecipeRecommendations.mbconfig</DependentUpon>
+    <None Include="Recommendations\CollaborativeFilteringRecipeRecommendations.training.cs">
+      <DependentUpon>Recommendations\CollaborativeFilteringRecipeRecommendations.mbconfig</DependentUpon>
     </None>
   </ItemGroup>
 
