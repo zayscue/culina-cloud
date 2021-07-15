@@ -36,8 +36,8 @@ namespace CulinaCloud.Analytics.Application.Recommendations.Queries.GetPersonalR
             var userId = _currentUserService.UserId;
             var recommendations = await _recommendationService
                 .GetPersonalRecipeRecommendationsAsync(userId, cancellationToken);
-            return await recommendations
-                .PaginatedListAsync(request.Page, request.Limit);
+            return recommendations
+                .ToPaginatedList(request.Page, request.Limit);
         }
     }
 }

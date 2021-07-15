@@ -10,8 +10,11 @@ namespace CulinaCloud.BuildingBlocks.Application.Common.Mapping
 {
     public static class MappingExtensions
     {
-        public static Task<PaginatedList<TDestination>> PaginatedListAsync<TDestination>(this IQueryable<TDestination> queryable, int pageNumber, int pageSize)
+        public static Task<PaginatedList<TDestination>> ToPaginatedListAsync<TDestination>(this IQueryable<TDestination> queryable, int pageNumber, int pageSize)
             => PaginatedList<TDestination>.CreateAsync(queryable, pageNumber, pageSize);
+
+        public static PaginatedList<TDestination> ToPaginatedList<TDestination>(this IEnumerable<TDestination> enumerable, int pageNumber, int pageSize)
+            => PaginatedList<TDestination>.Create(enumerable, pageNumber, pageSize);
 
         public static Task<List<TDestination>> ProjectToListAsync<TDestination>(this IQueryable queryable, IConfigurationProvider configuration)
             => queryable.ProjectTo<TDestination>(configuration).ToListAsync();

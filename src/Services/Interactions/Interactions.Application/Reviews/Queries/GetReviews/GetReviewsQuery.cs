@@ -37,7 +37,7 @@ namespace CulinaCloud.Interactions.Application.Reviews.Queries.GetReviews
                 .OrderBy(x => x.Created)
                 .Where(x => x.RecipeId == request.RecipeId)
                 .ProjectTo<GetReviewsResponse>(_mapper.ConfigurationProvider)
-                .PaginatedListAsync(request.Page, request.Limit);
+                .ToPaginatedListAsync(request.Page, request.Limit);
             return response;
         }
     }

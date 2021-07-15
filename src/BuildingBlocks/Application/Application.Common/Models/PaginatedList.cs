@@ -28,5 +28,14 @@ namespace CulinaCloud.BuildingBlocks.Application.Common.Models
 
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
+
+        public static PaginatedList<T> Create(IEnumerable<T> source, int pageIndex, int pageSize)
+        {
+            var enumerable = source as T[] ?? source.ToArray();
+            var count = enumerable.Count();
+            var items = enumerable.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+        }
     }
 }
