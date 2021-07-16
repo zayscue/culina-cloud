@@ -47,7 +47,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<decimal>("RatingAverage")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("RatingAverage");
 
                     b.Property<int>("RatingCount")
@@ -59,7 +59,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("RatingSum");
 
                     b.Property<decimal>("RatingWeightedAverage")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("RatingWeightedAverage");
 
                     b.Property<string>("Submitted")
@@ -108,7 +108,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<decimal>("SimilarityScore")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("SimilarityScore");
 
                     b.HasKey("RecipeId", "SimilarRecipeId", "SimilarityType");

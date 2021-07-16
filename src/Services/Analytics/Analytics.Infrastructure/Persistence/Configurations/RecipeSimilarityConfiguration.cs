@@ -27,7 +27,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.SimilarityScore)
                 .HasColumnName("SimilarityScore")
-                .HasColumnType("decimal(7, 5)")
+                .HasColumnType("decimal(18, 16)")
                 .IsRequired();
 
             builder.Property(r => r.Created)

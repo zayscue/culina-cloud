@@ -1,9 +1,11 @@
 ﻿using CulinaCloud.Analytics.Application;
 using CulinaCloud.Analytics.Infrastructure;
 using CulinaCloud.Analytics.Infrastructure.Persistence;
+using CulinaCloud.BuildingBlocks.Authorization.HasScope;
 using CulinaCloud.BuildingBlocks.CurrentUser;
 using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +38,18 @@ namespace CulinaCloud.Analytics.API
                 options.Authority = Configuration["Auth0:Domain"];
                 options.Audience = Configuration["Auth0:Audience"];
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CreateRecipePopularity", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_popularity")));
+                options.AddPolicy("CreateRecipeSimilarity", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_similarity")));
+                options.AddPolicy("ReadPersonalRecipeRecommendations", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("read:personal_recipe_recommendations")));
+                options.AddPolicy("ReadSimilarRecipes", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("read:similar_recipes")));
+            });
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
             services
                 .AddPredictionEnginePool<
                     CollaborativeFilteringRecipeRecommendations.

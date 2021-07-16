@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210716180014_Analytics_InitialCreate")]
+    [Migration("20210716202022_Analytics_InitialCreate")]
     partial class Analytics_InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,7 +49,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<decimal>("RatingAverage")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("RatingAverage");
 
                     b.Property<int>("RatingCount")
@@ -61,7 +61,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("RatingSum");
 
                     b.Property<decimal>("RatingWeightedAverage")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("RatingWeightedAverage");
 
                     b.Property<string>("Submitted")
@@ -110,7 +110,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("LastModifiedBy");
 
                     b.Property<decimal>("SimilarityScore")
-                        .HasColumnType("numeric(7,5)")
+                        .HasColumnType("numeric(18,16)")
                         .HasColumnName("SimilarityScore");
 
                     b.HasKey("RecipeId", "SimilarRecipeId", "SimilarityType");
