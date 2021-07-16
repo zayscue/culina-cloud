@@ -10,7 +10,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("RecipeSimilarity");
 
-            builder.HasKey(r => new { r.RecipeId, r.SimilarRecipeId });
+            builder.HasKey(r => new { r.RecipeId, r.SimilarRecipeId, r.SimilarityType });
 
             builder.Property(r => r.RecipeId)
                 .HasColumnName("RecipeId")

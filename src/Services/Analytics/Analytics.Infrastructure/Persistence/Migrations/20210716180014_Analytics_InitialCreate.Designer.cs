@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210714195600_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210716180014_Analytics_InitialCreate")]
+    partial class Analytics_InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -85,6 +85,11 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("SimilarRecipeId");
 
+                    b.Property<string>("SimilarityType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("SimilarityType");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("Created");
@@ -108,13 +113,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(7,5)")
                         .HasColumnName("SimilarityScore");
 
-                    b.Property<string>("SimilarityType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("SimilarityType");
-
-                    b.HasKey("RecipeId", "SimilarRecipeId");
+                    b.HasKey("RecipeId", "SimilarRecipeId", "SimilarityType");
 
                     b.ToTable("RecipeSimilarity");
                 });

@@ -83,6 +83,11 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("SimilarRecipeId");
 
+                    b.Property<string>("SimilarityType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("SimilarityType");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("Created");
@@ -106,13 +111,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(7,5)")
                         .HasColumnName("SimilarityScore");
 
-                    b.Property<string>("SimilarityType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("SimilarityType");
-
-                    b.HasKey("RecipeId", "SimilarRecipeId");
+                    b.HasKey("RecipeId", "SimilarRecipeId", "SimilarityType");
 
                     b.ToTable("RecipeSimilarity");
                 });

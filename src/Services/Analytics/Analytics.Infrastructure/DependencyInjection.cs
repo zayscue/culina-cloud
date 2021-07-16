@@ -1,5 +1,4 @@
-﻿using System.IO;
-using CulinaCloud.Analytics.Application.Interfaces;
+﻿using CulinaCloud.Analytics.Application.Interfaces;
 using CulinaCloud.Analytics.Infrastructure.Persistence;
 using CulinaCloud.Analytics.Infrastructure.Recommendations;
 using CulinaCloud.Analytics.Infrastructure.Services;

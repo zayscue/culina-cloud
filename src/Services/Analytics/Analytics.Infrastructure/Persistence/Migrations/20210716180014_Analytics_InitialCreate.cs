@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Analytics_InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -47,7 +47,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecipeSimilarity", x => new { x.RecipeId, x.SimilarRecipeId });
+                    table.PrimaryKey("PK_RecipeSimilarity", x => new { x.RecipeId, x.SimilarRecipeId, x.SimilarityType });
                 });
         }
 
