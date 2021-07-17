@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Culina.CookBook.Application.Tags.Queries.GetTags
+namespace CulinaCloud.CookBook.Application.Tags.Queries.GetTags
 {
     public class GetTagsQueryValidator : AbstractValidator<GetTagsQuery>
     {

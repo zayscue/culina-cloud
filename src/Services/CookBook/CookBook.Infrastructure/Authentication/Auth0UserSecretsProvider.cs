@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-namespace Culina.CookBook.Infrastructure.Authentication
+namespace CulinaCloud.CookBook.Infrastructure.Authentication
 {
     public class Auth0UserSecretsProvider : Auth0SecretsProvider
     {

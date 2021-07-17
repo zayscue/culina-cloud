@@ -1,11 +1,12 @@
 ﻿using System.Security.Claims;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 
-namespace Culina.CookBook.API.Services
+namespace CulinaCloud.CookBook.API.Services
 {
     public class CurrentUserService : ICurrentUserService
     {
+        private const string Anonymous = "Anonymous";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
@@ -13,6 +14,6 @@ namespace Culina.CookBook.API.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
+        public string UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Anonymous;
     }
 }

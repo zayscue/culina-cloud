@@ -1,15 +1,15 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Models;
-using Culina.CookBook.Domain.Events;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Models;
+using CulinaCloud.CookBook.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.Application.Ingredients.EventHandlers
+namespace CulinaCloud.CookBook.Application.Ingredients.EventHandlers
 {
     public class IngredientCreatedEventHandler : INotificationHandler<AggregateEventNotification<IAggregateEvent<IIngredientCreated>, IIngredientCreated>>
     {

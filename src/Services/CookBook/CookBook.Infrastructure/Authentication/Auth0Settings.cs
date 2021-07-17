@@ -1,4 +1,4 @@
-﻿namespace Culina.CookBook.Infrastructure.Authentication
+﻿namespace CulinaCloud.CookBook.Infrastructure.Authentication
 {
     public class Auth0Settings
     {

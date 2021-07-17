@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Culina.CookBook.Application.Common.Exceptions;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Recipes.Queries.GetRecipe
+namespace CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe
 {
     public class GetRecipeQueryHandler : IRequestHandler<GetRecipeQuery, GetRecipeResponse>
     {

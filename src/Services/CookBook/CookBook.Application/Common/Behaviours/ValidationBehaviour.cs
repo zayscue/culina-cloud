@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using ValidationException = Culina.CookBook.Application.Common.Exceptions.ValidationException;
+using ValidationException = CulinaCloud.CookBook.Application.Common.Exceptions.ValidationException;
 
 
-namespace Culina.CookBook.Application.Common.Behaviours
+namespace CulinaCloud.CookBook.Application.Common.Behaviours
 {
     public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>

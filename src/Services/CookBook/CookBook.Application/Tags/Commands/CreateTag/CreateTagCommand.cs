@@ -2,15 +2,15 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Culina.CookBook.Application.Common.Exceptions;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Domain.Entities;
-using Culina.CookBook.Domain.Events;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Domain.Entities;
+using CulinaCloud.CookBook.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Tags.Commands.CreateTag
+namespace CulinaCloud.CookBook.Application.Tags.Commands.CreateTag
 {
     public class CreateTagCommand : IRequest<CreateTagResponse>
     {

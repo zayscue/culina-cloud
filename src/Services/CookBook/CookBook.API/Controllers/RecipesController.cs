@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe;
+using CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe;
 using Microsoft.AspNetCore.Mvc;
-using Culina.CookBook.Application.Recipes.Commands.CreateRecipe;
-using Culina.CookBook.Application.Recipes.Queries.GetRecipe;
 
-namespace Culina.CookBook.API.Controllers
+namespace CulinaCloud.CookBook.API.Controllers
 {
     public class RecipesController : ApiControllerBase
     {

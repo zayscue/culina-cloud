@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Net.Http.Headers;
 using Amazon.SecretsManager;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Infrastructure.Authentication;
-using Culina.CookBook.Infrastructure.EventStore;
-using Culina.CookBook.Infrastructure.Persistence;
-using Culina.CookBook.Infrastructure.Services;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Infrastructure.Authentication;
+using CulinaCloud.CookBook.Infrastructure.EventStore;
+using CulinaCloud.CookBook.Infrastructure.Persistence;
+using CulinaCloud.CookBook.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Culina.CookBook.Infrastructure
+namespace CulinaCloud.CookBook.Infrastructure
 {
     public static class DependencyInjection
     {

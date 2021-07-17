@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.BuildingBlocks.Authentication</RootNamespace>
+    <AssemblyName>CulinaCloud.BuildingBlocks.Authentication</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.0.17" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common\Common.csproj" />
+    <ProjectReference Include="..\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

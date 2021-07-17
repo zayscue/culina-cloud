@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.Analytics.Domain</RootNamespace>
+    <AssemblyName>CulinaCloud.Analytics.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Common\Common\Common.csproj" />
+  </ItemGroup>
+
+</Project>

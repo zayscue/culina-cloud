@@ -1,8 +1,8 @@
 ﻿using System;
-using Culina.CookBook.Application.Common.Mapping;
-using Culina.CookBook.Domain.Entities;
+using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.CookBook.Domain.Entities;
 
-namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredient
+namespace CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredient
 {
     public class GetIngredientResponse : IMapFrom<Ingredient>
     {

@@ -2,14 +2,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Domain.Entities;
 using MediatR;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Application.Common.Exceptions;
-using Culina.CookBook.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace Culina.CookBook.Application.Ingredients.Queries.GetIngredient
+namespace CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredient
 {
     public class GetIngredientQuery : IRequest<GetIngredientResponse>
     {

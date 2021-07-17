@@ -1,10 +1,10 @@
-﻿using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Infrastructure.Services;
+﻿using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.Infrastructure.Persistence
+namespace CulinaCloud.CookBook.Infrastructure.Persistence
 {
     public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {

@@ -2,14 +2,14 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Culina.CookBook.API.BackgroundServices
+namespace CulinaCloud.CookBook.API.BackgroundServices
 {
     public class EventDeliveryBackgroundServiceSettings
     {

@@ -2,7 +2,7 @@ using CulinaCloud.BuildingBlocks.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Culina.CookBook.Infrastructure.Persistence.Configurations
+namespace CulinaCloud.CookBook.Infrastructure.Persistence.Configurations
 {
     public class EventOutboxConfiguration : IEntityTypeConfiguration<AggregateEventEntity>
     {

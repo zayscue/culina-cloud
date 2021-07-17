@@ -1,8 +1,8 @@
-﻿using Culina.CookBook.Domain.Entities;
+﻿using CulinaCloud.CookBook.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Culina.CookBook.Infrastructure.Persistence.Configurations
+namespace CulinaCloud.CookBook.Infrastructure.Persistence.Configurations
 {
     public class RecipeIngredientConfiguration : IEntityTypeConfiguration<RecipeIngredient>
     {

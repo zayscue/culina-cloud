@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Culina.CookBook.Application.Common.Interfaces;
-using Culina.CookBook.Domain.Entities;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.Infrastructure.Persistence
+namespace CulinaCloud.CookBook.Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {

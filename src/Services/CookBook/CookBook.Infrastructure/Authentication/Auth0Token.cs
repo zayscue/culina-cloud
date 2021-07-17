@@ -1,7 +1,7 @@
 ﻿using System;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 
-namespace Culina.CookBook.Infrastructure.Authentication
+namespace CulinaCloud.CookBook.Infrastructure.Authentication
 {
     public class Auth0Token
     {

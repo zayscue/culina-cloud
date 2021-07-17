@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Culina.CookBook.API.Extensions
+namespace CulinaCloud.CookBook.API.Extensions
 {
     public static class WebHostExtensions
     {

@@ -6,15 +6,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Culina.CookBook.Application;
-using Culina.CookBook.Application.Common.Interfaces;
 using Culina.CookBook.Infrastructure;
-using Culina.CookBook.API.Services;
-using Culina.CookBook.API.Extensions;
 using Culina.CookBook.Infrastructure.Persistence;
+using CulinaCloud.CookBook.API.BackgroundServices;
+using CulinaCloud.CookBook.API.Controllers;
+using CulinaCloud.CookBook.API.Extensions;
+using CulinaCloud.CookBook.API.Services;
+using CulinaCloud.CookBook.Application;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Infrastructure;
+using CulinaCloud.CookBook.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
-using Culina.CookBook.API.BackgroundServices;
 
 static IConfiguration GetConfiguration()
 {
@@ -46,7 +49,7 @@ try
                 .AddEnvironmentVariables();
             if (webHostBuilderContext.HostingEnvironment.IsDevelopment())
             {
-                config.AddUserSecrets<Culina.CookBook.API.Controllers.ApiControllerBase>();
+                config.AddUserSecrets<ApiControllerBase>();
             }
         })
         .UseSerilog()
@@ -73,12 +76,12 @@ try
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
             var env = webHostBuilderContext.HostingEnvironment;
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
 
             app.UseStaticFiles();

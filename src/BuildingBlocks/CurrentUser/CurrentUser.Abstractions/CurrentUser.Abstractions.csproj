@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.BuildingBlocks.CurrentUser.Abstractions</RootNamespace>
+    <AssemblyName>CulinaCloud.BuildingBlocks.CurrentUser.Abstractions</AssemblyName>
+  </PropertyGroup>
+
+</Project>

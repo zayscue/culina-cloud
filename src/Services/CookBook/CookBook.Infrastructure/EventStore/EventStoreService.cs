@@ -7,10 +7,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Application.Common.Interfaces;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 
-namespace Culina.CookBook.Infrastructure.EventStore
+namespace CulinaCloud.CookBook.Infrastructure.EventStore
 {
   public class EventStoreService : IEventStoreService
     {

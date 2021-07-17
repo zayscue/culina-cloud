@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 
-namespace Culina.CookBook.Infrastructure.Authentication
+namespace CulinaCloud.CookBook.Infrastructure.Authentication
 {
     public class Auth0AWSSecretsProvider : Auth0SecretsProvider
     {

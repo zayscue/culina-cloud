@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using AutoMapper;
 
-namespace Culina.CookBook.Application.Common.Mapping
+namespace CulinaCloud.CookBook.Application.Common.Mapping
 {
     public class MappingProfile : Profile
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CulinaCloud.BuildingBlocks.Common;
 
-namespace Culina.CookBook.Domain.Events
+namespace CulinaCloud.CookBook.Domain.Events
 {
     public class RecipeIngredientCreated
     {

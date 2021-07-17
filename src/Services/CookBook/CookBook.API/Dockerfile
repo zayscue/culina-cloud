@@ -20,4 +20,4 @@ RUN dotnet publish "CookBook.API.csproj" -c Release -o /app/publish -p:Version=$
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Culina.CookBook.API.dll"]
+ENTRYPOINT ["dotnet", "CulinaCloud.CookBook.API.dll"]

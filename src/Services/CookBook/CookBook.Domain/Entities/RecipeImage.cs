@@ -1,7 +1,7 @@
 ﻿using System;
 using CulinaCloud.BuildingBlocks.Common;
 
-namespace Culina.CookBook.Domain.Entities
+namespace CulinaCloud.CookBook.Domain.Entities
 {
     public class RecipeImage : AuditableEntity
     {

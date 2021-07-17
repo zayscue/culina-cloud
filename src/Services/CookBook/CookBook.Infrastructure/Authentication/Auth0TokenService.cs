@@ -6,10 +6,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Application.Common.Interfaces;
+using CulinaCloud.CookBook.Application.Common.Interfaces;
 using Microsoft.Extensions.Options;
 
-namespace Culina.CookBook.Infrastructure.Authentication
+namespace CulinaCloud.CookBook.Infrastructure.Authentication
 {
     public class Auth0TokenService : ITokenService
     {

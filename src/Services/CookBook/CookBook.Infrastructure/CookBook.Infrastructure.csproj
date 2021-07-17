@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>Culina.CookBook.Infrastructure</RootNamespace>
-    <AssemblyName>Culina.CookBook.Infrastructure</AssemblyName>
+    <RootNamespace>CulinaCloud.CookBook.Infrastructure</RootNamespace>
+    <AssemblyName>CulinaCloud.CookBook.Infrastructure</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

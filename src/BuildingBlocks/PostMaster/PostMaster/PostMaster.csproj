@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.BuildingBlocks.PostMaster</RootNamespace>
+    <AssemblyName>CulinaCloud.BuildingBlocks.PostMaster</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common\Common.csproj" />
+    <ProjectReference Include="..\..\EventStore\EventStore.Abstractions\EventStore.Abstractions.csproj" />
+    <ProjectReference Include="..\PostMaster.Persistence\PostMaster.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

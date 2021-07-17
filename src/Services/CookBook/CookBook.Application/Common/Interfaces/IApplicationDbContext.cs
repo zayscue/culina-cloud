@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Culina.CookBook.Domain.Entities;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.CookBook.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Culina.CookBook.Application.Common.Interfaces
+namespace CulinaCloud.CookBook.Application.Common.Interfaces
 {
     public interface IApplicationDbContext
     {

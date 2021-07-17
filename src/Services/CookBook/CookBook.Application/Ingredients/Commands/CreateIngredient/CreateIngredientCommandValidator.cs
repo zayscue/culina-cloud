@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Culina.CookBook.Application.Ingredients.Commands.CreateIngredient
+namespace CulinaCloud.CookBook.Application.Ingredients.Commands.CreateIngredient
 {
     public class CreateIngredientCommandValidator : AbstractValidator<CreateIngredientCommand>
     {

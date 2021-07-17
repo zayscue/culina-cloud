@@ -16,8 +16,20 @@ services:
     build:
       context: .
       dockerfile: src/Services/CookBook/CookBook.API/Dockerfile
+  interactionsapi:
+    image: ${DOCKER_REGISTRY-}interactionsapi
+    build:
+      context: .
+      dockerfile: src/Services/Interactions/Interactions.API/Dockerfile
+  analyticsapi:
+    image: ${DOCKER_REGISTRY-}analyticsapi
+    build:
+      context: .
+      dockerfile: src/Services/Analytics/Analytics.API/Dockerfile
 
 volumes:
   postgres-data:
+
+
 
 

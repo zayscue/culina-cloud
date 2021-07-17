@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CulinaCloud.BuildingBlocks.EventStore</RootNamespace>
+    <AssemblyName>CulinaCloud.BuildingBlocks.EventStore</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\Common\Common.csproj" />
+    <ProjectReference Include="..\EventStore.Abstractions\EventStore.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
