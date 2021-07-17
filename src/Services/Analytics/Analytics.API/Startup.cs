@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.ML;
 using Microsoft.OpenApi.Models;
 
 namespace CulinaCloud.Analytics.API
@@ -51,12 +50,6 @@ namespace CulinaCloud.Analytics.API
                     policy.Requirements.Add(new HasScopeRequirement("read:similar_recipes")));
             });
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-            services
-                .AddPredictionEnginePool<
-                    CollaborativeFilteringRecipeRecommendations.
-                    ModelInput,
-                    CollaborativeFilteringRecipeRecommendations.
-                    ModelOutput>().FromFile("CollaborativeFilteringRecipeRecommendations.zip");
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
             services.AddHttpContextAccessor();
