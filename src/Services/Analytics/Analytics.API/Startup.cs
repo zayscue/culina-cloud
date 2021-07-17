@@ -1,4 +1,5 @@
-﻿using CulinaCloud.Analytics.Application;
+﻿using CulinaCloud.Analytics.API.Middleware;
+using CulinaCloud.Analytics.Application;
 using CulinaCloud.Analytics.Infrastructure;
 using CulinaCloud.Analytics.Infrastructure.Persistence;
 using CulinaCloud.BuildingBlocks.Authorization.HasScope;
@@ -73,6 +74,7 @@ namespace CulinaCloud.Analytics.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
+            app.ConfigureExceptionHandler(env);
             app.UseRouting();
 
             app.UseAuthentication();

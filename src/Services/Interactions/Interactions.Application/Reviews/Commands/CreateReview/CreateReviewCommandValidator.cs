@@ -17,7 +17,7 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
 
             RuleFor(c => c.Rating)
                 .LessThanOrEqualTo(5)
-                .GreaterThanOrEqualTo(1);
+                .GreaterThanOrEqualTo(0);
         }
     }
 }

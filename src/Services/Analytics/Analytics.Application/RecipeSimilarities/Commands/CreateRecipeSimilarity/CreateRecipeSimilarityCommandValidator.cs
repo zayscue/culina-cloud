@@ -19,7 +19,7 @@ namespace CulinaCloud.Analytics.Application.RecipeSimilarities.Commands.CreateRe
                 .WithMessage($"The similarity type must be one of these values: {string.Join(",", similarityTypes)}");
 
             RuleFor(c => c.SimilarityScore)
-                .GreaterThan(0);
+                .GreaterThanOrEqualTo(0);
         }
     }
 }
