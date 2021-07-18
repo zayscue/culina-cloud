@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
-using CulinaCloud.BuildingBlocks.PostMaster.Persistence;
 using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +35,6 @@ namespace CulinaCloud.Users.Infrastructure.Persistence
         }
 
         public DbSet<Favorite> Favorites { get; set; }
-        public DbSet<AggregateEventEntity> EventOutbox { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -76,7 +74,6 @@ namespace CulinaCloud.Users.Infrastructure.Persistence
             builder.HasDefaultSchema("Users");
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            builder.ApplyConfiguration(new EventOutboxConfiguration());
 
             base.OnModelCreating(builder);
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CulinaCloud.Users.Infrastructure.Persistence.Migrations
@@ -10,27 +9,6 @@ namespace CulinaCloud.Users.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "Users");
-
-            migrationBuilder.CreateTable(
-                name: "EventOutbox",
-                schema: "Users",
-                columns: table => new
-                {
-                    EventId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsStored = table.Column<bool>(type: "boolean", nullable: false),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
-                    EventName = table.Column<string>(type: "text", nullable: false),
-                    Occurred = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    AggregateType = table.Column<string>(type: "text", nullable: false),
-                    AggregateId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RaisedBy = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    Details = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    Data = table.Column<JsonDocument>(type: "jsonb", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventOutbox", x => x.EventId);
-                });
 
             migrationBuilder.CreateTable(
                 name: "Favorites",
@@ -52,10 +30,6 @@ namespace CulinaCloud.Users.Infrastructure.Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "EventOutbox",
-                schema: "Users");
-
             migrationBuilder.DropTable(
                 name: "Favorites",
                 schema: "Users");

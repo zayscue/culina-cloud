@@ -1,11 +1,8 @@
+using CulinaCloud.BuildingBlocks.Authorization.HasScope;
 using CulinaCloud.BuildingBlocks.CurrentUser;
 using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
-using CulinaCloud.BuildingBlocks.PostMaster;
-using CulinaCloud.BuildingBlocks.PostMaster.Abstractions;
-using CulinaCloud.BuildingBlocks.PostMaster.BackgroundService;
 using CulinaCloud.Users.API.Middleware;
 using CulinaCloud.Users.Application;
-using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Infrastructure;
 using CulinaCloud.Users.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,13 +40,17 @@ namespace CulinaCloud.Users.API
                 options.Authority = Configuration["Auth0:Domain"];
                 options.Audience = Configuration["Auth0:Audience"];
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CreateFavorite", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("create:favorite")));
+                options.AddPolicy("DeleteFavorite", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("delete:favorite")));
+                options.AddPolicy("ReadFavorites", policy =>
+                    policy.Requirements.Add(new HasScopeRequirement("read:favorites")));
+            });
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
-            services.Configure<PostMasterBackgroundServiceSettings>(
-                Configuration.GetSection("PostMaster:BackgroundServiceSettings"));
-            services.AddScoped<IEventOutboxDbContext>(provider => provider.GetService<IApplicationDbContext>());
-            services.AddScoped<IDeliveryService, DeliveryService>();
-            services.AddHostedService<PostMasterBackgroundService>();
             services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();

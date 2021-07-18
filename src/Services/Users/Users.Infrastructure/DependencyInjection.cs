@@ -6,8 +6,6 @@ using CulinaCloud.BuildingBlocks.Authentication.Auth0;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
-using CulinaCloud.BuildingBlocks.EventStore;
-using CulinaCloud.BuildingBlocks.EventStore.Abstractions;
 using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Infrastructure.CookBook;
 using CulinaCloud.Users.Infrastructure.Persistence;
@@ -27,7 +25,6 @@ namespace CulinaCloud.Users.Infrastructure
             var connectionString = configuration["ConnectionString"];
 
             services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
-            services.Configure<EventStoreSettings>(configuration.GetSection("EventStore"));
             services.Configure<RecipesServiceSettings>(configuration.GetSection("RecipesService"));
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
@@ -35,7 +32,6 @@ namespace CulinaCloud.Users.Infrastructure
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
             services.AddTransient<IDateTime, DateTimeService>();
-            services.AddTransient<IAggregateEventService, AggregateEventService>();
 
             if (isDevelopment)
             {
@@ -62,16 +58,6 @@ namespace CulinaCloud.Users.Infrastructure
                 return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
             });
 
-            services.AddHttpClient<IEventStoreService, EventStoreService>((client, provider) =>
-            {
-                var settings = provider.GetService<IOptions<EventStoreSettings>>();
-                var baseAddress = new Uri(settings.Value.BaseAddress);
-                client.BaseAddress = baseAddress;
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
-                var tokenService = tokenServiceManager.GetTokenService(settings.Value.Audience);
-                return new EventStoreService(tokenService, client);
-            });
             services.AddHttpClient<IRecipesService, RecipesService>((client, provider) =>
             {
                 var settings = provider.GetService<IOptions<RecipesServiceSettings>>();

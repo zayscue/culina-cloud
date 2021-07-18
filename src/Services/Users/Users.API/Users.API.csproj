@@ -30,7 +30,6 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Authorization\Authorization.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\CurrentUser\CurrentUser\CurrentUser.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\WebHostCustomization\WebHost.Customization\WebHost.Customization.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\PostMaster\PostMaster.BackgroundService\PostMaster.BackgroundService.csproj" />
     <ProjectReference Include="..\Users.Application\Users.Application.csproj" />
     <ProjectReference Include="..\Users.Infrastructure\Users.Infrastructure.csproj" />
   </ItemGroup>
