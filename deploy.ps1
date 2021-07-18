@@ -1,6 +1,6 @@
 #! /usr/bin/pwsh
 function Get-Version {
-  return GitVersion.exe | ConvertFrom-Json
+  return dotnet-gitversion | ConvertFrom-Json
 }
 
 function Get-Solution-File {

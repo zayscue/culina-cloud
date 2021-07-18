@@ -15,7 +15,7 @@ namespace CulinaCloud.Users.API.Middleware
             app.UseExceptionHandler(appError =>
             {
                 const string applicationJsonContentType = "application/json";
-                const string errorCodePrefix = "analytics.api-e-";
+                const string errorCodePrefix = "users.api-e-";
                 const string emptyPayloadErrorMessage = "Unable to read the request as JSON because the request content type '' is not a known JSON content type.";
 
                 appError.Run(async context =>

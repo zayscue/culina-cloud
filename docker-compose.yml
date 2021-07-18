@@ -26,9 +26,15 @@ services:
     build:
       context: .
       dockerfile: src/Services/Analytics/Analytics.API/Dockerfile
+  usersapi:
+    image: ${DOCKER_REGISTRY-}usersapi
+    build:
+      context: .
+      dockerfile: src/Services/Users/Users.API/Dockerfile
 
 volumes:
   postgres-data:
+
 
 
 

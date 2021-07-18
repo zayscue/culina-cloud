@@ -391,6 +391,39 @@ Resources:
 #      HealthCheckIntervalSeconds: 300
 #      HealthCheckPath: /health
 #      HealthCheckTimeoutSeconds: 120
+  AnalyticsAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-analyticsapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  InteractionsAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-interactionsapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
+  UsersAPIServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-usersapi-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
   ApplicationLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -425,6 +458,42 @@ Resources:
 #        - Field: 'path-pattern'
 #          Values:
 #            - '/eventstore*'
+  ApplicationLoadBalancerListenerAnalyticsAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/analytics*'
+  ApplicationLoadBalancerListenerInteractionsAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/interactions*'
+  ApplicationLoadBalancerListenerUsersAPIServiceRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref ApplicationLoadBalancerListener
+      Actions:
+        - TargetGroupArn: !Ref UsersAPIServiceTargetGroup
+          Type: forward
+      Conditions:
+        - Field: 'path-pattern'
+          Values:
+            - '/users*'
   DHCPOptions:
     Type: AWS::EC2::DHCPOptions
     Properties:
@@ -561,6 +630,111 @@ Resources:
                 Action:
                   - 'secretsmanager:GetSecretValue'
                 Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/CookBookAPI/*
+  AnalyticsAPIECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+      Policies:
+        - PolicyName: AnalyticsAPIECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+        - PolicyName: AnalyticsAPIECSTaskSecretsManagerPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/AnalyticsAPI/*
+  InteractionsAPIECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+      Policies:
+        - PolicyName: InteractionsAPIECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+        - PolicyName: InteractionsAPIECSTaskSecretsManagerPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/InteractionsAPI/*
+  UsersAPIECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+      Policies:
+        - PolicyName: UsersAPIECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+        - PolicyName: UsersAPIECSTaskSecretsManagerPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/UsersAPI/*
   EventStoreAPIECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -598,6 +772,21 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
         LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
+        RetentionInDays: 14
+  AnalyticsAPIServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'analyticsapi']]]]
+        RetentionInDays: 14
+  InteractionsAPIServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'interactionsapi']]]]
+        RetentionInDays: 14
+  UsersAPIServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'usersapi']]]]
         RetentionInDays: 14
   CookBookAPIECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -659,6 +848,99 @@ Resources:
               awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
+  AnalyticsAPIECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'analyticsapi']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref AnalyticsAPIECSTaskExecutionRole
+      TaskRoleArn: !Ref AnalyticsAPIECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: analyticsapi
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/analyticsapi:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ConnectionString
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'analyticsapi']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+  InteractionsAPIECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'interactionsapi']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref InteractionsAPIECSTaskExecutionRole
+      TaskRoleArn: !Ref InteractionsAPIECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: interactionsapi
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/interactionsapi:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ConnectionString
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
+            - Name: 'EventStore:BaseAddress'
+              Value: 'http://eventstore.http-api.local'
+            - Name: 'RecipesService:BaseAddress'
+              Value: 'http://cookbook.http-api.local'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'interactionsapi']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+  UsersAPIECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'usersapi']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref UsersAPIECSTaskExecutionRole
+      TaskRoleArn: !Ref UsersAPIECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: usersapi
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/usersapi:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ConnectionString
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
+            - Name: 'RecipesService:BaseAddress'
+              Value: 'http://cookbook.http-api.local'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'usersapi']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
   DNSNamespace:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
@@ -690,6 +972,45 @@ Resources:
       HealthCheckCustomConfig:
         FailureThreshold: 1
       Name: 'eventstore'
+      NamespaceId: !GetAtt DNSNamespace.Id
+  AnalyticsAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'analytics'
+      NamespaceId: !GetAtt DNSNamespace.Id
+  InteractionsAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'interactions'
+      NamespaceId: !GetAtt DNSNamespace.Id
+  UsersAPIServiceCloudMapService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        NamespaceId: !GetAtt DNSNamespace.Id
+        RoutingPolicy: 'MULTIVALUE'
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: 'users'
       NamespaceId: !GetAtt DNSNamespace.Id
   CookBookAPIService:
     Type: AWS::ECS::Service
@@ -745,6 +1066,87 @@ Resources:
 #        - ContainerName: eventstoreapi
 #          ContainerPort: 80
 #          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+  AnalyticsAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: analyticsapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt AnalyticsAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref AnalyticsAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: analyticsapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
+  InteractionsAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: interactionsapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt InteractionsAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref InteractionsAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: interactionsapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
+  UsersAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: usersapi
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      ServiceRegistries:
+        - RegistryArn: !GetAtt UsersAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref UsersAPIECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: usersapi
+          ContainerPort: 80
+          TargetGroupArn: !Ref UsersAPIServiceTargetGroup
 
   #Database
   DBSubnetGroup:
