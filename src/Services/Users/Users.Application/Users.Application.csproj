@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>CulinaCloud.Analytics.Application</RootNamespace>
-    <AssemblyName>CulinaCloud.Analytics.Application</AssemblyName>
+    <RootNamespace>CulinaCloud.Users.Application</RootNamespace>
+    <AssemblyName>CulinaCloud.Users.Application</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Application\Application.Common\Application.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\CurrentUser\CurrentUser.Abstractions\CurrentUser.Abstractions.csproj" />
-    <ProjectReference Include="..\Analytics.Domain\Analytics.Domain.csproj" />
+    <ProjectReference Include="..\Users.Domain\Users.Domain.csproj" />
   </ItemGroup>
 
 </Project>
