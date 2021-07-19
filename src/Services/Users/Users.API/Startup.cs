@@ -79,8 +79,14 @@ namespace CulinaCloud.Users.API
                 endpoints.MapControllers();
             });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Users.API v1"));
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = "users/swagger/{documentname}/swagger.json";
+            });
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/users/swagger/v1/swagger.json", "Users.API v1");
+                c.RoutePrefix = "users/swagger";
+            });
         }
     }
 }
