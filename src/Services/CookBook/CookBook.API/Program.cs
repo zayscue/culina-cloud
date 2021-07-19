@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Culina.CookBook.Infrastructure;
-using Culina.CookBook.Infrastructure.Persistence;
 using CulinaCloud.CookBook.API.BackgroundServices;
 using CulinaCloud.CookBook.API.Controllers;
 using CulinaCloud.CookBook.API.Extensions;
@@ -18,6 +16,7 @@ using CulinaCloud.CookBook.Infrastructure;
 using CulinaCloud.CookBook.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 static IConfiguration GetConfiguration()
 {
@@ -76,12 +75,16 @@ try
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddControllers();
-            //services.AddResponseCompression();
+            services.AddResponseCompression();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CookBook.API", Version = "v1" });
+            });
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
             var env = webHostBuilderContext.HostingEnvironment;
-            //app.UseResponseCompression();
+            app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
 
             app.UseStaticFiles();
@@ -94,9 +97,13 @@ try
                 e.MapHealthChecks("/health");
                 e.MapControllers();
             });
-            app.UseSwaggerUI(c =>
+            app.UseSwagger(c =>
             {
-                c.SwaggerEndpoint(url: "/cookbook/swagger/v1/swagger.json", name: "CookBook API");
+                c.RouteTemplate = "cookbook/swagger/{documentname}/swagger.json";
+            });
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/cookbook/swagger/v1/swagger.json", "CookBook.API v1");
+                c.RoutePrefix = "cookbook/swagger";
             });
         })
         .Build()

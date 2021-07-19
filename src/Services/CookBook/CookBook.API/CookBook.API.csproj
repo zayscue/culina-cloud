@@ -34,8 +34,4 @@
     <ProjectReference Include="..\CookBook.Infrastructure\CookBook.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\swagger\v1" />
-  </ItemGroup>
-
 </Project>
