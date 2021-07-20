@@ -808,7 +808,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
             - Name: 'EventStore:BaseAddress'
@@ -839,7 +839,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
           LogConfiguration:
@@ -868,7 +868,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
           LogConfiguration:
@@ -897,7 +897,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
             - Name: 'EventStore:BaseAddress'
@@ -930,7 +930,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt AuroraDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
             - Name: 'RecipesService:BaseAddress'
@@ -1183,6 +1183,36 @@ Resources:
       ToPort: 5432
       GroupId: !Ref DBSecurityGroup
       SourceSecurityGroupId: !Ref FargateContainerSecurityGroup
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      AutoMinorVersionUpgrade: true
+      AvailabilityZone: us-east-1a
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      CACertificateIdentifier: rds-ca-2019
+      DBInstanceClass: db.t3.medium
+      DBInstanceIdentifier: 'culina-cloud-db'
+      DBSubnetGroupName: !Sub ${AWS::StackName}-db-subnet-group
+      DeletionProtection: false
+      Engine: postgres
+      EngineVersion: 12.7
+      MasterUsername: '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}'
+      MasterUserPassword: '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}'
+      MaxAllocatedStorage: 1000
+      MultiAZ: false
+      Port: 5432
+      PubliclyAccessible: false
+      StorageEncrypted: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !Ref DBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db
+        - Key: BillingGroup
+          Value: db
   AuroraDB:
     Type: AWS::RDS::DBCluster
     DependsOn: DBSubnetGroup
