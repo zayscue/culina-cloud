@@ -80,10 +80,17 @@ try
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CookBook.API", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
             var env = webHostBuilderContext.HostingEnvironment;
+            app.UseCors("CorsPolicy");
             app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
 
