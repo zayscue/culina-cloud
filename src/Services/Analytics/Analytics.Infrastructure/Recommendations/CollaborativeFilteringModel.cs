@@ -19,12 +19,13 @@ namespace CulinaCloud.Analytics.Infrastructure.Recommendations
 
         public float? PredictRecipeRecommendationScore(string userId, string recipeId)
         {
+            var user_id = userId.Replace("auth0|", "");
             try
             {
                 var output = _predictionEnginePool.Predict(new CollaborativeFilteringRecipeRecommendations.ModelInput
                 {
                     Recipe_id = recipeId,
-                    User_id = userId
+                    User_id = user_id
                 });
                 return output.Score;
             }
