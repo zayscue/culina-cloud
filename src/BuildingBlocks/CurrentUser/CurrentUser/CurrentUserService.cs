@@ -14,6 +14,6 @@ namespace CulinaCloud.BuildingBlocks.CurrentUser
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Anonymous;
+        public string UserId => (_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Anonymous)?.Replace("auth0|", "");
     }
 }
