@@ -35,10 +35,4 @@
     <ProjectReference Include="..\Analytics.Application\Analytics.Application.csproj" />
     <ProjectReference Include="..\Analytics.Infrastructure\Analytics.Infrastructure.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="CollaborativeFilteringRecipeRecommendations.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
