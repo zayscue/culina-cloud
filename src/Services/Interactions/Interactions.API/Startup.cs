@@ -58,11 +58,18 @@ namespace CulinaCloud.Interactions.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interactions.API", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("CorsPolicy");
             app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();

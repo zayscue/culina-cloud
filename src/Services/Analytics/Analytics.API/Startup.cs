@@ -62,10 +62,17 @@ namespace CulinaCloud.Analytics.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Analytics.API", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("CorsPolicy");
             app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
