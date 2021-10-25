@@ -1,10 +1,9 @@
 using CulinaCloud.BuildingBlocks.WebHost.Customization;
-using CulinaCloud.CookBook.API;
 using CulinaCloud.CookBook.Infrastructure.Persistence;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace CulinaCloud.Interactions.API
+namespace CulinaCloud.CookBook.API
 {
     public class Program
     {

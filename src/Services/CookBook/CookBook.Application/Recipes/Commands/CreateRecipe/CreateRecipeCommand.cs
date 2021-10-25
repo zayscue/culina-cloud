@@ -14,30 +14,30 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
         public string Yield { get; set; }
 
         public IList<string> Steps { get; set; }
-        public IList<CreateRecipeIngredientCommand> Ingredients { get; set; }
+        public IList<CreateRecipeCommandIngredient> Ingredients { get; set; }
 
         public IList<string> ImageUrls { get; set; }
-        public CreateRecipeNutritionCommand Nutrition { get; set; }
-        public IList<CreateRecipeMetadataCommand> Metadata { get; set; }
+        public CreateRecipeCommandNutrition Nutrition { get; set; }
+        public IList<CreateRecipeCommandMetadata> Metadata { get; set; }
         public IList<string> Tags { get; set; }
-        
+
         public string CreatedBy { get; set; }
     }
 
-    public class CreateRecipeMetadataCommand
+    public class CreateRecipeCommandMetadata
     {
         public string Type { get; set; }
         public string Value { get; set; }
     }
 
-    public class CreateRecipeIngredientCommand
+    public class CreateRecipeCommandIngredient
     {
         public string Quantity { get; set; }
         public string Part { get; set; }
         public string Type { get; set; }
     }
 
-    public class CreateRecipeNutritionCommand
+    public class CreateRecipeCommandNutrition
     {
         public string ServingSize { get; set; }
         public int ServingsPerRecipe { get; set; }

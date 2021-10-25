@@ -44,10 +44,10 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 .WithMessage("You must provide at least one ingredient.");
 
             RuleForEach(c => c.Ingredients)
-                .SetValidator(new CreateRecipeIngredientCommandValidator());
+                .SetValidator(new CreateRecipeCommandIngredientValidator());
 
             RuleForEach(c => c.Metadata)
-                .SetValidator(new CreateRecipeMetadataCommandValidator());
+                .SetValidator(new CreateRecipeCommandMetadataValidator());
 
             RuleFor(c => c.Metadata)
                 .Must(c =>
@@ -71,12 +71,12 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 .SetValidator(new CreateRecipeTagCommandValidator());
 
             RuleFor(c => c.Nutrition)
-                .SetValidator(new CreateRecipeNutritionCommandValidator());
+                .SetValidator(new CreateRecipeCommandNutritionValidator());
         }
 
-        private class CreateRecipeIngredientCommandValidator : AbstractValidator<CreateRecipeIngredientCommand>
+        private class CreateRecipeCommandIngredientValidator : AbstractValidator<CreateRecipeCommandIngredient>
         {
-            public CreateRecipeIngredientCommandValidator()
+            public CreateRecipeCommandIngredientValidator()
             {
                 RuleFor(c => c.Quantity)
                     .MaximumLength(32);
@@ -90,9 +90,9 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
             }
         }
 
-        private class CreateRecipeMetadataCommandValidator : AbstractValidator<CreateRecipeMetadataCommand>
+        private class CreateRecipeCommandMetadataValidator : AbstractValidator<CreateRecipeCommandMetadata>
         {
-            public CreateRecipeMetadataCommandValidator()
+            public CreateRecipeCommandMetadataValidator()
             {
                 RuleFor(c => c.Type)
                     .MaximumLength(64);
@@ -102,9 +102,9 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
             }
         }
 
-        private class CreateRecipeMetadataCommandComparer : IEqualityComparer<CreateRecipeMetadataCommand>
+        private class CreateRecipeMetadataCommandComparer : IEqualityComparer<CreateRecipeCommandMetadata>
         {
-            public bool Equals(CreateRecipeMetadataCommand x, CreateRecipeMetadataCommand y)
+            public bool Equals(CreateRecipeCommandMetadata x, CreateRecipeCommandMetadata y)
             {
                 if (ReferenceEquals(x, y)) return true;
                 if (ReferenceEquals(x, null)) return false;
@@ -113,7 +113,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 return x.Type == y.Type;
             }
 
-            public int GetHashCode(CreateRecipeMetadataCommand obj)
+            public int GetHashCode(CreateRecipeCommandMetadata obj)
             {
                 return HashCode.Combine(obj.Type);
             }
@@ -146,9 +146,9 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
             }
         }
 
-        private class CreateRecipeNutritionCommandValidator : AbstractValidator<CreateRecipeNutritionCommand>
+        private class CreateRecipeCommandNutritionValidator : AbstractValidator<CreateRecipeCommandNutrition>
         {
-            public CreateRecipeNutritionCommandValidator()
+            public CreateRecipeCommandNutritionValidator()
             {
                 RuleFor(c => c.ServingSize)
                     .MaximumLength(32)
