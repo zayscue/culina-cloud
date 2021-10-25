@@ -1,5 +1,5 @@
-﻿using System;
-using CulinaCloud.CookBook.Application.Common.Interfaces;
+﻿using CulinaCloud.BuildingBlocks.Common.Interfaces;
+using System;
 
 namespace CulinaCloud.CookBook.Infrastructure.Services
 {

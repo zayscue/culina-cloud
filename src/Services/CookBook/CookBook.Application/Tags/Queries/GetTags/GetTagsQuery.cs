@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
-using CulinaCloud.CookBook.Application.Common.Mapping;
-using CulinaCloud.CookBook.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +44,7 @@ namespace CulinaCloud.CookBook.Application.Tags.Queries.GetTags
 
             return await query
                 .ProjectTo<GetTagsResponse>(_mapper.ConfigurationProvider)
-                .PaginatedListAsync(request.Page, request.Limit);
+                .ToPaginatedListAsync(request.Page, request.Limit);
 
         }
     }

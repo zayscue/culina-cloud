@@ -9,6 +9,10 @@ namespace CulinaCloud.CookBook.Application.Ingredients.Commands.CreateIngredient
             RuleFor(c => c.IngredientName)
                 .NotEmpty()
                 .MaximumLength(128);
+
+            RuleFor(c => c.CreatedBy)
+                .NotEmpty()
+                .MaximumLength(128);
         }
     }
 }

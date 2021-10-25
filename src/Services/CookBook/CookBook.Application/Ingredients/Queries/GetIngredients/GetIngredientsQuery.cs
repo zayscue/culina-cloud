@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
-using CulinaCloud.CookBook.Application.Common.Mapping;
-using CulinaCloud.CookBook.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -53,7 +53,7 @@ namespace CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredients
             {
                 var response = await query
                     .ProjectTo<GetIngredientsResponse>(_mapper.ConfigurationProvider)
-                    .PaginatedListAsync(request.Page, request.Limit);
+                    .ToPaginatedListAsync(request.Page, request.Limit);
                 return response;
             }
             catch (Exception e)

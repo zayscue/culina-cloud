@@ -16,8 +16,8 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
             RuleFor(c => c.Description)
                 .MaximumLength(8192);
 
-            //RuleFor(c => c.EstimatedMinutes)
-                //.NotEmpty();
+            RuleFor(c => c.EstimatedMinutes)
+                .NotEmpty();
 
             RuleFor(c => c.Serves)
                 .MaximumLength(16);
@@ -26,7 +26,12 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 .MaximumLength(16);
 
             RuleFor(c => c.Steps)
-                .Must(x => x.Count > 0);
+                .Must(x => x != null && x.Count > 0)
+                .WithMessage("You must provide at least one step.");
+
+            RuleFor(c => c.CreatedBy)
+                .NotEmpty()
+                .MaximumLength(128);
 
             RuleForEach(c => c.Steps)
                 .SetValidator(new CreateRecipeStepCommandValidator());
@@ -35,7 +40,8 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 .NotEmpty();
 
             RuleFor(c => c.Ingredients)
-                .Must(x => x.Count > 0);
+                .Must(x => x != null && x.Count > 0)
+                .WithMessage("You must provide at least one ingredient.");
 
             RuleForEach(c => c.Ingredients)
                 .SetValidator(new CreateRecipeIngredientCommandValidator());

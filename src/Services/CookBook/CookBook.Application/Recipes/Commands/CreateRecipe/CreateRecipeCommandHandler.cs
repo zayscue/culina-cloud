@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
 using CulinaCloud.CookBook.Domain.Entities;
-using CulinaCloud.CookBook.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,29 +13,17 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
     public class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, CreateRecipeResponse>
     {
         private readonly IApplicationDbContext _context;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IDateTime _dateTime;
-        private readonly IAggregateEventService _aggregateEventService;
         private readonly IMapper _mapper;
 
-        public CreateRecipeCommandHandler(
-            IApplicationDbContext context,
-            ICurrentUserService currentUserService,
-            IDateTime dateTime,
-            IAggregateEventService aggregateEventService,
-            IMapper mapper)
+        public CreateRecipeCommandHandler(IApplicationDbContext context, IMapper mapper)
         {
             _context = context;
-            _currentUserService = currentUserService;
-            _dateTime = dateTime;
-            _aggregateEventService = aggregateEventService;
             _mapper = mapper;
         }
 
         public async Task<CreateRecipeResponse> Handle(CreateRecipeCommand request, CancellationToken cancellationToken)
         {
-            var now = _dateTime.Now;
-            var currentUserId = _currentUserService.UserId;
+            var createdBy = request.CreatedBy;
             var recipeId = request.Id ?? Guid.NewGuid();
             var entity = new Recipe
             {
@@ -50,66 +35,8 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 Yield = request.Yield,
                 NumberOfSteps = request.Steps.Count,
                 NumberOfIngredients = request.Ingredients.Count,
-                Created = now,
-                CreatedBy = currentUserId
+                CreatedBy = createdBy
             };
-            var @event = new RecipeCreatedEvent
-            {
-                AggregateId = entity.Id,
-                Details = "A new recipe was created using the POST \"/cookbook/recipe\" API.",
-                Occurred = entity.Created,
-                RaisedBy = entity.CreatedBy,
-                Data = {
-                    Id = entity.Id,
-                    Name = entity.Name,
-                    Description = entity.Description,
-                    EstimatedMinutes = entity.EstimatedMinutes,
-                    Serves = entity.Serves,
-                    Yield = entity.Yield,
-                    NumberOfSteps = entity.NumberOfSteps,
-                    NumberOfIngredients = entity.NumberOfIngredients,
-                    Steps = request.Steps,
-                    Ingredients = request.Ingredients?.Select(x => new RecipeIngredientCreated {
-                        Quantity = x.Quantity,
-                        Part = x.Part,
-                        Type = x.Type
-                    }).ToList() ?? null,
-                    ImageUrls = request.ImageUrls,
-                    Nutrition = request.Nutrition != null
-                        ? new RecipeNutritionCreated
-                        {
-                            ServingSize = request.Nutrition.ServingSize,
-                            ServingsPerRecipe = request.Nutrition.ServingsPerRecipe,
-                            Calories = request.Nutrition.Calories,
-                            CaloriesFromFat = request.Nutrition.CaloriesFromFat,
-                            CaloriesFromFatPdv = request.Nutrition.CaloriesFromFatPdv,
-                            TotalFat = request.Nutrition.TotalFat,
-                            TotalFatPdv = request.Nutrition.TotalFatPdv,
-                            SaturatedFat = request.Nutrition.SaturatedFat,
-                            SaturatedFatPdv = request.Nutrition.SaturatedFatPdv,
-                            Cholesterol = request.Nutrition.Cholesterol,
-                            CholesterolPdv = request.Nutrition.CholesterolPdv,
-                            DietaryFiber = request.Nutrition.DietaryFiber,
-                            DietaryFiberPdv = request.Nutrition.DietaryFiberPdv,
-                            Sugar = request.Nutrition.Sugar,
-                            SugarPdv = request.Nutrition.SugarPdv,
-                            Sodium = request.Nutrition.Sodium,
-                            SodiumPdv = request.Nutrition.SodiumPdv,
-                            Protein = request.Nutrition.Protein,
-                            ProteinPdv = request.Nutrition.ProteinPdv,
-                            TotalCarbohydrates = request.Nutrition.TotalCarbohydrates,
-                            TotalCarbohydratesPdv = request.Nutrition.TotalCarbohydratesPdv
-                        }
-                        : null,
-                    Metadata = request.Metadata?.Select(x => new RecipeMetadataCreated {
-                        Type = x.Type,
-                        Value = x.Value
-                    }).ToList() ?? null,
-                    Tags = request.Tags
-                }
-            };
-            var tagCreatedEvents = new List<TagCreatedEvent>();
-            var ingredientCreatedEvents = new List<IngredientCreatedEvent>();
 
             for (var i = 0; i < request.Steps.Count; i++)
             {
@@ -119,8 +46,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                     RecipeId = recipeId,
                     Order = i + 1,
                     Instruction = step,
-                    Created = now,
-                    CreatedBy = currentUserId
+                    CreatedBy = createdBy
                 });
             }
 
@@ -142,8 +68,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                             {
                                 Id = ingredientId,
                                 IngredientName = recipeIngredient.Type,
-                                Created = now,
-                                CreatedBy = currentUserId
+                                CreatedBy = createdBy
                             };
                         entity.Ingredients.Add(new RecipeIngredient
                         {
@@ -152,22 +77,10 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                             Quantity = recipeIngredient.Quantity,
                             Part = recipeIngredient.Part,
                             IngredientId = ingredientId,
-                            Created = now,
-                            CreatedBy = currentUserId,
+                            CreatedBy = createdBy,
                             Ingredient = newIngredient
                         });
                         if (uniqueIngredients.ContainsKey(recipeIngredient.Type)) continue;
-                        ingredientCreatedEvents.Add(new IngredientCreatedEvent
-                        {
-                            AggregateId = ingredientId,
-                            Details = "A new ingredient was created using the POST \"/cookbook/recipe\" API.",
-                            Occurred = now,
-                            RaisedBy = currentUserId,
-                            Data = {
-                                Id = ingredientId,
-                                IngredientName = recipeIngredient.Type
-                            }
-                        });
                         uniqueIngredients.Add(recipeIngredient.Type, newIngredient);
                     }
                     else
@@ -180,8 +93,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                             Part = recipeIngredient.Part,
                             IngredientId = ingredient.Id,
                             Ingredient = ingredient,
-                            Created = now,
-                            CreatedBy = currentUserId
+                            CreatedBy = createdBy
                         });
                     }
                 }
@@ -193,8 +105,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         Id = recipeIngredientId,
                         Quantity = recipeIngredient.Quantity,
                         Part = recipeIngredient.Part,
-                        Created = now,
-                        CreatedBy = currentUserId
+                        CreatedBy = createdBy
                     });
                 }
             }
@@ -208,8 +119,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         RecipeId = recipeId,
                         Type = metadata.Type,
                         Value = metadata.Value,
-                        Created = now,
-                        CreatedBy = currentUserId
+                        CreatedBy = createdBy
                     });
                 }
             }
@@ -228,14 +138,12 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         {
                             RecipeId = recipeId,
                             ImageId = imageId,
-                            Created = now,
-                            CreatedBy = currentUserId,
+                            CreatedBy = createdBy,
                             Image = new Image
                             {
                                 Id = imageId,
                                 Url = imageUrl,
-                                Created = now,
-                                CreatedBy = currentUserId
+                                CreatedBy = createdBy
                             }
                         });
                     }
@@ -245,8 +153,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         {
                             RecipeId = recipeId,
                             ImageId = image.Id,
-                            Created = now,
-                            CreatedBy = currentUserId
+                            CreatedBy = createdBy
                         });
                     }
                 }
@@ -266,25 +173,12 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         {
                             RecipeId = recipeId,
                             TagId = tagId,
-                            Created = now,
-                            CreatedBy = currentUserId,
+                            CreatedBy = createdBy,
                             Tag = new Tag
                             {
                                 Id = tagId,
                                 TagName = tagName,
-                                Created = now,
-                                CreatedBy = currentUserId
-                            }
-                        });
-                        tagCreatedEvents.Add(new TagCreatedEvent
-                        {
-                            AggregateId = tagId,
-                            Details = "A new recipe tag was created using the POST \"/cookbook/recipe\" API.",
-                            Occurred = now,
-                            RaisedBy = currentUserId,
-                            Data = {
-                                Id = tagId,
-                                TagName = tagName
+                                CreatedBy = createdBy
                             }
                         });
                     }
@@ -294,8 +188,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                         {
                             RecipeId = recipeId,
                             TagId = tag.Id,
-                            Created = now,
-                            CreatedBy = currentUserId
+                            CreatedBy = createdBy
                         });
                     }
                 }
@@ -327,38 +220,12 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                     ProteinPdv = request.Nutrition.ProteinPdv,
                     TotalCarbohydrates = request.Nutrition.TotalCarbohydrates,
                     TotalCarbohydratesPdv = request.Nutrition.TotalCarbohydratesPdv,
-                    Created = now,
-                    CreatedBy = currentUserId
+                    CreatedBy = createdBy
                 };
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-            await _context.EventOutbox.AddAsync(new AggregateEventEntity(@event.ToAggregateEvent()),
-                    cancellationToken);
-            foreach (var ingredientCreatedEvent in ingredientCreatedEvents)
-            {
-                await _context.EventOutbox.AddAsync(new AggregateEventEntity(ingredientCreatedEvent.ToAggregateEvent()),
-                    cancellationToken);
-            }
-            foreach (var tagCreatedEvent in tagCreatedEvents)
-            {
-                await _context.EventOutbox.AddAsync(new AggregateEventEntity(tagCreatedEvent.ToAggregateEvent()),
-                    cancellationToken);
-            }
             await _context.Recipes.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-
-
-            await _aggregateEventService.Publish(@event, cancellationToken);
-            foreach (var ingredientCreatedEvent in ingredientCreatedEvents)
-            {
-                await _aggregateEventService.Publish(ingredientCreatedEvent, cancellationToken);
-            }
-            foreach (var tagCreatedEvent in tagCreatedEvents)
-            {
-                await _aggregateEventService.Publish(tagCreatedEvent, cancellationToken);
-            }
 
             var response = _mapper.Map<CreateRecipeResponse>(entity);
 

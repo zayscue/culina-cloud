@@ -1,5 +1,5 @@
 ﻿using System.Dynamic;
-using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;

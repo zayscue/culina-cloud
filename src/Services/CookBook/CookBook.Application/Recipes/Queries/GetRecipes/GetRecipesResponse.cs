@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
 using CulinaCloud.CookBook.Domain.Entities;
 using System;
 using System.Collections.Generic;

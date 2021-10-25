@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.Common;
+using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
 using CulinaCloud.CookBook.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,17 +14,14 @@ namespace CulinaCloud.CookBook.Infrastructure.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly ILoggerFactory _loggerFactory;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
 
         public ApplicationDbContext(
             DbContextOptions options,
             ILoggerFactory loggerFactory,
-            ICurrentUserService currentUserService,
             IDateTime dateTime) : base(options)
         {
             _loggerFactory = loggerFactory;
-            _currentUserService = currentUserService;
             _dateTime = dateTime;
         }
 
@@ -44,25 +42,22 @@ namespace CulinaCloud.CookBook.Infrastructure.Persistence
         public DbSet<RecipeTag> RecipeTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Image> Images { get; set; }
-        public DbSet<AggregateEventEntity> EventOutbox { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
+            var now = _dateTime.Now;
             foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
             {
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.CreatedBy ??= _currentUserService.UserId;
                         if (entry.Entity.Created == default)
                         {
-                            entry.Entity.Created = _dateTime.Now;
+                            entry.Entity.Created = now;
                         }
                         break;
-
                     case EntityState.Modified:
-                        entry.Entity.LastModifiedBy ??= _currentUserService.UserId;
-                        entry.Entity.LastModified ??= _dateTime.Now;
+                        entry.Entity.LastModified ??= now;
                         break;
                     case EntityState.Detached:
                         break;

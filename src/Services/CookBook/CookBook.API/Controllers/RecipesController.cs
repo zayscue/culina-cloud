@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CulinaCloud.CookBook.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe;
+using CulinaCloud.CookBook.Application.Recipes.Commands.UpdateRecipe;
 using CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe;
 using CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Route("recipes")]
     public class RecipesController : ApiControllerBase
     {
         [HttpGet]
@@ -29,6 +32,17 @@ namespace CulinaCloud.CookBook.API.Controllers
         {
             var vm = await Mediator.Send(command);
             return CreatedAtAction(nameof(Get), new {id = vm.Id}, vm);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<UpdateRecipeResponse>> Update(Guid id, UpdateRecipeCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest();
+            }
+            var response = await Mediator.Send(command);
+            return Ok(response);
         }
     }
 }

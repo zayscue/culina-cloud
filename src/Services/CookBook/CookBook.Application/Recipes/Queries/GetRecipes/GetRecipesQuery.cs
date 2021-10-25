@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
-using CulinaCloud.CookBook.Application.Common.Mapping;
-using CulinaCloud.CookBook.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -38,7 +38,7 @@ namespace CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipes
                 .Include(x => x.Nutrition)
                 .Where(r => EF.Functions.Like(r.Name.ToLower(), $"%{request.Name.Trim().ToLower()}%"))
                 .ProjectTo<GetRecipesResponse>(_mapper.ConfigurationProvider)
-                .PaginatedListAsync(request.Page, request.Limit);
+                .ToPaginatedListAsync(request.Page, request.Limit);
 
             return response;
         }

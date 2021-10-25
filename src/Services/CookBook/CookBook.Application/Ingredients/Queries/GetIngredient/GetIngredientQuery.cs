@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
 using CulinaCloud.CookBook.Domain.Entities;
 using MediatR;

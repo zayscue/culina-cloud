@@ -9,6 +9,10 @@ namespace CulinaCloud.CookBook.Application.Tags.Commands.CreateTag
             RuleFor(c => c.TagName)
                 .NotEmpty()
                 .MaximumLength(64);
+
+            RuleFor(c => c.CreatedBy)
+                .NotEmpty()
+                .MaximumLength(128);
         }
     }
 }

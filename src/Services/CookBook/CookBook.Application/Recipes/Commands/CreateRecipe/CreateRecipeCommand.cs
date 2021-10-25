@@ -20,6 +20,8 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
         public CreateRecipeNutritionCommand Nutrition { get; set; }
         public IList<CreateRecipeMetadataCommand> Metadata { get; set; }
         public IList<string> Tags { get; set; }
+        
+        public string CreatedBy { get; set; }
     }
 
     public class CreateRecipeMetadataCommand
