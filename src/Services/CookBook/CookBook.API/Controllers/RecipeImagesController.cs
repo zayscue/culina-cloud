@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.CreateRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.DeleteRecipeImage;
+using CulinaCloud.CookBook.Application.RecipeImages.Commands.UpdateRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Queries.GetRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Queries.GetRecipeImages;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,15 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/images/{imageId:guid}")]
+        public async Task<ActionResult<UpdateRecipeImageResponse>> Update(Guid id, Guid imageId, UpdateRecipeImageCommand command)
+        {
+            command.RecipeId = id;
+            command.ImageId = imageId;
+            var response = await Mediator.Send(command);
+            return Ok(response);
         }
 
         [HttpDelete("{id:guid}/images/{imageId:guid}")]
