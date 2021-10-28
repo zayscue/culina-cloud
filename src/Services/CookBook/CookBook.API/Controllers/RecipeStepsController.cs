@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.CreateRecipeStep;
+using CulinaCloud.CookBook.Application.RecipeSteps.Commands.UpdateRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeSteps;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,15 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/steps/{order:int}")]
+        public async Task<ActionResult<UpdateRecipeStepResponse>> Update(Guid id, int order, UpdateRecipeStepCommand command)
+        {
+            command.RecipeId = id;
+            command.Order = order;
+            var response = await Mediator.Send(command);
+            return Ok(response);
         }
     }
 }
