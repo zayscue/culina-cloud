@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.CreateRecipeStep;
+using CulinaCloud.CookBook.Application.RecipeSteps.Commands.DeleteRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.UpdateRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeSteps;
@@ -49,6 +50,13 @@ namespace CulinaCloud.CookBook.API.Controllers
             command.RecipeId = id;
             command.Order = order;
             var response = await Mediator.Send(command);
+            return Ok(response);
+        }
+
+        [HttpDelete("{id:guid}/steps/{order:int}")]
+        public async Task<ActionResult<DeleteRecipeStepResponse>> Delete(Guid id, int order)
+        {
+            var response = await Mediator.Send(new DeleteRecipeStepCommand { RecipeId = id, Order = order });
             return Ok(response);
         }
     }
