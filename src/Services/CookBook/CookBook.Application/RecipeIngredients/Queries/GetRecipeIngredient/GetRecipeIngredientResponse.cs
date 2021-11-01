@@ -7,6 +7,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
 {
     public class GetRecipeIngredientResponse : IMapFrom<RecipeIngredient>
     {
+        public Guid Id { get; set; }
         public Guid RecipeId { get; set; }
         public Guid? IngredientId { get; set; }
         public string Quantity { get; set; }

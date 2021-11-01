@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredients;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,31 @@ namespace CulinaCloud.CookBook.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{id:guid}/ingredients/{ingredientId:guid}")]
-        public async Task<ActionResult<GetRecipeIngredientResponse>> Get(Guid id, Guid ingredientId)
+        [HttpGet("{id:guid}/ingredients/{recipeIngredientId:guid}")]
+        public async Task<ActionResult<GetRecipeIngredientResponse>> Get(Guid id, Guid recipeIngredientId)
         {
-            var response = await Mediator.Send(new GetRecipeIngredientQuery { RecipeId = id, IngredientId = ingredientId });
+            var response = await Mediator.Send(new GetRecipeIngredientQuery
+            {
+                RecipeId = id,
+                RecipeIngredientId = recipeIngredientId
+            });
             return Ok(response);
+        }
+
+        [HttpPost("{id:guid}/ingredients")]
+        public async Task<ActionResult<CreateRecipeIngredientResponse>> Create(Guid id, CreateRecipeIngredientCommand command)
+        {
+            command.RecipeId = id;
+            var response = await Mediator.Send(command);
+            return CreatedAtAction(
+                nameof(Get),
+                new
+                {
+                    id = response.RecipeId,
+                    imarecipeIngredientIdgeId = response.Id
+                },
+                response
+            );
         }
     }
 }

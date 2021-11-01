@@ -14,7 +14,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
     public class GetRecipeIngredientQuery : IRequest<GetRecipeIngredientResponse>
     {
         public Guid RecipeId { get; set; }
-        public Guid IngredientId { get; set; }
+        public Guid RecipeIngredientId { get; set; }
     }
 
     public class GetRecipeIngredientQueryHandler : IRequestHandler<GetRecipeIngredientQuery, GetRecipeIngredientResponse>
@@ -34,7 +34,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
                 .AsNoTracking()
                 .Include(x => x.Ingredient)
                 .SingleOrDefaultAsync(x => x.RecipeId == request.RecipeId
-                    && x.IngredientId == request.IngredientId, cancellationToken);
+                    && x.Id == request.RecipeIngredientId, cancellationToken);
 
             if (entity == null)
             {
@@ -43,7 +43,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
                     JsonSerializer.Serialize(new
                     {
                         RecipeId = request.RecipeId,
-                        IngredientId = request.IngredientId
+                        RecipeIngredientId = request.RecipeIngredientId
                     })
                 );
             }

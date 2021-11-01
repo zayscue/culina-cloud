@@ -8,7 +8,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
         {
             RuleFor(q => q.RecipeId)
                 .NotEmpty();
-            RuleFor(q => q.IngredientId)
+            RuleFor(q => q.RecipeIngredientId)
                 .NotEmpty();
         }
     }
