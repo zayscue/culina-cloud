@@ -3,9 +3,9 @@ using AutoMapper;
 using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
 using CulinaCloud.CookBook.Domain.Entities;
 
-namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredients
+namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredient
 {
-    public class GetRecipeIngredientsResponse : IMapFrom<RecipeIngredient>
+    public class GetRecipeIngredientResponse : IMapFrom<RecipeIngredient>
     {
         public Guid RecipeId { get; set; }
         public Guid? IngredientId { get; set; }
@@ -15,7 +15,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIn
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<RecipeIngredient, GetRecipeIngredientsResponse>()
+            profile.CreateMap<RecipeIngredient, GetRecipeIngredientResponse>()
                 .ForMember(d => d.IngredientName,
                     opt =>
                         opt.MapFrom(src => src.Ingredient.IngredientName));
