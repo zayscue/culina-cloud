@@ -13,7 +13,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateReci
             RuleFor(c => c.Part)
                 .NotEmpty()
                 .MaximumLength(512);
-            RuleFor(c => c.Type)
+            RuleFor(c => c.IngredientName)
                 .MaximumLength(128);
             RuleFor(c => c.CreatedBy)
                 .NotEmpty()

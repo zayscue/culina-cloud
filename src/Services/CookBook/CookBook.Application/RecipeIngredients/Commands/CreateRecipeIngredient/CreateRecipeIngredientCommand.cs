@@ -16,7 +16,7 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateReci
         public Guid? RecipeIngredientId { get; set; }
         public string Quantity { get; set; }
         public string Part { get; set; }
-        public string Type { get; set; }
+        public string IngredientName { get; set; }
         public string CreatedBy { get; set; }
     }
 
@@ -39,9 +39,24 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateReci
             {
                 throw new NotFoundException(nameof(Recipe), request.RecipeId);
             }
-            var ingredient = await _context.Ingredients
-                .FirstOrDefaultAsync(x => x.IngredientName.ToLower().Equals(request.Type.ToLower()), cancellationToken);
-            Guid? ingredientId = ingredient != null ? ingredient.Id : null;
+
+            Ingredient ingredient = null;
+            Guid? ingredientId = null;
+            if (!string.IsNullOrWhiteSpace(request.IngredientName))
+            {
+                ingredient = await _context.Ingredients
+                    .FirstOrDefaultAsync(x => x.IngredientName.ToLower().Equals(request.IngredientName.ToLower()), cancellationToken);
+                if (ingredient == null)
+                {
+                    ingredient = new Ingredient
+                    {
+                        Id = Guid.NewGuid(),
+                        IngredientName = request.IngredientName,
+                        CreatedBy = request.CreatedBy
+                    };
+                }
+                ingredientId = ingredient != null ? ingredient.Id : null;
+            }
             var entity = new RecipeIngredient
             {
                 Id = request.RecipeIngredientId ?? Guid.NewGuid(),
