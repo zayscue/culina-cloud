@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateRecipeIngredient;
+using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.UpdateRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredients;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,15 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/ingredients/{recipeIngredientId:guid}")]
+        public async Task<ActionResult<UpdateRecipeIngredientResponse>> Update(Guid id, Guid recipeIngredientId, UpdateRecipeIngredientCommand command)
+        {
+            command.RecipeId = id;
+            command.RecipeIngredientId = recipeIngredientId;
+            var response = await Mediator.Send(command);
+            return Ok(response);
         }
     }
 }
