@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateRecipeIngredient;
+using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.DeleteRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.UpdateRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredients;
@@ -53,6 +54,14 @@ namespace CulinaCloud.CookBook.API.Controllers
             command.RecipeId = id;
             command.RecipeIngredientId = recipeIngredientId;
             var response = await Mediator.Send(command);
+            return Ok(response);
+        }
+
+
+        [HttpDelete("{id:guid}/ingredients/{recipeIngredientId:guid}")]
+        public async Task<ActionResult<DeleteRecipeIngredientResponse>> Delete(Guid id, Guid recipeIngredientId)
+        {
+            var response = await Mediator.Send(new DeleteRecipeIngredientCommand { RecipeId = id, RecipeIngredientId = recipeIngredientId});
             return Ok(response);
         }
     }
