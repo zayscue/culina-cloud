@@ -1,0 +1,12 @@
+﻿global using CulinaCloud.BuildingBlocks.Common.Interfaces;
+global using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
+global using CulinaCloud.Web.BFF.APIGateway.Services;
+global using Amazon.SecretsManager;
+global using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
+global using CulinaCloud.BuildingBlocks.Authentication.Auth0;
+global using Microsoft.Extensions.Options;
+global using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
+global using CulinaCloud.Web.BFF.APIGateway.Interfaces;
+global using System.Net;
+global using System.Text.Json;
+global using CulinaCloud.Web.BFF.APIGateway.Models;
