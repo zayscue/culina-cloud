@@ -21,21 +21,23 @@ namespace CulinaCloud.BuildingBlocks.Application.Common.Models
             Items = items;
         }
 
-        public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
+        public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int? pageSize)
         {
             var count = await source.CountAsync();
-            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            var take = pageSize.HasValue ? pageSize.Value : count;
+            var items = await source.Skip((pageIndex - 1) * take).Take(take).ToListAsync();
 
-            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+            return new PaginatedList<T>(items, count, pageIndex, take);
         }
 
-        public static PaginatedList<T> Create(IEnumerable<T> source, int pageIndex, int pageSize)
+        public static PaginatedList<T> Create(IEnumerable<T> source, int pageIndex, int? pageSize)
         {
             var enumerable = source as T[] ?? source.ToArray();
             var count = enumerable.Count();
-            var items = enumerable.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            var take = pageSize.HasValue ? pageSize.Value : count;
+            var items = enumerable.Skip((pageIndex - 1) * take).Take(take).ToList();
 
-            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+            return new PaginatedList<T>(items, count, pageIndex, take);
         }
     }
 }

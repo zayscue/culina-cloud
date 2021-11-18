@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<CookBookServiceSettings>(builder.Configuration.GetSection("CookBookService"));
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 if (builder.Environment.IsDevelopment())
 {
@@ -25,6 +26,14 @@ builder.Services.AddSingleton<ITokenServiceManager, Auth0TokenServiceManager>(pr
     var secretsProvider = provider.GetService<Auth0SecretsProvider>();
     return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
 });
+builder.Services.AddHttpClient<ICookBookService, CookBookService>((client, provider) =>
+{
+    var settings = provider.GetService<IOptions<CookBookServiceSettings>>();
+    var baseAddress = new Uri(settings.Value.BaseAddress);
+    client.BaseAddress = baseAddress;
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    return new CookBookService(client);
+});
 
 var app = builder.Build();
 
@@ -32,9 +41,6 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.MapGet("/cookbook/recipes/{id:guid}", async (Guid id) =>
-{
-    return "Hello World!";
-});
+app.MapGet("/cookbook/recipes/{id:guid}", (Guid id, ICookBookService cookbook) => cookbook.GetRecipeAsync(id));
 
 app.Run();

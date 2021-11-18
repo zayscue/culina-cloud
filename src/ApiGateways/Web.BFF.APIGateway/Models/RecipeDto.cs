@@ -1,58 +1,58 @@
 ﻿namespace CulinaCloud.Web.BFF.APIGateway.Models;
 
-public class RecipeDto
+public record RecipeDto
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public string Name { get; set; } = default!;
+    public string Description { get; set; } = default!;
     public int EstimatedMinutes { get; set; }
-    public string Serves { get; set; }
-    public string Yield { get; set; }
+    public string Serves { get; set; } = default!;
+    public string Yield { get; set; } = default!;
     public int NumberOfSteps { get; set; }
     public int NumberOfIngredients { get; set; }
 
-    public IList<RecipeStepDto> Steps { get; set; }
-    public IList<RecipeIngredientDto> Ingredients { get; set; }
-    public IList<RecipeImageDto> Images { get; set; }
-    public RecipeNutritionDto Nutrition { get; set; }
-    public IList<RecipeTagDto> Tags { get; set; }
+    public IList<RecipeStepDto> Steps { get; set; } = default!;
+    public IList<RecipeIngredientDto> Ingredients { get; set; } = default!;
+    public IList<RecipeImageDto> Images { get; set; } = default!;
+    public RecipeNutritionDto Nutrition { get; set; } = default!;
+    public IList<RecipeTagDto> Tags { get; set; } = default!;
 }
 
-public class RecipeStepDto
+public record RecipeStepDto
 {
     public Guid RecipeId { get; set; }
     public int Order { get; set; }
-    public string Instruction { get; set; }
+    public string Instruction { get; set; } = default!;
 }
 
-public class RecipeIngredientDto
+public record RecipeIngredientDto
 {
     public Guid Id { get; set; }
     public Guid RecipeId { get; set; }
     public Guid? IngredientId { get; set; }
     public string Quantity { get; set; }
     public string Part { get; set; }
-    public string IngredientName { get; set; }
+    public string IngredientName { get; set; } = default!;
 }
 
-public class RecipeImageDto
+public record RecipeImageDto
 {
     public Guid RecipeId { get; set; }
     public Guid ImageId { get; set; }
-    public string Url { get; set; }
+    public string Url { get; set; } = default!;
 }
 
-public class RecipeTagDto
+public record RecipeTagDto
 {
     public Guid RecipeId { get; set; }
     public Guid TagId { get; set; }
-    public string TagName { get; set; }
+    public string TagName { get; set; } = default!;
 }
 
-public class RecipeNutritionDto
+public record RecipeNutritionDto
 {
     public Guid RecipeId { get; set; }
-    public string ServingSize { get; set; }
+    public string ServingSize { get; set; } = default!;
     public int ServingsPerRecipe { get; set; }
     public decimal Calories { get; set; }
     public decimal CaloriesFromFat { get; set; }
