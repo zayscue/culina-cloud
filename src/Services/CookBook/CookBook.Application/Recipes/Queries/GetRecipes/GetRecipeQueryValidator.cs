@@ -7,10 +7,15 @@ namespace CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipes
         public GetRecipeQueryValidator()
         {
             RuleFor(q => q.Limit)
-                .LessThanOrEqualTo(100);
+                .LessThanOrEqualTo(1000);
 
             RuleFor(q => q.Name)
-                .NotEmpty();
+                .NotEmpty()
+                .When(q => q.RecipeIds.Count == 0);
+
+            RuleFor(q => q.RecipeIds)
+                .NotEmpty()
+                .When(r => string.IsNullOrWhiteSpace(r.Name));
         }
     }
 }

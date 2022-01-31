@@ -14,7 +14,6 @@ namespace CulinaCloud.Users.API.Controllers
     public class FavoritesController : ApiControllerBase
     {
         [HttpGet]
-        [Authorize(Policy = "ReadFavorites")]
         public async Task<ActionResult<PaginatedList<Guid>>> Get([FromQuery] GetFavoritesQuery query)
         {
             var response = await Mediator.Send(query);
@@ -22,7 +21,6 @@ namespace CulinaCloud.Users.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "CreateFavorite")]
         public async Task<ActionResult<CreateFavoriteResponse>> Create([FromBody] CreateFavoriteCommand command)
         {
             var response = await Mediator.Send(command);
@@ -30,7 +28,6 @@ namespace CulinaCloud.Users.API.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Policy = "DeleteFavorite")]
         public async Task<ActionResult<DeleteFavoriteResponse>> Delete([FromBody] DeleteFavoriteCommand command)
         {
             var response = await Mediator.Send(command);

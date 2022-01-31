@@ -2,5 +2,5 @@
 
 public interface ICookBookService
 {
-    Task<RecipeDto> GetRecipeAsync(Guid id, CancellationToken cancellation = default);
+    Task<RecipeDto?> GetRecipeAsync(Guid id, CancellationToken cancellation = default);
 }

@@ -11,6 +11,7 @@ namespace CulinaCloud.Analytics.Application.Recommendations.Queries.GetPersonalR
 {
     public class GetPersonalRecipeRecommendationsQuery : IRequest<PaginatedList<Guid>>
     {
+        public string UserId { get; set; }
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 1000;
     }
@@ -18,20 +19,17 @@ namespace CulinaCloud.Analytics.Application.Recommendations.Queries.GetPersonalR
     public class GetPersonalRecipeRecommendationsQueryHandler : IRequestHandler<GetPersonalRecipeRecommendationsQuery,
         PaginatedList<Guid>>
     {
-        private readonly ICurrentUserService _currentUserService;
         private readonly IRecommendationService _recommendationService;
 
-        public GetPersonalRecipeRecommendationsQueryHandler(IRecommendationService recommendationService,
-            ICurrentUserService currentUserService)
+        public GetPersonalRecipeRecommendationsQueryHandler(IRecommendationService recommendationService)
         {
             _recommendationService = recommendationService;
-            _currentUserService = currentUserService;
         }
 
         public async Task<PaginatedList<Guid>> Handle(GetPersonalRecipeRecommendationsQuery request,
             CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
+            var userId = request.UserId;
             var recommendations = await _recommendationService
                 .GetPersonalRecipeRecommendationsAsync(userId, cancellationToken);
             return recommendations

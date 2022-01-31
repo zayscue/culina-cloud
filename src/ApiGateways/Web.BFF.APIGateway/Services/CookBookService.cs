@@ -2,8 +2,8 @@
 
 public class CookBookService : ICookBookService
 {
+    private const string ServiceName = "CookBook";
     private readonly HttpClient _httpClient;
-    //private readonly ITokenService tokenService;
 
     public CookBookService(HttpClient httpClient)
     {
@@ -12,18 +12,21 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeDto?> GetRecipeAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        //var (tokenType, accessToken) = await _tokenService.GetToken(cancellationToken);
-        //if (string.IsNullOrEmpty(tokenType) || string.IsNullOrEmpty(accessToken))
-        //{
-        //    throw new Exception("Couldn't retrieve the access token for the cookbook service");
-        //}
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{id}");
         using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            return null;
+            switch(response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    throw new RecipeNotFoundException(id);
+                case HttpStatusCode.Unauthorized:
+                    throw new InternalServiceAuthorizationException(_httpClient.BaseAddress?.ToString() ?? ServiceName);
+                default:
+                    throw new InternalServiceException(responseContent);
+            }
         }
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         var recipe = JsonSerializer.Deserialize<RecipeDto>(responseContent, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
