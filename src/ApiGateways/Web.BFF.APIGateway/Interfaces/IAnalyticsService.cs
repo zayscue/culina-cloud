@@ -7,4 +7,7 @@ public interface IAnalyticsService
 
     Task<PaginatedDto<RecipeSimilarityDto>> GetSimilarRecipesAsync(Guid recipeId, int page, int limit,
         CancellationToken cancellation = default);
+
+    Task<PaginatedDto<RecipePopularityDto>> GetPopularRecipesAsync(string orderBy, int page, int limit,
+        CancellationToken cancellation = default);
 }

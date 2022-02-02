@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CulinaCloud.Web.BFF.APIGateway.Controllers;
@@ -23,8 +24,7 @@ public class RecipesController : ControllerBase
         _analyticsService = analyticsService ?? throw new ArgumentNullException(nameof(analyticsService));
     }
 
-
-    [HttpGet("feed")]
+    [HttpGet("personal-feed")]
     public async Task<ActionResult> GetRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
         var userId = _currentUserService.UserId;
@@ -86,6 +86,40 @@ public class RecipesController : ControllerBase
         var isAFavorite = favorite.Items?.Count > 0;
 
         return Ok(new { recipe, isAFavorite });
+    }
+
+    [HttpGet("popular")]
+    public async Task<ActionResult> GetPopularRecipes([FromQuery] string orderBy = "",
+        [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    {
+        var popularRecipes = await _analyticsService.GetPopularRecipesAsync(
+            orderBy, page, limit);
+        popularRecipes.Items ??= new List<RecipePopularityDto>();
+        var popularRecipeIds = popularRecipes.Items.Select(x => x.RecipeId).ToList();
+        
+        var recipes = await _cookBookService.GetRecipesAsync(popularRecipeIds, 1, limit);
+        recipes.Items ??= new List<RecipesDto>();
+        var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
+
+        var items = popularRecipes.Items.Select(x => new
+        {
+            Id = x.RecipeId,
+            recipesDict[x.RecipeId].Name,
+            recipesDict[x.RecipeId].EstimatedMinutes,
+            recipesDict[x.RecipeId].Serves,
+            recipesDict[x.RecipeId].Yield,
+            x.RatingAverage,
+            x.RatingCount,
+            x.RatingSum,
+            x.RatingWeightedAverage
+        });
+        return Ok(new
+        {
+            Items = items,
+            popularRecipes.Page,
+            popularRecipes.TotalCount,
+            popularRecipes.TotalPages
+        });
     }
 
     [HttpGet("{recipeId:guid}/similar")]
