@@ -60,7 +60,7 @@ public class RecipesController : ControllerBase
                 IsAFavorite = favoritesDict[x.RecipeId],
                 recipesDict[x.RecipeId].Serves,
                 recipesDict[x.RecipeId].Yield,
-                Urls = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+                Images = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
                 x.PopularityScore,
                 x.PredictedScore,
                 UserId = userId
@@ -97,7 +97,7 @@ public class RecipesController : ControllerBase
             x.EstimatedMinutes,
             x.Serves,
             x.Yield,
-            Urls = x.Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = x.Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
             IsAFavorite = true
         }).ToList();
 
@@ -130,7 +130,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.RecipeId].EstimatedMinutes,
             recipesDict[x.RecipeId].Serves,
             recipesDict[x.RecipeId].Yield,
-            Urls = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
             x.RatingAverage,
             x.RatingCount,
             x.RatingSum,
@@ -150,17 +150,55 @@ public class RecipesController : ControllerBase
     {
         var user = _currentUserService.UserId;
         var recipe = await _cookBookService.GetRecipeAsync(recipeId);
-        
+
         var recipeIds = new List<Guid>(new [] { recipeId } );
         var favorite = await _usersService.GetUsersFavoritesAsync(user, recipeIds, 1, 1);
         var isAFavorite = favorite.Items?.Count > 0;
 
-        return Ok(new { recipe, isAFavorite });
+        var response = new
+        {
+            IsAFavorite = isAFavorite,
+            Recipe = new
+            {
+                recipe.Id,
+                recipe.Name,
+                recipe.Description,
+                recipe.EstimatedMinutes,
+                recipe.Serves,
+                recipe.Yield,
+                recipe.Nutrition,
+                Images = recipe.Images?.Select(x => new
+                {
+                    x.ImageId,
+                    x.Url
+                }) ?? null,
+                recipe.NumberOfIngredients,
+                Ingredients = recipe.Ingredients?.Select(x =>  new
+                {
+                    x.Part,
+                    x.Quantity,
+                    x.IngredientName,
+                    x.IngredientId
+                }) ?? null,
+                recipe.NumberOfSteps,
+                Steps = recipe.Steps?.Select(x => new
+                {
+                    x.Order,
+                    x.Instruction
+                }) ?? null,
+                Tags = recipe.Tags?.Select(x => new
+                {
+                    x.TagId,
+                    x.TagName
+                })   
+            }
+        };
+        return Ok(response);
     }
 
 
     [HttpPut("{recipeId:guid}")]
-    public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, RecipeDto recipe)
+    public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, [FromBody] RecipeDto recipe)
     {
         var user = _currentUserService.UserId;
         recipe.LastModifiedBy = user;
@@ -204,7 +242,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.SimilarRecipeId].EstimatedMinutes,
             recipesDict[x.SimilarRecipeId].Serves,
             recipesDict[x.SimilarRecipeId].Yield,
-            Urls = recipesDict[x.SimilarRecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = recipesDict[x.SimilarRecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
             SimilarTo = x.RecipeId,
             x.SimilarityScore,
             x.PopularityScore

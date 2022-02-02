@@ -54,7 +54,12 @@ builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, pro
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     return new AnalyticsService(client);
 });
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions((options) =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 var app = builder.Build();
 
