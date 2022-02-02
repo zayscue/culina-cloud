@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.CookBook.Application.RecipeSteps.Commands.CreateBatchRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.CreateRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.DeleteRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.UpdateRecipeStep;
@@ -42,6 +43,18 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/steps")]
+        public async Task<ActionResult<List<CreateRecipeStepResponse>>> CreateBatch(Guid id,
+            List<CreateRecipeStepCommand> commands)
+        {
+            var response = await Mediator.Send(new CreateBatchRecipeStepCommand
+            {
+                RecipeId = id,
+                Commands = commands
+            });
+            return Ok(response);
         }
 
         [HttpPut("{id:guid}/steps/{order:int}")]

@@ -27,8 +27,8 @@ services:
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
       - EventStore:BaseAddress=http://eventstoreapi
     ports:
-      - "80"
-      - "443"
+      - "55002:80"
+      - "55003:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -53,8 +53,8 @@ services:
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
     ports:
-      - "80"
-      - "443"
+      - "55006:80"
+      - "55007:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -66,8 +66,8 @@ services:
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
       - RecipesService:BaseAddress=http://cookbookapi
     ports:
-      - "80"
-      - "443"
+      - "55008:80"
+      - "55009:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

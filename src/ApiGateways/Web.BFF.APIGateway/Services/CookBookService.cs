@@ -1,4 +1,6 @@
-﻿namespace CulinaCloud.Web.BFF.APIGateway.Services;
+﻿using System.Text;
+
+namespace CulinaCloud.Web.BFF.APIGateway.Services;
 
 public class CookBookService : ICookBookService
 {
@@ -55,5 +57,61 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new PaginatedDto<RecipesDto>();
         return recipeResults;
+    }
+
+    public async Task UpdateRecipeAsync(Guid recipeId, RecipeDto recipe,
+        CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(recipe,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipe = JsonSerializer.Deserialize<RecipeDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeDto();
+    }
+
+    public async Task UpdateRecipeNutritionAsync(Guid recipeId, RecipeNutritionDto recipeNutrition,
+        CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(recipeNutrition,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/nutrition", requestContent, 
+            cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipeNutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeNutritionDto();
+    }
+
+    public async Task BatchUpdateRecipeStepsAsync(Guid recipeId, List<RecipeStepDto> steps,
+        CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(steps,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/steps", requestContent, 
+            cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipeNutrition = JsonSerializer.Deserialize<RecipeStepDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeStepDto();
     }
 }

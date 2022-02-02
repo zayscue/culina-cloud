@@ -62,8 +62,6 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.MapGet("/cookbook/recipes/{id:guid}", (Guid id, ICookBookService cookbook) => cookbook.GetRecipeAsync(id));
-
 app.MapControllers();
 
 app.Run();

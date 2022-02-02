@@ -10,11 +10,12 @@ public record RecipeDto
     public string Yield { get; set; } = default!;
     public int NumberOfSteps { get; set; }
     public int NumberOfIngredients { get; set; }
+    public string? LastModifiedBy { get; set; }
 
-    public IList<RecipeStepDto> Steps { get; set; } = default!;
+    public IList<RecipeStepDto>? Steps { get; set; } = default!;
     public IList<RecipeIngredientDto> Ingredients { get; set; } = default!;
     public IList<RecipeImageDto> Images { get; set; } = default!;
-    public RecipeNutritionDto Nutrition { get; set; } = default!;
+    public RecipeNutritionDto? Nutrition { get; set; } = default!;
     public IList<RecipeTagDto> Tags { get; set; } = default!;
 }
 
@@ -23,6 +24,7 @@ public record RecipeStepDto
     public Guid RecipeId { get; set; }
     public int Order { get; set; }
     public string Instruction { get; set; } = default!;
+    public string? CreatedBy { get; set; }
 }
 
 public record RecipeIngredientDto
@@ -73,5 +75,7 @@ public record RecipeNutritionDto
     public decimal ProteinPdv { get; set; }
     public decimal TotalCarbohydrates { get; set; }
     public decimal TotalCarbohydratesPdv { get; set; }
+
+    public string? LastModifiedBy { get; set; }
 }
 

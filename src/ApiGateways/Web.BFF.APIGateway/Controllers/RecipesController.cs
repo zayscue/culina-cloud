@@ -158,6 +158,33 @@ public class RecipesController : ControllerBase
         return Ok(new { recipe, isAFavorite });
     }
 
+
+    [HttpPut("{recipeId:guid}")]
+    public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, RecipeDto recipe)
+    {
+        var user = _currentUserService.UserId;
+        recipe.LastModifiedBy = user;
+
+        await _cookBookService.UpdateRecipeAsync(recipeId, recipe);
+
+        if (recipe.Nutrition != null)
+        {
+            recipe.Nutrition.LastModifiedBy = user;
+            await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
+        }
+
+        if (recipe.Steps != null)
+        {
+            foreach (var step in recipe.Steps)
+            {
+                step.CreatedBy = user;
+            }
+            await _cookBookService.BatchUpdateRecipeStepsAsync(recipeId, recipe.Steps.ToList());
+        }
+
+        return Ok();
+    }
+
     [HttpGet("{recipeId:guid}/similar")]
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
         [FromQuery] int page = 1, [FromQuery] int limit = 20)
@@ -177,7 +204,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.SimilarRecipeId].EstimatedMinutes,
             recipesDict[x.SimilarRecipeId].Serves,
             recipesDict[x.SimilarRecipeId].Yield,
-            Urls = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Urls = recipesDict[x.SimilarRecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
             SimilarTo = x.RecipeId,
             x.SimilarityScore,
             x.PopularityScore
@@ -190,5 +217,30 @@ public class RecipesController : ControllerBase
             similarRecipes.TotalPages
         });
     }
-    
+
+    [HttpPost("{recipeId:guid}/favorite")]
+    public async Task<ActionResult> FavoriteRecipe([FromRoute] Guid recipeId)
+    {
+        var userId = _currentUserService.UserId;
+        var favorite = new FavoriteDto
+        {
+            RecipeId = recipeId,
+            UserId = userId
+        };
+        await _usersService.CreateFavoriteAsync(favorite);
+        return Ok();
+    }
+
+    [HttpPost("{recipeId:guid}/un-favorite")]
+    public async Task<ActionResult> UnFavoriteRecipe([FromRoute] Guid recipeId)
+    {
+        var userId = _currentUserService.UserId;
+        var favorite = new FavoriteDto
+        {
+            RecipeId = recipeId,
+            UserId = userId
+        };
+        await _usersService.DeleteFavoriteAsync(favorite);
+        return Ok();
+    }
 }
