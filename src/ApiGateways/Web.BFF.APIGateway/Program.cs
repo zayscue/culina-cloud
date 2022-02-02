@@ -3,6 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.Configure<CookBookServiceSettings>(builder.Configuration.GetSection("CookBookService"));
 builder.Services.Configure<UsersServiceSettings>(builder.Configuration.GetSection("UsersService"));
+builder.Services.Configure<AnalyticsServiceSettings>(builder.Configuration.GetSection("AnalyticsService"));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
@@ -44,6 +45,14 @@ builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     return new UsersService(client);
+});
+builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, provider) =>
+{
+    var settings = provider.GetService<IOptions<AnalyticsServiceSettings>>();
+    var baseAddress = new Uri(settings.Value.BaseAddress);
+    client.BaseAddress = baseAddress;
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    return new AnalyticsService(client);
 });
 builder.Services.AddControllers();
 

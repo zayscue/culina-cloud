@@ -33,4 +33,27 @@ public class CookBookService : ICookBookService
         });
         return recipe;
     }
+
+    public async Task<PaginatedListDto<RecipesDto>?> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
+        CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new("limit", limit.ToString()),
+            new("page", page.ToString())
+        };
+        urlParams.AddRange(recipeIds.Select(recipeId => 
+            new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}") ;
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeResults = JsonSerializer.Deserialize<PaginatedListDto<RecipesDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        return recipeResults;
+    }
 }

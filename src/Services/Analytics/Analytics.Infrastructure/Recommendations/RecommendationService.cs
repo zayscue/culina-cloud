@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CulinaCloud.Analytics.Application.Interfaces;
+using CulinaCloud.Analytics.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CulinaCloud.Analytics.Infrastructure.Recommendations
@@ -19,7 +20,8 @@ namespace CulinaCloud.Analytics.Infrastructure.Recommendations
             _model = model;
         }
 
-        public async Task<IEnumerable<Guid>> GetPersonalRecipeRecommendationsAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RecommendationResult>> GetPersonalRecipeRecommendationsAsync(string userId,
+            CancellationToken cancellationToken = default)
         {
             var topTenThousandRecipes = await _context.RecipePopularity
                 .AsNoTracking()
@@ -36,7 +38,12 @@ namespace CulinaCloud.Analytics.Infrastructure.Recommendations
                 })
                 .OrderByDescending(x => x.RecommendationScore)
                 .ThenByDescending(x => x.RatingWeightedAverage)
-                .Select(x => x.RecipeId);
+                .Select(x => new RecommendationResult
+                {
+                    RecipeId = x.RecipeId,
+                    PopularityScore = x.RatingWeightedAverage,
+                    PredictedScore = x.RecommendationScore
+                });
         }
     }
 }

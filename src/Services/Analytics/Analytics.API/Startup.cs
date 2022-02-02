@@ -29,27 +29,27 @@ namespace CulinaCloud.Analytics.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = Configuration["Auth0:Domain"];
-                options.Audience = Configuration["Auth0:Audience"];
-            });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CreateRecipePopularity", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_popularity")));
-                options.AddPolicy("CreateRecipeSimilarity", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_similarity")));
-                options.AddPolicy("ReadPersonalRecipeRecommendations", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("read:personal_recipe_recommendations")));
-                options.AddPolicy("ReadSimilarRecipes", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("read:similar_recipes")));
-            });
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+            // services.AddAuthentication(options =>
+            // {
+            //     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            // }).AddJwtBearer(options =>
+            // {
+            //     options.Authority = Configuration["Auth0:Domain"];
+            //     options.Audience = Configuration["Auth0:Audience"];
+            // });
+            // services.AddAuthorization(options =>
+            // {
+            //     options.AddPolicy("CreateRecipePopularity", policy =>
+            //         policy.Requirements.Add(new HasScopeRequirement("create:recipe_popularity")));
+            //     options.AddPolicy("CreateRecipeSimilarity", policy =>
+            //         policy.Requirements.Add(new HasScopeRequirement("create:recipe_similarity")));
+            //     options.AddPolicy("ReadPersonalRecipeRecommendations", policy =>
+            //         policy.Requirements.Add(new HasScopeRequirement("read:personal_recipe_recommendations")));
+            //     options.AddPolicy("ReadSimilarRecipes", policy =>
+            //         policy.Requirements.Add(new HasScopeRequirement("read:similar_recipes")));
+            // });
+            //services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
             services.AddHttpContextAccessor();

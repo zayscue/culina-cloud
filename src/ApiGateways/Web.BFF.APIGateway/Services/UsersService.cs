@@ -12,16 +12,17 @@ public class UsersService : IUsersService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
     
-    public async Task<PaginatedListDto<Guid>?> GetUsersFavoritesAsync(string userId, CancellationToken cancellation = default)
+    public async Task<PaginatedListDto<Guid>?> GetUsersFavoritesAsync(string userId, int page, int limit,
+        CancellationToken cancellation = default)
     {
         using var urlContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
-            new KeyValuePair<string, string>("userId", userId)
+            new ("page", page.ToString()),
+            new ("limit", limit.ToString()),
+            new ("userId", userId)
         });
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/users/favorites")
-        {
-            Content = urlContent
-        };
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedListDto<Guid>>(responseContent, new JsonSerializerOptions
@@ -31,19 +32,20 @@ public class UsersService : IUsersService
         return favoritesPaginatedList;
     }
 
-    public async Task<PaginatedListDto<Guid>?> GetUsersFavoritesAsync(string userId, List<Guid> recipeIds, CancellationToken cancellation = default)
+    public async Task<PaginatedListDto<Guid>?> GetUsersFavoritesAsync(string userId, List<Guid> recipeIds, int page, 
+        int limit, CancellationToken cancellation = default)
     {
         var urlParams = new List<KeyValuePair<string, string>>
-        {
-            new KeyValuePair<string, string>("userId", userId)
+        {            
+            new ("page", page.ToString()),
+            new ("limit", limit.ToString()),
+            new ("userId", userId)
         };
         urlParams.AddRange(recipeIds.Select(recipeId => 
             new KeyValuePair<string, string>("recipeId", recipeId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/users/favorites")
-        {
-            Content = urlContent
-        };
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedListDto<Guid>>(responseContent, new JsonSerializerOptions
