@@ -30,8 +30,8 @@ public record RecipeIngredientDto
     public Guid Id { get; set; }
     public Guid RecipeId { get; set; }
     public Guid? IngredientId { get; set; }
-    public string Quantity { get; set; }
-    public string Part { get; set; }
+    public string? Quantity { get; set; }
+    public string? Part { get; set; }
     public string IngredientName { get; set; } = default!;
 }
 

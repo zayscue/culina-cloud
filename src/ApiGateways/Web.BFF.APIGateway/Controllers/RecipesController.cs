@@ -30,7 +30,7 @@ public class RecipesController : ControllerBase
         var userId = !string.IsNullOrWhiteSpace(user) ? user : _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
             userId, page, limit);
-        if (recipeRecommendations == null)
+        if (recipeRecommendations?.Items == null)
         {
             return BadRequest("An issue has occurred try to determine the user's personalized recipe recommendations");
         }
@@ -59,8 +59,8 @@ public class RecipesController : ControllerBase
         {
             return BadRequest("An issue has occurred trying to look up the recipe details");
         }
-        var recipesDict = recipes.Items
-            .ToDictionary(x => x.Id, x => x);
+        var recipesDict = recipes.Items?
+            .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
         
         var feedItems = recipeRecommendations.Items.Select(x => 
             new RecipeFeedItemDto
@@ -76,7 +76,7 @@ public class RecipesController : ControllerBase
                 UserId = userId
             }
         ).ToList();
-        var result = new PaginatedListDto<RecipeFeedItemDto>
+        var feed = new PaginatedListDto<RecipeFeedItemDto>
         {
             Items = feedItems,
             Page = recipeRecommendations.Page,
@@ -84,7 +84,7 @@ public class RecipesController : ControllerBase
             TotalPages = recipeRecommendations.TotalPages
         };
 
-        return Ok(result);
+        return Ok(feed);
     }
     
 }

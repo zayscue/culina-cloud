@@ -33,7 +33,7 @@ builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 builder.Services.AddHttpClient<ICookBookService, CookBookService>((client, provider) =>
 {
     var settings = provider.GetService<IOptions<CookBookServiceSettings>>();
-    var baseAddress = new Uri(settings.Value.BaseAddress);
+    var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     return new CookBookService(client);
@@ -41,7 +41,7 @@ builder.Services.AddHttpClient<ICookBookService, CookBookService>((client, provi
 builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =>
 {
     var settings = provider.GetService<IOptions<UsersServiceSettings>>();
-    var baseAddress = new Uri(settings.Value.BaseAddress);
+    var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     return new UsersService(client);
@@ -49,7 +49,7 @@ builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =
 builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, provider) =>
 {
     var settings = provider.GetService<IOptions<AnalyticsServiceSettings>>();
-    var baseAddress = new Uri(settings.Value.BaseAddress);
+    var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     return new AnalyticsService(client);
