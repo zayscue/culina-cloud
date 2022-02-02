@@ -10,4 +10,13 @@ public record RecipesDto
     public string? Yield { get; set; }
     public int NumberOfSteps { get; set; }
     public int NumberOfIngredients { get; set; }
+    
+    public IList<RecipeImage>? Images { get; set; }
+}
+
+public record RecipeImage
+{
+    public Guid RecipeId { get; set; }
+    public Guid ImageId { get; set; }
+    public string? Url { get; set; }
 }
