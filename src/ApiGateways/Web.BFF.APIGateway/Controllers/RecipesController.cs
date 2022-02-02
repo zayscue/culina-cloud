@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CulinaCloud.Web.BFF.APIGateway.Controllers;
 
@@ -23,11 +24,10 @@ public class RecipesController : ControllerBase
     }
 
 
-    [HttpGet("get-feed")]
-    public async Task<ActionResult<PaginatedListDto<RecipeFeedItemDto>>> GetRecipeFeed([FromQuery] string user,
-        [FromQuery] int page = 1, [FromQuery] int limit = 24)
+    [HttpGet("feed")]
+    public async Task<ActionResult> GetRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
-        var userId = !string.IsNullOrWhiteSpace(user) ? user : _currentUserService.UserId;
+        var userId = _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
             userId, page, limit);
         recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
@@ -51,28 +51,73 @@ public class RecipesController : ControllerBase
             .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
         
         var feedItems = recipeRecommendations.Items.Select(x => 
-            new RecipeFeedItemDto
+            new
             {
                 Id = x.RecipeId,
-                Name = recipesDict[x.RecipeId].Name ,
-                EstimatedMinutes = recipesDict[x.RecipeId].EstimatedMinutes,
+                recipesDict[x.RecipeId].Name ,
+                recipesDict[x.RecipeId].EstimatedMinutes,
                 IsAFavorite = favoritesDict[x.RecipeId],
-                Serves = recipesDict[x.RecipeId].Serves,
-                Yield = recipesDict[x.RecipeId].Yield,
-                PopularityScore = x.PopularityScore,
-                PredictedScore = x.PredictedScore,
+                recipesDict[x.RecipeId].Serves,
+                recipesDict[x.RecipeId].Yield,
+                x.PopularityScore,
+                x.PredictedScore,
                 UserId = userId
             }
         ).ToList();
-        var feed = new PaginatedListDto<RecipeFeedItemDto>
+        var feed = new
         {
             Items = feedItems,
-            Page = recipeRecommendations.Page,
-            TotalCount = recipeRecommendations.TotalCount,
-            TotalPages = recipeRecommendations.TotalPages
+            recipeRecommendations.Page,
+            recipeRecommendations.TotalCount,
+            recipeRecommendations.TotalPages
         };
 
         return Ok(feed);
+    }
+
+    [HttpGet("{recipeId:guid}")]
+    public async Task<ActionResult> GetRecipe([FromRoute] Guid recipeId)
+    {
+        var user = _currentUserService.UserId;
+        var recipe = await _cookBookService.GetRecipeAsync(recipeId);
+        
+        var recipeIds = new List<Guid>(new [] { recipeId } );
+        var favorite = await _usersService.GetUsersFavoritesAsync(user, recipeIds, 1, 1);
+        var isAFavorite = favorite.Items?.Count > 0;
+
+        return Ok(new { recipe, isAFavorite });
+    }
+
+    [HttpGet("{recipeId:guid}/similar")]
+    public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
+        [FromQuery] int page = 1, [FromQuery] int limit = 20)
+    {
+        var similarRecipes = await _analyticsService.GetSimilarRecipesAsync(recipeId, page, limit);
+        similarRecipes.Items ??= new List<RecipeSimilarityDto>();
+        var similarRecipeIds = similarRecipes.Items.Select(x => x.SimilarRecipeId).ToList();
+
+        var recipes = await _cookBookService.GetRecipesAsync(similarRecipeIds, 1, limit);
+        recipes.Items ??= new List<RecipesDto>();
+        var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
+
+        var items = similarRecipes.Items.Select(x => new
+        {
+            Id = x.SimilarRecipeId,
+            recipesDict[x.SimilarRecipeId].Name,
+            recipesDict[x.SimilarRecipeId].EstimatedMinutes,
+            recipesDict[x.SimilarRecipeId].Serves,
+            recipesDict[x.SimilarRecipeId].Yield,
+            SimilarTo = x.RecipeId,
+            x.SimilarityScore,
+            x.PopularityScore
+        });
+        return Ok(new
+        {
+            Items = items,
+            similarRecipes.Page,
+            similarRecipes.TotalCount,
+            similarRecipes.TotalPages
+        });
     }
     
 }

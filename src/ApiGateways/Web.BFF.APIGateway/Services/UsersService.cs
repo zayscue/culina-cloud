@@ -12,7 +12,7 @@ public class UsersService : IUsersService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
     
-    public async Task<PaginatedListDto<Guid>> GetUsersFavoritesAsync(string userId, int page, int limit,
+    public async Task<PaginatedDto<Guid>> GetUsersFavoritesAsync(string userId, int page, int limit,
         CancellationToken cancellation = default)
     {
         using var urlContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
@@ -25,14 +25,14 @@ public class UsersService : IUsersService
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
-        var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedListDto<Guid>>(responseContent, new JsonSerializerOptions
+        var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedDto<Guid>>(responseContent, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }) ?? new PaginatedListDto<Guid>();
+        }) ?? new PaginatedDto<Guid>();
         return favoritesPaginatedList;
     }
 
-    public async Task<PaginatedListDto<Guid>> GetUsersFavoritesAsync(string userId, List<Guid> recipeIds, int page, 
+    public async Task<PaginatedDto<Guid>> GetUsersFavoritesAsync(string userId, List<Guid> recipeIds, int page, 
         int limit, CancellationToken cancellation = default)
     {
         var urlParams = new List<KeyValuePair<string, string>>
@@ -48,10 +48,10 @@ public class UsersService : IUsersService
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
-        var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedListDto<Guid>>(responseContent, new JsonSerializerOptions
+        var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedDto<Guid>>(responseContent, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }) ?? new PaginatedListDto<Guid>();
+        }) ?? new PaginatedDto<Guid>();
         return favoritesPaginatedList;
     }
 

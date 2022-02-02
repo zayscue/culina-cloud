@@ -11,6 +11,7 @@ global using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 global using CulinaCloud.BuildingBlocks.Authentication.Auth0;
 global using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 global using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
+global using CulinaCloud.BuildingBlocks.Application.Common.Models;
 global using CulinaCloud.Web.BFF.APIGateway.Services;
 global using CulinaCloud.Web.BFF.APIGateway.Interfaces;
 global using CulinaCloud.Web.BFF.APIGateway.Models;

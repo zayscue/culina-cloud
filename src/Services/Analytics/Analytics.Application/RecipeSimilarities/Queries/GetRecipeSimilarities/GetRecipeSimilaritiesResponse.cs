@@ -10,5 +10,6 @@ namespace CulinaCloud.Analytics.Application.RecipeSimilarities.Queries.GetRecipe
         public Guid SimilarRecipeId { get; set; }
         public string SimilarityType { get; set; }
         public decimal SimilarityScore { get; set; }
+        public decimal PopularityScore { get; set; }
     }
 }

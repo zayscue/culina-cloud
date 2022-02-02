@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<ProjectReference Include="..\..\BuildingBlocks\Application\Application.Common\Application.Common.csproj" />
 	<ProjectReference Include="..\..\BuildingBlocks\Authentication\Authentication\Authentication.csproj" />
 	<ProjectReference Include="..\..\BuildingBlocks\Authorization\Authorization.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\CurrentUser\CurrentUser\CurrentUser.csproj" />

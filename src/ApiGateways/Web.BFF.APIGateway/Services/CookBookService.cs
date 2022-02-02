@@ -34,7 +34,7 @@ public class CookBookService : ICookBookService
         return recipe;
     }
 
-    public async Task<PaginatedListDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
+    public async Task<PaginatedDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
         CancellationToken cancellation = default)
     {
         var urlParams = new List<KeyValuePair<string, string>>
@@ -49,11 +49,11 @@ public class CookBookService : ICookBookService
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}") ;
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
-        var recipeResults = JsonSerializer.Deserialize<PaginatedListDto<RecipesDto>>(responseContent,
+        var recipeResults = JsonSerializer.Deserialize<PaginatedDto<RecipesDto>>(responseContent,
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }) ?? new PaginatedListDto<RecipesDto>();
+            }) ?? new PaginatedDto<RecipesDto>();
         return recipeResults;
     }
 }

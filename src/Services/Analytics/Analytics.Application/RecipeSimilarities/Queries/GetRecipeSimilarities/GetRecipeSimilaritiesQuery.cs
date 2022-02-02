@@ -18,7 +18,7 @@ namespace CulinaCloud.Analytics.Application.RecipeSimilarities.Queries.GetRecipe
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 1000;
     }
-
+    
     public class GetRecipeSimilaritiesQueryHandler : IRequestHandler<GetRecipeSimilaritiesQuery, PaginatedList<GetRecipeSimilaritiesResponse>>
     {
         private readonly IApplicationDbContext _context;
@@ -33,10 +33,23 @@ namespace CulinaCloud.Analytics.Application.RecipeSimilarities.Queries.GetRecipe
         public async Task<PaginatedList<GetRecipeSimilaritiesResponse>> Handle(GetRecipeSimilaritiesQuery request, CancellationToken cancellationToken)
         {
             var response = await _context.RecipeSimilarity
+                .Join(_context.RecipePopularity, 
+                    similarity => similarity.RecipeId,
+                    popularity => popularity.RecipeId,
+                    (similarity, popularity) => new { Similarity = similarity, Popularity = popularity})
                 .AsNoTracking()
-                .OrderBy(x => x.SimilarityScore)
-                .Where(x => x.RecipeId == request.RecipeId && x.SimilarityType == "ingredient")
-                .ProjectTo<GetRecipeSimilaritiesResponse>(_mapper.ConfigurationProvider)
+                .OrderByDescending(x => x.Similarity.SimilarityScore)
+                    .ThenByDescending(x => x.Popularity.RatingWeightedAverage)
+                .Where(x => x.Similarity.RecipeId == request.RecipeId 
+                            && x.Similarity.SimilarityType == "ingredient")
+                .Select(x => new GetRecipeSimilaritiesResponse
+                {
+                    RecipeId = x.Similarity.RecipeId,
+                    SimilarRecipeId = x.Similarity.SimilarRecipeId,
+                    SimilarityType = x.Similarity.SimilarityType,
+                    SimilarityScore = x.Similarity.SimilarityScore,
+                    PopularityScore = x.Popularity.RatingWeightedAverage
+                })
                 .ToPaginatedListAsync(request.Page, request.Limit);
             return response;
         }
