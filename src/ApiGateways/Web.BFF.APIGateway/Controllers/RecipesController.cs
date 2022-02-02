@@ -210,7 +210,13 @@ public class RecipesController : ControllerBase
             recipe.Nutrition.LastModifiedBy = user;
             await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
         }
-
+        
+        // TODO Update images 
+        
+        // TODO Update ingredients
+        
+        // TODO Update tags
+        
         if (recipe.Steps != null)
         {
             foreach (var step in recipe.Steps)
