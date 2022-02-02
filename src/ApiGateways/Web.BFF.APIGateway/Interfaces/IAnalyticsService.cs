@@ -2,6 +2,6 @@
 
 public interface IAnalyticsService
 {
-    Task<PaginatedListDto<RecipeRecommendationDto>?> GetPersonalizedRecipeRecommendationsAsync(string userId, int page, int limit,
+    Task<PaginatedListDto<RecipeRecommendationDto>> GetPersonalizedRecipeRecommendationsAsync(string userId, int page, int limit,
         CancellationToken cancellation = default);
 }

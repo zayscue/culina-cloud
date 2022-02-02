@@ -10,7 +10,7 @@ public class AnalyticsService : IAnalyticsService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
-    public async Task<PaginatedListDto<RecipeRecommendationDto>?> GetPersonalizedRecipeRecommendationsAsync(string userId, 
+    public async Task<PaginatedListDto<RecipeRecommendationDto>> GetPersonalizedRecipeRecommendationsAsync(string userId, 
         int page, int limit, CancellationToken cancellation = default)
     {
         
@@ -30,7 +30,7 @@ public class AnalyticsService : IAnalyticsService
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            }) ?? new PaginatedListDto<RecipeRecommendationDto>();
         return recipeRecommendations;
     }
 }

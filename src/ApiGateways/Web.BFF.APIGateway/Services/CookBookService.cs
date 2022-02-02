@@ -10,7 +10,7 @@ public class CookBookService : ICookBookService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
-    public async Task<RecipeDto?> GetRecipeAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<RecipeDto> GetRecipeAsync(Guid id, CancellationToken cancellationToken = default)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{id}");
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -30,11 +30,11 @@ public class CookBookService : ICookBookService
         var recipe = JsonSerializer.Deserialize<RecipeDto>(responseContent, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        }) ?? new RecipeDto();
         return recipe;
     }
 
-    public async Task<PaginatedListDto<RecipesDto>?> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
+    public async Task<PaginatedListDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
         CancellationToken cancellation = default)
     {
         var urlParams = new List<KeyValuePair<string, string>>
@@ -53,7 +53,7 @@ public class CookBookService : ICookBookService
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            }) ?? new PaginatedListDto<RecipesDto>();
         return recipeResults;
     }
 }

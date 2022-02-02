@@ -30,19 +30,11 @@ public class RecipesController : ControllerBase
         var userId = !string.IsNullOrWhiteSpace(user) ? user : _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
             userId, page, limit);
-        if (recipeRecommendations?.Items == null)
-        {
-            return BadRequest("An issue has occurred try to determine the user's personalized recipe recommendations");
-        }
+        recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
         var recipeIds = recipeRecommendations.Items.Select(x => x.RecipeId).ToList();
-
-
+        
         var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
             userId, recipeIds, 1, limit);
-        if (recipeFavorites == null)
-        {
-            return BadRequest("An issue has occurred trying to determine the user's favorite recipes");
-        }
         var favoritesDict = recipeRecommendations.Items
             .ToDictionary(x => x.RecipeId, x => false);
         if (recipeFavorites.Items is {Count: > 0})
@@ -55,10 +47,6 @@ public class RecipesController : ControllerBase
 
         var recipes = await _cookBookService.GetRecipesAsync(
             recipeIds, 1, limit);
-        if (recipes == null)
-        {
-            return BadRequest("An issue has occurred trying to look up the recipe details");
-        }
         var recipesDict = recipes.Items?
             .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
         
