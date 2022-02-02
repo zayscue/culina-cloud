@@ -25,9 +25,10 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("personal-feed")]
-    public async Task<ActionResult> GetRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] string user,
+        [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
-        var userId = _currentUserService.UserId;
+        var userId = user ?? _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
             userId, page, limit);
         recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
@@ -73,6 +74,38 @@ public class RecipesController : ControllerBase
         };
 
         return Ok(feed);
+    }
+
+    [HttpGet("favorites")]
+    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string user,
+        [FromQuery] int page = 1, [FromQuery] int limit = 24)
+    {
+        var userId = user ?? _currentUserService.UserId;
+        var favoriteRecipes = await _usersService.GetUsersFavoritesAsync(
+            userId, 1, limit);
+        favoriteRecipes.Items ??= new List<Guid>();
+
+        var recipes = await _cookBookService.GetRecipesAsync(favoriteRecipes.Items,
+            page, limit);
+        recipes.Items ??= new List<RecipesDto>();
+
+        var items = recipes.Items.Select(x => new
+        {
+            x.Id,
+            x.Name,
+            x.EstimatedMinutes,
+            x.Serves,
+            x.Yield,
+            IsAFavorite = true
+        }).ToList();
+
+        return Ok(new
+        {
+            Items = items,
+            favoriteRecipes.Page,
+            favoriteRecipes.TotalCount,
+            favoriteRecipes.TotalPages
+        });
     }
 
     [HttpGet("{recipeId:guid}")]
