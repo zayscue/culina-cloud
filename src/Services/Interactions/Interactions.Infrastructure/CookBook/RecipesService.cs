@@ -10,12 +10,10 @@ namespace CulinaCloud.Interactions.Infrastructure.CookBook
 {
     public class RecipesService : IRecipesService
     {
-        private readonly ITokenService _tokenService;
         private readonly HttpClient _httpClient;
 
-        public RecipesService(ITokenService tokenService, HttpClient httpClient)
+        public RecipesService(HttpClient httpClient)
         {
-            _tokenService = tokenService;
             _httpClient = httpClient;
         }
 
@@ -41,17 +39,12 @@ namespace CulinaCloud.Interactions.Infrastructure.CookBook
 
         public async Task<bool> RecipeExistsAsync(Guid recipeId, CancellationToken cancellationToken = default)
         {
-            var (tokenType, accessToken) = await _tokenService.GetToken(cancellationToken);
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_httpClient.BaseAddress, $"/cookbook/recipes/{recipeId}"),
-                Headers =
-                {
-                    { HttpRequestHeader.Authorization.ToString(), $"{tokenType} {accessToken}" }
-                }
+                RequestUri = new Uri(_httpClient.BaseAddress, $"/recipes/{recipeId}")
             };
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             return response.IsSuccessStatusCode;
         }
     }

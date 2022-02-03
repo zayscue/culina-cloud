@@ -358,6 +358,17 @@ public class RecipesController : ControllerBase
         return Ok(recipeReviews);
     }
 
+    [HttpPost("{recipeId:guid}/reviews")]
+    public async Task<ActionResult> CreateRecipeReview([FromRoute] Guid recipeId, [FromBody] ReviewDto review)
+    {
+        var user = _currentUserService.UserId;
+        review.RecipeId = recipeId;
+        review.CreatedBy = user;
+        review.UserId = user;
+        var createdReview = await _interactionsService.CreateRecipeReviewAsync(review);
+        return Ok(createdReview);
+    }
+
     [HttpPost("{recipeId:guid}/favorite")]
     public async Task<ActionResult> FavoriteRecipe([FromRoute] Guid recipeId)
     {

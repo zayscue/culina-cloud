@@ -42,7 +42,7 @@ public class InteractionsService : IInteractionsService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync("/reviews", requestContent, cancellation);
+        using var response = await _httpClient.PostAsync("/interactions/reviews", requestContent, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdReview = JsonSerializer.Deserialize<ReviewDto>(responseContent,
             new JsonSerializerOptions

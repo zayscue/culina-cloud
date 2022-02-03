@@ -53,7 +53,6 @@ namespace CulinaCloud.Interactions.Infrastructure
                     return new Auth0AWSSecretsProvider(secretsManager, "CulinaCloud/InteractionsAPI/OAuthSecrets");
                 });
             }
-
             services.AddSingleton<ITokenServiceManager, Auth0TokenServiceManager>(provider =>
             {
                 var dateTime = provider.GetService<IDateTime>();
@@ -61,26 +60,14 @@ namespace CulinaCloud.Interactions.Infrastructure
                 var secretsProvider = provider.GetService<Auth0SecretsProvider>();
                 return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
             });
-
-            services.AddHttpClient<IEventStoreService, EventStoreService>((client, provider) =>
-            {
-                var settings = provider.GetService<IOptions<EventStoreSettings>>();
-                var baseAddress = new Uri(settings.Value.BaseAddress);
-                client.BaseAddress = baseAddress;
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
-                var tokenService = tokenServiceManager.GetTokenService(settings.Value.Audience);
-                return new EventStoreService(tokenService, client);
-            });
+            
             services.AddHttpClient<IRecipesService, RecipesService>((client, provider) =>
             {
                 var settings = provider.GetService<IOptions<RecipesServiceSettings>>();
                 var baseAddress = new Uri(settings.Value.BaseAddress);
                 client.BaseAddress = baseAddress;
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
-                var tokenService = tokenServiceManager.GetTokenService(settings.Value.Audience);
-                return new RecipesService(tokenService, client);
+                return new RecipesService(client);
             });
 
             return services;
