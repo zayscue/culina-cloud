@@ -56,7 +56,7 @@ public class RecipesController : ControllerBase
                 IsAFavorite = favoritesDict[x.RecipeId],
                 recipesDict[x.RecipeId].Serves,
                 recipesDict[x.RecipeId].Yield,
-                Images = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+                Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
                 x.PopularityScore,
                 x.PredictedScore,
                 UserId = userId
@@ -93,7 +93,7 @@ public class RecipesController : ControllerBase
             x.EstimatedMinutes,
             x.Serves,
             x.Yield,
-            Images = x.Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = x.Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
             IsAFavorite = true
         }).ToList();
 
@@ -126,7 +126,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.RecipeId].EstimatedMinutes,
             recipesDict[x.RecipeId].Serves,
             recipesDict[x.RecipeId].Yield,
-            Images = recipesDict[x.RecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
             x.RatingAverage,
             x.RatingCount,
             x.RatingSum,
@@ -268,7 +268,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.SimilarRecipeId].EstimatedMinutes,
             recipesDict[x.SimilarRecipeId].Serves,
             recipesDict[x.SimilarRecipeId].Yield,
-            Images = recipesDict[x.SimilarRecipeId].Images?.Select(i => i.Url).ToList() ?? new List<string?>(),
+            Images = recipesDict[x.SimilarRecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
             SimilarTo = x.RecipeId,
             x.SimilarityScore,
             x.PopularityScore
