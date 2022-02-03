@@ -217,7 +217,6 @@ public class RecipesController : ControllerBase
             await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, recipe.Images.ToList());
         }
         
-        // TODO Update ingredients
         if (recipe.Ingredients is {Count: > 0})
         {
             foreach (var ingredient in recipe.Ingredients)
@@ -227,8 +226,7 @@ public class RecipesController : ControllerBase
 
             await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, recipe.Ingredients.ToList());
         }
-
-        // TODO Update tags
+        
         if (recipe.Tags is {Count: > 0})
         {
             foreach (var tag in recipe.Tags)

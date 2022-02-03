@@ -67,8 +67,12 @@ namespace CulinaCloud.CookBook.Application.RecipeSteps.Commands.BatchUpdateRecip
             _context.Recipes.Update(recipe);
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            var updatedRecipeStepsQuery = _context.RecipeSteps
+                .AsNoTracking()
+                .Where(x => x.RecipeId == request.RecipeId);
 
-            var response = await entities.AsQueryable()
+            var response = await updatedRecipeStepsQuery
                 .ProjectTo<CreateRecipeStepResponse>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 

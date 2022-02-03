@@ -81,6 +81,9 @@ namespace CulinaCloud.CookBook.Application.RecipeIngredients.Commands.BatchUpdat
                 };
                 recipeIngredients.Add(entity);
             }
+
+            recipe.NumberOfIngredients = recipeIngredients.Count;
+            _context.Recipes.Update(recipe);
             await _context.RecipeIngredients.AddRangeAsync(recipeIngredients, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
