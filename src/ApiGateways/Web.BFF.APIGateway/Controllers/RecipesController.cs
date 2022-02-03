@@ -204,16 +204,25 @@ public class RecipesController : ControllerBase
         recipe.LastModifiedBy = user;
 
         await _cookBookService.UpdateRecipeAsync(recipeId, recipe);
-
+        
         if (recipe.Nutrition != null)
         {
             recipe.Nutrition.LastModifiedBy = user;
             await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
         }
         
-        // TODO Update images 
+        if (recipe.Images != null)
+        {
+            foreach (var image in recipe.Images)
+            {
+                image.CreatedBy = user;
+            }
+
+            await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, recipe.Images.ToList());
+        }
         
         // TODO Update ingredients
+        
         
         // TODO Update tags
         

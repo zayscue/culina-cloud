@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.CookBook.Application.RecipeImages.Commands.BatchUpdateRecipeImages;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.CreateRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.DeleteRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.UpdateRecipeImage;
@@ -42,6 +43,19 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/images")]
+        public async Task<ActionResult<List<CreateRecipeImageResponse>>> BatchUpdate(Guid id,
+            List<CreateRecipeImageCommand> commands)
+        {
+            var batchCommand = new BatchUpdateRecipeImagesCommand
+            {
+                RecipeId = id,
+                Commands = commands
+            };
+            var response = await Mediator.Send(batchCommand);
+            return Ok(response);
         }
 
         [HttpPut("{id:guid}/images/{imageId:guid}")]

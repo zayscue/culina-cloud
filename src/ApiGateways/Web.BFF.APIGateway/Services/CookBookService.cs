@@ -114,4 +114,22 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new RecipeStepDto();
     }
+
+    public async Task BatchUpdateRecipeImagesAsync(Guid recipeId, List<RecipeImageDto> images, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(images,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/images", requestContent, 
+            cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipeNutrition = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeStepDto>();
+    }
 }

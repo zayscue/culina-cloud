@@ -39,9 +39,9 @@ public record RecipeIngredientDto
 
 public record RecipeImageDto
 {
-    public Guid RecipeId { get; set; }
     public Guid ImageId { get; set; }
     public string Url { get; set; } = default!;
+    public string? CreatedBy { get; set; }
 }
 
 public record RecipeTagDto
