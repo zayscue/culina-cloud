@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Globalization;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace CulinaCloud.Web.BFF.APIGateway.Controllers;
+﻿namespace CulinaCloud.Web.BFF.APIGateway.Controllers;
 
 [Route("recipes")]
 public class RecipesController : ControllerBase
@@ -25,7 +21,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("personal-feed")]
-    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] string user,
+    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] string? user = null,
         [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
         var userId = user ?? _currentUserService.UserId;
@@ -78,7 +74,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("favorites")]
-    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string user,
+    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string? user = null,
         [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
         var userId = user ?? _currentUserService.UserId;
@@ -190,7 +186,7 @@ public class RecipesController : ControllerBase
                 {
                     x.TagId,
                     x.TagName
-                })   
+                }) ?? null   
             }
         };
         return Ok(response);
@@ -211,7 +207,7 @@ public class RecipesController : ControllerBase
             await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
         }
         
-        if (recipe.Images != null)
+        if (recipe.Images is {Count: > 0})
         {
             foreach (var image in recipe.Images)
             {
@@ -222,11 +218,28 @@ public class RecipesController : ControllerBase
         }
         
         // TODO Update ingredients
-        
-        
+        if (recipe.Ingredients is {Count: > 0})
+        {
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                ingredient.CreatedBy = user;
+            }
+
+            await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, recipe.Ingredients.ToList());
+        }
+
         // TODO Update tags
+        if (recipe.Tags is {Count: > 0})
+        {
+            foreach (var tag in recipe.Tags)
+            {
+                tag.CreatedBy = user;
+            }
+
+            await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, recipe.Tags.ToList());
+        }
         
-        if (recipe.Steps != null)
+        if (recipe.Steps is {Count: > 0})
         {
             foreach (var step in recipe.Steps)
             {

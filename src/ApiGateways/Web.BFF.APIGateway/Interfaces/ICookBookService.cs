@@ -18,4 +18,10 @@ public interface ICookBookService
 
     Task BatchUpdateRecipeImagesAsync(Guid recipeId, List<RecipeImageDto> images,
         CancellationToken cancellation = default);
+
+    Task BatchUpdateRecipeIngredientsAsync(Guid recipeId, List<RecipeIngredientDto> ingredients,
+        CancellationToken cancellation = default);
+
+    Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags,
+        CancellationToken cancellation = default);
 }

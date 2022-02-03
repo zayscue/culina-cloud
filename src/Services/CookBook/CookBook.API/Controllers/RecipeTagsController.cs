@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.CookBook.Application.RecipeTags.Commands.BatchUpdateRecipeTags;
 using CulinaCloud.CookBook.Application.RecipeTags.Commands.CreateRecipeTag;
 using CulinaCloud.CookBook.Application.RecipeTags.Commands.DeleteRecipeTag;
 using CulinaCloud.CookBook.Application.RecipeTags.Queries.GetRecipeTag;
@@ -41,6 +42,19 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/tags")]
+        public async Task<ActionResult<List<CreateRecipeTagResponse>>> BatchUpdate(Guid id,
+            List<CreateRecipeTagCommand> commands)
+        {
+            var command = new BatchUpdateRecipeTagsCommand
+            {
+                RecipeId = id,
+                Commands = commands
+            };
+            var response = await Mediator.Send(command);
+            return response;
         }
 
         [HttpDelete("{id:guid}/tags/{tagId:guid}")]

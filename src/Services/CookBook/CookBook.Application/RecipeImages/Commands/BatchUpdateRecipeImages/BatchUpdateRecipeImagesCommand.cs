@@ -77,7 +77,7 @@ namespace CulinaCloud.CookBook.Application.RecipeImages.Commands.BatchUpdateReci
             await _context.RecipeImages.AddRangeAsync(recipeImages, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            
+
             var updatedRecipeImagesQuery = _context.RecipeImages
                 .AsNoTracking()
                 .Include(x => x.Image)

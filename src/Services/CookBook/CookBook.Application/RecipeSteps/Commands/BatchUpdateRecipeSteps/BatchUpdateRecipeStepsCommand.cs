@@ -12,27 +12,27 @@ using CulinaCloud.CookBook.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace CulinaCloud.CookBook.Application.RecipeSteps.Commands.CreateBatchRecipeStep
+namespace CulinaCloud.CookBook.Application.RecipeSteps.Commands.BatchUpdateRecipeSteps
 {
-    public class CreateBatchRecipeStepCommand : IRequest<List<CreateRecipeStepResponse>>
+    public class BatchUpdateRecipeStepsCommand : IRequest<List<CreateRecipeStepResponse>>
     {
         public Guid RecipeId { get; set; }
         public List<CreateRecipeStepCommand> Commands { get; set; }
     }
 
-    public class CreateBatchRecipeStepCommandHandler
-        : IRequestHandler<CreateBatchRecipeStepCommand, List<CreateRecipeStepResponse>>
+    public class BatchUpdateRecipeStepsCommandHandler
+        : IRequestHandler<BatchUpdateRecipeStepsCommand, List<CreateRecipeStepResponse>>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public CreateBatchRecipeStepCommandHandler(IApplicationDbContext context, IMapper mapper)
+        public BatchUpdateRecipeStepsCommandHandler(IApplicationDbContext context, IMapper mapper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         
-        public async Task<List<CreateRecipeStepResponse>> Handle(CreateBatchRecipeStepCommand request, 
+        public async Task<List<CreateRecipeStepResponse>> Handle(BatchUpdateRecipeStepsCommand request, 
             CancellationToken cancellationToken)
         {
             var recipe = await _context.Recipes

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CulinaCloud.BuildingBlocks.API.Controllers;
+using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.BatchUpdateRecipeIngredients;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.CreateRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.DeleteRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.UpdateRecipeIngredient;
@@ -46,6 +47,19 @@ namespace CulinaCloud.CookBook.API.Controllers
                 },
                 response
             );
+        }
+
+        [HttpPut("{id:guid}/ingredients")]
+        public async Task<ActionResult<List<CreateRecipeIngredientResponse>>> BatchUpdate(Guid id,
+            List<CreateRecipeIngredientCommand> commands)
+        {
+            var command = new BatchUpdateRecipeIngredientsCommand
+            {
+                RecipeId = id,
+                Commands = commands
+            };
+            var response = await Mediator.Send(command);
+            return Ok(response);
         }
 
         [HttpPut("{id:guid}/ingredients/{recipeIngredientId:guid}")]

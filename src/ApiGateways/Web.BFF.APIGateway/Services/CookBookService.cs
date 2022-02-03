@@ -108,11 +108,11 @@ public class CookBookService : ICookBookService
         using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/steps", requestContent, 
             cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
-        var updatedRecipeNutrition = JsonSerializer.Deserialize<RecipeStepDto>(responseContent,
+        var updatedRecipeNutrition = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }) ?? new RecipeStepDto();
+            }) ?? new List<RecipeStepDto>();
     }
 
     public async Task BatchUpdateRecipeImagesAsync(Guid recipeId, List<RecipeImageDto> images, CancellationToken cancellation = default)
@@ -131,5 +131,43 @@ public class CookBookService : ICookBookService
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new List<RecipeStepDto>();
+    }
+
+    public async Task BatchUpdateRecipeIngredientsAsync(Guid recipeId, List<RecipeIngredientDto> ingredients, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(ingredients,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/ingredients",
+            requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipeIngredients = JsonSerializer.Deserialize<List<RecipeIngredientDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeIngredientDto>();
+    }
+
+    public async Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(tags,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/tags",
+            requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipeTags = JsonSerializer.Deserialize<List<RecipeTagDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeTagDto>();
     }
 }

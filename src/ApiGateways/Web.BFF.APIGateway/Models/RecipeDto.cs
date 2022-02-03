@@ -13,10 +13,10 @@ public record RecipeDto
     public string? LastModifiedBy { get; set; }
 
     public IList<RecipeStepDto>? Steps { get; set; } = default!;
-    public IList<RecipeIngredientDto> Ingredients { get; set; } = default!;
-    public IList<RecipeImageDto> Images { get; set; } = default!;
+    public IList<RecipeIngredientDto>? Ingredients { get; set; } = default!;
+    public IList<RecipeImageDto>? Images { get; set; } = default!;
     public RecipeNutritionDto? Nutrition { get; set; } = default!;
-    public IList<RecipeTagDto> Tags { get; set; } = default!;
+    public IList<RecipeTagDto>? Tags { get; set; } = default!;
 }
 
 public record RecipeStepDto
@@ -35,6 +35,8 @@ public record RecipeIngredientDto
     public string? Quantity { get; set; }
     public string? Part { get; set; }
     public string IngredientName { get; set; } = default!;
+    public string? CreatedBy { get; set; }
+    public string? LastModifiedBy { get; set; }
 }
 
 public record RecipeImageDto
@@ -49,6 +51,8 @@ public record RecipeTagDto
     public Guid RecipeId { get; set; }
     public Guid TagId { get; set; }
     public string TagName { get; set; } = default!;
+    public string? CreatedBy { get; set; }
+    public string? LastModifiedBy { get; set; }
 }
 
 public record RecipeNutritionDto
