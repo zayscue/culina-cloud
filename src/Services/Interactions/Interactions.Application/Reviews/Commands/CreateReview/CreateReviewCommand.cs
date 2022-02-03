@@ -6,7 +6,6 @@ using AutoMapper;
 using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
-using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
 using CulinaCloud.Interactions.Application.Exceptions;
 using CulinaCloud.Interactions.Application.Interfaces;
 using CulinaCloud.Interactions.Domain.Entities;
@@ -29,7 +28,6 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
     {
         private readonly IRecipesService _recipesService;
         private readonly IApplicationDbContext _context;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
         private readonly IAggregateEventService _aggregateEventService;
         private readonly IMapper _mapper;
@@ -37,14 +35,12 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
         public CreateReviewCommandHandler(
             IRecipesService recipesService,
             IApplicationDbContext context,
-            ICurrentUserService currentUserService,
             IDateTime dateTime,
             IAggregateEventService aggregateEventService,
             IMapper mapper)
         {
             _recipesService = recipesService;
             _context = context;
-            _currentUserService = currentUserService;
             _dateTime = dateTime;
             _aggregateEventService = aggregateEventService;
             _mapper = mapper;
@@ -53,10 +49,7 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
         public async Task<CreateReviewResponse> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
         {
             var now = _dateTime.Now;
-            var currentUserId = _currentUserService.UserId;
-            var userId = !string.IsNullOrWhiteSpace(request.UserId)
-                ? request.UserId
-                : currentUserId;
+            var userId = request.UserId;
             var entity = new Review
             {
                 Id = request.Id ?? Guid.NewGuid(),
@@ -65,7 +58,7 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
                 Rating = request.Rating,
                 Comments = request.Comments,
                 Created = now,
-                CreatedBy = currentUserId
+                CreatedBy = userId
             };
             var @event = new ReviewCreatedEvent
             {

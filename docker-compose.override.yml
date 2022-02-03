@@ -41,8 +41,8 @@ services:
       - EventStore:BaseAddress=http://eventstoreapi
       - RecipesService:BaseAddress=http://cookbookapi
     ports:
-      - "80"
-      - "443"
+      - "55004:80"
+      - "55005:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

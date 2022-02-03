@@ -4,6 +4,8 @@ public interface ICookBookService
 {
     Task<RecipeDto> GetRecipeAsync(Guid id, CancellationToken cancellation = default);
 
+    Task<RecipeDto> CreateRecipeAsync(RecipeDto recipe, CancellationToken cancellation = default);
+
     Task<PaginatedDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit,
         CancellationToken cancellation = default);
 

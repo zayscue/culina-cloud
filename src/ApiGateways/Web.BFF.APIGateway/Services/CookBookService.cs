@@ -36,6 +36,25 @@ public class CookBookService : ICookBookService
         return recipe;
     }
 
+    public async Task<RecipeDto> CreateRecipeAsync(RecipeDto recipe, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(recipe,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync("/recipes", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var createdRecipe = JsonSerializer.Deserialize<RecipeDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeDto();
+        return createdRecipe;
+    }
+
     public async Task<PaginatedDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit, 
         CancellationToken cancellation = default)
     {

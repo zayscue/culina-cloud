@@ -7,17 +7,20 @@ public class RecipesController : ControllerBase
     private readonly ICookBookService _cookBookService;
     private readonly IUsersService _usersService;
     private readonly IAnalyticsService _analyticsService;
+    private readonly IInteractionsService _interactionsService;
 
     public RecipesController(
         ICurrentUserService currentUserService,
         ICookBookService cookBookService,
         IUsersService usersService,
-        IAnalyticsService analyticsService)
+        IAnalyticsService analyticsService,
+        IInteractionsService interactionsService)
     {
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _cookBookService = cookBookService ?? throw new ArgumentNullException(nameof(cookBookService));
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         _analyticsService = analyticsService ?? throw new ArgumentNullException(nameof(analyticsService));
+        _interactionsService = interactionsService ?? throw new ArgumentNullException(nameof(interactionsService));
     }
 
     [HttpGet("personal-feed")]
@@ -140,6 +143,63 @@ public class RecipesController : ControllerBase
             popularRecipes.TotalPages
         });
     }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateRecipe([FromBody] RecipeDto recipe)
+    {
+        var user = _currentUserService.UserId;
+        var createdRecipe = await _cookBookService.CreateRecipeAsync(recipe);
+        var favorite = await _usersService.CreateFavoriteAsync(new FavoriteDto
+        {
+            RecipeId = createdRecipe.Id,
+            UserId = user
+        });
+        return CreatedAtAction(
+            nameof(GetRecipe), 
+            new
+            {
+                recipeId = createdRecipe.Id
+            },
+            new
+            {
+                IsAFavorite = favorite != null,
+                Recipe = new
+                {
+                    createdRecipe.Id,
+                    createdRecipe.Name,
+                    createdRecipe.Description,
+                    createdRecipe.EstimatedMinutes,
+                    createdRecipe.Serves,
+                    createdRecipe.Yield,
+                    createdRecipe.Nutrition,
+                    Images = createdRecipe.Images?.Select(x => new
+                    {
+                        x.ImageId,
+                        x.Url
+                    }) ?? null,
+                    createdRecipe.NumberOfIngredients,
+                    Ingredients = createdRecipe.Ingredients?.Select(x =>  new
+                    {
+                        x.Part,
+                        x.Quantity,
+                        x.IngredientName,
+                        x.IngredientId
+                    }) ?? null,
+                    createdRecipe.NumberOfSteps,
+                    Steps = createdRecipe.Steps?.Select(x => new
+                    {
+                        x.Order,
+                        x.Instruction
+                    }) ?? null,
+                    Tags = createdRecipe.Tags?.Select(x => new
+                    {
+                        x.TagId,
+                        x.TagName
+                    }) ?? null   
+                }
+            }
+        );
+    }
     
     [HttpGet("{recipeId:guid}")]
     public async Task<ActionResult> GetRecipe([FromRoute] Guid recipeId)
@@ -191,7 +251,6 @@ public class RecipesController : ControllerBase
         };
         return Ok(response);
     }
-
 
     [HttpPut("{recipeId:guid}")]
     public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, [FromBody] RecipeDto recipe)
@@ -248,6 +307,15 @@ public class RecipesController : ControllerBase
 
         return Ok();
     }
+    
+    [HttpPut("{recipeId:guid}/nutrition")]
+    public async Task<ActionResult> UpdateRecipeNutrition([FromRoute] Guid recipeId,
+        [FromBody] RecipeNutritionDto nutrition)
+    {
+        await _cookBookService.UpdateRecipeNutritionAsync(recipeId, nutrition);
+        return Ok();
+    }
+
 
     [HttpGet("{recipeId:guid}/similar")]
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
@@ -280,6 +348,14 @@ public class RecipesController : ControllerBase
             similarRecipes.TotalCount,
             similarRecipes.TotalPages
         });
+    }
+
+    [HttpGet("{recipeId:guid}/reviews")]
+    public async Task<ActionResult> GetRecipeReviews([FromRoute] Guid recipeId, [FromQuery] int page = 1, 
+        [FromQuery] int limit = 10)
+    {
+        var recipeReviews = await _interactionsService.GetRecipeReviews(recipeId, page, limit);
+        return Ok(recipeReviews);
     }
 
     [HttpPost("{recipeId:guid}/favorite")]

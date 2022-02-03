@@ -10,6 +10,7 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
                 .NotEmpty();
 
             RuleFor(c => c.UserId)
+                .NotEmpty()
                 .MaximumLength(128);
 
             RuleFor(c => c.Comments)

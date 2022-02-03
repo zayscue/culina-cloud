@@ -16,17 +16,14 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly ILoggerFactory _loggerFactory;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
 
         public ApplicationDbContext(
             DbContextOptions options,
             ILoggerFactory loggerFactory,
-            ICurrentUserService currentUserService,
             IDateTime dateTime) : base(options)
         {
             _loggerFactory = loggerFactory;
-            _currentUserService = currentUserService;
             _dateTime = dateTime;
         }
 
@@ -45,14 +42,12 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.CreatedBy ??= _currentUserService.UserId;
                         if (entry.Entity.Created == default)
                         {
                             entry.Entity.Created = _dateTime.Now;
                         }
                         break;
                     case EntityState.Modified:
-                        entry.Entity.LastModifiedBy ??= _currentUserService.UserId;
                         entry.Entity.LastModified = _dateTime.Now;
                         break;
                     case EntityState.Detached:
