@@ -343,6 +343,13 @@ public class RecipesController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{recipeId:guid}/ingredients")]
+    public async Task<ActionResult> GetRecipeIngredients([FromRoute] Guid recipeId)
+    {
+        var ingredients = await _cookBookService.GetRecipeIngredientsAsync(recipeId);
+        return Ok(ingredients);
+    }
+
     [HttpPut("{recipeId:guid}/ingredients")]
     public async Task<ActionResult> BatchUpdateRecipeIngredients([FromRoute] Guid recipeId,
         [FromBody] List<RecipeIngredientDto> ingredients)
