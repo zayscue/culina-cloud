@@ -39,6 +39,10 @@ public interface ICookBookService
 
     Task<List<RecipeTagDto>> GetRecipeTagsAsync(Guid recipeId, CancellationToken cancellation = default);
 
+    Task<RecipeTagDto> CreateRecipeTagAsync(Guid recipeId, RecipeTagDto tag, CancellationToken cancellation = default);
+
     Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags,
         CancellationToken cancellation = default);
+
+    Task<RecipeTagDto> GetRecipeTagAsync(Guid recipeId, Guid tagId, CancellationToken cancellation = default);
 }

@@ -263,6 +263,26 @@ public class CookBookService : ICookBookService
         return tags;
     }
 
+    public async Task<RecipeTagDto> CreateRecipeTagAsync(Guid recipeId, RecipeTagDto tag,
+        CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(tag,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/tags", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var createdRecipeTag = JsonSerializer.Deserialize<RecipeTagDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeTagDto();
+        return createdRecipeTag;
+    }
+
     public async Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags, CancellationToken cancellation = default)
     {
         var json = JsonSerializer.Serialize(tags,
@@ -280,5 +300,17 @@ public class CookBookService : ICookBookService
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new List<RecipeTagDto>();
+    }
+
+    public async Task<RecipeTagDto> GetRecipeTagAsync(Guid recipeId, Guid tagId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/tags/{tagId}", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeTag = JsonSerializer.Deserialize<RecipeTagDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeTagDto();
+        return recipeTag;
     }
 }

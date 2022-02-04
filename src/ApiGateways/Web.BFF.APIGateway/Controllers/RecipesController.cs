@@ -407,7 +407,22 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeTags([FromRoute] Guid recipeId)
     {
         var tags = await _cookBookService.GetRecipeTagsAsync(recipeId);
-        return Ok(tags);
+        return Ok(tags.Select(x => new
+        {
+            x.TagId,
+            x.TagName
+        }));
+    }
+
+    [HttpPost("{recipeId:guid}/tags")]
+    public async Task<ActionResult> CreateRecipeTag([FromRoute] Guid recipeId, [FromBody] RecipeTagDto tag)
+    {
+        var createdRecipeTag = await _cookBookService.CreateRecipeTagAsync(recipeId, tag);
+        return CreatedAtAction(
+            nameof(GetRecipeTag),
+            new {recipeId, tagId = tag.TagId},
+            createdRecipeTag
+        );
     }
 
     [HttpPut("{recipeId:guid}/tags")]
@@ -421,6 +436,13 @@ public class RecipesController : ControllerBase
 
         await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, tags);
         return Ok();
+    }
+
+    [HttpGet("{recipeId:guid}/tags/{tagId:guid}")]
+    public async Task<ActionResult> GetRecipeTag([FromRoute] Guid recipeId, [FromRoute] Guid tagId)
+    {
+        var recipeTag = await _cookBookService.GetRecipeTagAsync(recipeId, tagId);
+        return Ok(new { recipeTag.TagId, recipeTag.TagName });
     }
 
 
