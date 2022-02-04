@@ -158,6 +158,18 @@ public class CookBookService : ICookBookService
             }) ?? new List<RecipeStepDto>();
     }
 
+    public async Task<List<RecipeImageDto>> GetRecipeImagesAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/images", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var images = JsonSerializer.Deserialize<List<RecipeImageDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeImageDto>();
+        return images;
+    }
+
     public async Task BatchUpdateRecipeImagesAsync(Guid recipeId, List<RecipeImageDto> images, CancellationToken cancellation = default)
     {
         var json = JsonSerializer.Serialize(images,
@@ -205,6 +217,18 @@ public class CookBookService : ICookBookService
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new List<RecipeIngredientDto>();
+    }
+
+    public async Task<List<RecipeTagDto>> GetRecipeTagsAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/tags", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var tags = JsonSerializer.Deserialize<List<RecipeTagDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeTagDto>();
+        return tags;
     }
 
     public async Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags, CancellationToken cancellation = default)

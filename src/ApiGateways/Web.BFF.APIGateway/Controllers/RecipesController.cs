@@ -363,6 +363,13 @@ public class RecipesController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{recipeId:guid}/images")]
+    public async Task<ActionResult> GetRecipeImages([FromRoute] Guid recipeId)
+    {
+        var images = await _cookBookService.GetRecipeImagesAsync(recipeId);
+        return Ok(images);
+    }
+
     [HttpPut("{recipeId:guid}/images")]
     public async Task<ActionResult> BatchUpdateRecipeImages([FromRoute] Guid recipeId,
         [FromBody] List<RecipeImageDto> images)
@@ -375,6 +382,13 @@ public class RecipesController : ControllerBase
 
         await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, images);
         return Ok();
+    }
+
+    [HttpGet("{recipeId:guid}/tags")]
+    public async Task<ActionResult> GetRecipeTags([FromRoute] Guid recipeId)
+    {
+        var tags = await _cookBookService.GetRecipeTagsAsync(recipeId);
+        return Ok(tags);
     }
 
     [HttpPut("{recipeId:guid}/tags")]

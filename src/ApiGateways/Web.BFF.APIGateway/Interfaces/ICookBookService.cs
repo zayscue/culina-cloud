@@ -22,6 +22,8 @@ public interface ICookBookService
     Task BatchUpdateRecipeStepsAsync(Guid recipeId, List<RecipeStepDto> steps,
         CancellationToken cancellation = default);
 
+    Task<List<RecipeImageDto>> GetRecipeImagesAsync(Guid recipeId, CancellationToken cancellation = default);
+
     Task BatchUpdateRecipeImagesAsync(Guid recipeId, List<RecipeImageDto> images,
         CancellationToken cancellation = default);
 
@@ -29,6 +31,8 @@ public interface ICookBookService
 
     Task BatchUpdateRecipeIngredientsAsync(Guid recipeId, List<RecipeIngredientDto> ingredients,
         CancellationToken cancellation = default);
+
+    Task<List<RecipeTagDto>> GetRecipeTagsAsync(Guid recipeId, CancellationToken cancellation = default);
 
     Task BatchUpdateRecipeTagsAsync(Guid recipeId, List<RecipeTagDto> tags,
         CancellationToken cancellation = default);
