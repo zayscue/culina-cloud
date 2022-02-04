@@ -96,6 +96,18 @@ public class CookBookService : ICookBookService
             }) ?? new RecipeDto();
     }
 
+    public async Task<RecipeNutritionDto> GetRecipeNutritionAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/nutrition", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var nutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeNutritionDto();
+        return nutrition;
+    }
+
     public async Task UpdateRecipeNutritionAsync(Guid recipeId, RecipeNutritionDto recipeNutrition,
         CancellationToken cancellation = default)
     {
@@ -113,6 +125,18 @@ public class CookBookService : ICookBookService
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new RecipeNutritionDto();
+    }
+
+    public async Task<List<RecipeStepDto>> GetRecipeStepsAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/steps", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var steps = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<RecipeStepDto>();
+        return steps;
     }
 
     public async Task BatchUpdateRecipeStepsAsync(Guid recipeId, List<RecipeStepDto> steps,

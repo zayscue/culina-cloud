@@ -76,7 +76,7 @@ public class RecipesController : ControllerBase
         return Ok(feed);
     }
 
-    [HttpGet("favorites")]
+    [HttpGet("favorite-recipes")]
     public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string? user = null,
         [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
@@ -109,7 +109,7 @@ public class RecipesController : ControllerBase
         });
     }
 
-    [HttpGet("popular")]
+    [HttpGet("popular-recipes")]
     public async Task<ActionResult> GetPopularRecipes([FromQuery] string orderBy = "",
         [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
@@ -307,7 +307,14 @@ public class RecipesController : ControllerBase
 
         return Ok();
     }
-    
+
+    [HttpGet("{recipeId:guid}/nutrition")]
+    public async Task<ActionResult> GetRecipeNutrition([FromRoute] Guid recipeId)
+    {
+        var nutrition = await _cookBookService.GetRecipeNutritionAsync(recipeId);
+        return Ok(nutrition);
+    }
+
     [HttpPut("{recipeId:guid}/nutrition")]
     public async Task<ActionResult> UpdateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
@@ -316,8 +323,68 @@ public class RecipesController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{recipeId:guid}/steps")]
+    public async Task<ActionResult> GetRecipeSteps([FromRoute] Guid recipeId)
+    {
+        var steps = await _cookBookService.GetRecipeStepsAsync(recipeId);
+        return Ok(steps);
+    }
 
-    [HttpGet("{recipeId:guid}/similar")]
+    [HttpPut("{recipeId:guid}/steps")]
+    public async Task<ActionResult> BatchUpdateRecipeSteps([FromRoute] Guid recipeId,
+        [FromBody] List<RecipeStepDto> steps)
+    {
+        var user = _currentUserService.UserId;
+        foreach (var step in steps)
+        {
+            step.CreatedBy = user;
+        }
+        await _cookBookService.BatchUpdateRecipeStepsAsync(recipeId, steps);
+        return Ok();
+    }
+
+    [HttpPut("{recipeId:guid}/ingredients")]
+    public async Task<ActionResult> BatchUpdateRecipeIngredients([FromRoute] Guid recipeId,
+        [FromBody] List<RecipeIngredientDto> ingredients)
+    {
+        var user = _currentUserService.UserId;
+        foreach (var ingredient in ingredients)
+        {
+            ingredient.CreatedBy = user;
+        }
+        await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, ingredients);
+        return Ok();
+    }
+
+    [HttpPut("{recipeId:guid}/images")]
+    public async Task<ActionResult> BatchUpdateRecipeImages([FromRoute] Guid recipeId,
+        [FromBody] List<RecipeImageDto> images)
+    {
+        var user = _currentUserService.UserId;
+        foreach (var image in images)
+        {
+            image.CreatedBy = user;
+        }
+
+        await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, images);
+        return Ok();
+    }
+
+    [HttpPut("{recipeId:guid}/tags")]
+    public async Task<ActionResult> BatchUpdateRecipeTags([FromRoute] Guid recipeId, [FromBody] List<RecipeTagDto> tags)
+    {
+        var user = _currentUserService.UserId;
+        foreach (var tag in tags)
+        {
+            tag.CreatedBy = user;
+        }
+
+        await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, tags);
+        return Ok();
+    }
+
+
+    [HttpGet("{recipeId:guid}/similar-recipes")]
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
         [FromQuery] int page = 1, [FromQuery] int limit = 20)
     {
