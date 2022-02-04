@@ -12,12 +12,17 @@ public interface ICookBookService
     Task UpdateRecipeAsync(Guid recipeId, RecipeDto recipe,
         CancellationToken cancellation = default);
 
+    Task<RecipeNutritionDto> CreateRecipeNutritionAsync(Guid recipeId, RecipeNutritionDto nutrition,
+        CancellationToken cancellation = default);
+    
     Task<RecipeNutritionDto> GetRecipeNutritionAsync(Guid recipeId, CancellationToken cancellation = default);
 
     Task UpdateRecipeNutritionAsync(Guid recipeId, RecipeNutritionDto recipeNutrition,
         CancellationToken cancellation = default);
 
     Task<List<RecipeStepDto>> GetRecipeStepsAsync(Guid recipeId, CancellationToken cancellation = default);
+
+    Task<RecipeStepDto> GetRecipeStepAsync(Guid recipeId, int order, CancellationToken cancellation = default);
 
     Task BatchUpdateRecipeStepsAsync(Guid recipeId, List<RecipeStepDto> steps,
         CancellationToken cancellation = default);

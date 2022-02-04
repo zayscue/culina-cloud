@@ -96,6 +96,26 @@ public class CookBookService : ICookBookService
             }) ?? new RecipeDto();
     }
 
+    public async Task<RecipeNutritionDto> CreateRecipeNutritionAsync(Guid recipeId, RecipeNutritionDto nutrition, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(nutrition,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/nutrition", 
+            requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var createdRecipeNutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeNutritionDto();
+        return createdRecipeNutrition;
+    }
+
     public async Task<RecipeNutritionDto> GetRecipeNutritionAsync(Guid recipeId, CancellationToken cancellation = default)
     {
         using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/nutrition", cancellation);
@@ -137,6 +157,18 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new List<RecipeStepDto>();
         return steps;
+    }
+
+    public async Task<RecipeStepDto> GetRecipeStepAsync(Guid recipeId, int order, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/steps/{order}", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var step = JsonSerializer.Deserialize<RecipeStepDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeStepDto();
+        return step;
     }
 
     public async Task BatchUpdateRecipeStepsAsync(Guid recipeId, List<RecipeStepDto> steps,

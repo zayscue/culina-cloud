@@ -308,6 +308,18 @@ public class RecipesController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("{recipeId:guid}/nutrition")]
+    public async Task<ActionResult> CreateRecipeNutrition([FromRoute] Guid recipeId,
+        [FromBody] RecipeNutritionDto nutrition)
+    {
+        var createdNutrition = await _cookBookService.CreateRecipeNutritionAsync(recipeId, nutrition);
+        return CreatedAtAction(
+            nameof(GetRecipeNutrition),
+            new { },
+            createdNutrition
+        );
+    }
+
     [HttpGet("{recipeId:guid}/nutrition")]
     public async Task<ActionResult> GetRecipeNutrition([FromRoute] Guid recipeId)
     {
@@ -328,6 +340,13 @@ public class RecipesController : ControllerBase
     {
         var steps = await _cookBookService.GetRecipeStepsAsync(recipeId);
         return Ok(steps);
+    }
+
+    [HttpGet("{recipeId:guid}/steps/{order:int}")]
+    public async Task<ActionResult> GetRecipeStep([FromRoute] Guid recipeId, [FromRoute] int order)
+    {
+        var recipeStep = await _cookBookService.GetRecipeStepAsync(recipeId, order);
+        return Ok(recipeStep);
     }
 
     [HttpPut("{recipeId:guid}/steps")]
