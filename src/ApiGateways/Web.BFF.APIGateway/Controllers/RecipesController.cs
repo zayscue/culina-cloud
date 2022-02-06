@@ -389,6 +389,18 @@ public class RecipesController : ControllerBase
         return Ok(images);
     }
 
+    [HttpPost("{recipeId:guid}/images")]
+    public async Task<ActionResult> CreateRecipeImage([FromRoute] Guid recipeId, [FromBody] RecipeImageDto image)
+    {
+        var user = _currentUserService.UserId;
+        image.CreatedBy = user;
+        var createdRecipeImage = await _cookBookService.CreateRecipeImageAsync(recipeId, image);
+        return CreatedAtAction(
+            nameof(GetRecipeImage),
+            new {recipeId, imageId = image.ImageId},
+            createdRecipeImage);
+    }
+
     [HttpPut("{recipeId:guid}/images")]
     public async Task<ActionResult> BatchUpdateRecipeImages([FromRoute] Guid recipeId,
         [FromBody] List<RecipeImageDto> images)
@@ -401,6 +413,13 @@ public class RecipesController : ControllerBase
 
         await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, images);
         return Ok();
+    }
+
+    [HttpGet("{recipeId:guid}/images/{imageId:guid}")]
+    public async Task<ActionResult> GetRecipeImage([FromRoute] Guid recipeId, [FromRoute] Guid imageId)
+    {
+        var recipeImage = await _cookBookService.GetRecipeImageAsync(recipeId, imageId);
+        return Ok(recipeImage);
     }
 
     [HttpGet("{recipeId:guid}/tags")]

@@ -190,6 +190,25 @@ public class CookBookService : ICookBookService
             }) ?? new List<RecipeStepDto>();
     }
 
+    public async Task<RecipeImageDto> CreateRecipeImageAsync(Guid recipeId, RecipeImageDto image, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(image,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/images", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var createdRecipeImage = JsonSerializer.Deserialize<RecipeImageDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeImageDto();
+        return createdRecipeImage;
+    }
+
     public async Task<List<RecipeImageDto>> GetRecipeImagesAsync(Guid recipeId, CancellationToken cancellation = default)
     {
         using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/images", cancellation);
@@ -218,6 +237,18 @@ public class CookBookService : ICookBookService
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new List<RecipeStepDto>();
+    }
+
+    public async Task<RecipeImageDto> GetRecipeImageAsync(Guid recipeId, Guid imageId, CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/images/{imageId}", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var image = JsonSerializer.Deserialize<RecipeImageDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeImageDto();
+        return image;
     }
 
     public async Task<List<RecipeIngredientDto>> GetRecipeIngredientsAsync(Guid recipeId, CancellationToken cancellation = default)
