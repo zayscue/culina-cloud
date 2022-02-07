@@ -282,6 +282,20 @@ public class CookBookService : ICookBookService
             }) ?? new List<RecipeIngredientDto>();
     }
 
+    public async Task<RecipeIngredientDto> GetRecipeIngredientAsync(Guid recipeId, Guid recipeIngredientId, 
+        CancellationToken cancellation = default)
+    {
+        using var response =
+            await _httpClient.GetAsync($"/recipes/{recipeId}/ingredients/{recipeIngredientId}", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeIngredient = JsonSerializer.Deserialize<RecipeIngredientDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeIngredientDto();
+        return recipeIngredient;
+    }
+
     public async Task<List<RecipeTagDto>> GetRecipeTagsAsync(Guid recipeId, CancellationToken cancellation = default)
     {
         using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/tags", cancellation);

@@ -180,10 +180,11 @@ public class RecipesController : ControllerBase
                     createdRecipe.NumberOfIngredients,
                     Ingredients = createdRecipe.Ingredients?.Select(x =>  new
                     {
-                        x.Part,
+                        x.Id,
                         x.Quantity,
-                        x.IngredientName,
-                        x.IngredientId
+                        x.Part,
+                        x.IngredientId,
+                        x.IngredientName
                     }) ?? null,
                     createdRecipe.NumberOfSteps,
                     Steps = createdRecipe.Steps?.Select(x => new
@@ -231,10 +232,11 @@ public class RecipesController : ControllerBase
                 recipe.NumberOfIngredients,
                 Ingredients = recipe.Ingredients?.Select(x =>  new
                 {
-                    x.Part,
+                    x.Id,
                     x.Quantity,
-                    x.IngredientName,
-                    x.IngredientId
+                    x.Part,
+                    x.IngredientId,
+                    x.IngredientName
                 }) ?? null,
                 recipe.NumberOfSteps,
                 Steps = recipe.Steps?.Select(x => new
@@ -280,6 +282,7 @@ public class RecipesController : ControllerBase
         {
             foreach (var ingredient in recipe.Ingredients)
             {
+                ingredient.RecipeId = recipeId;
                 ingredient.CreatedBy = user;
             }
 
@@ -366,7 +369,14 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeIngredients([FromRoute] Guid recipeId)
     {
         var ingredients = await _cookBookService.GetRecipeIngredientsAsync(recipeId);
-        return Ok(ingredients);
+        return Ok(ingredients.Select(x => new
+        {
+            x.Id,
+            x.Quantity,
+            x.Part,
+            x.IngredientId,
+            x.IngredientName
+        }));
     }
 
     [HttpPut("{recipeId:guid}/ingredients")]
@@ -376,10 +386,25 @@ public class RecipesController : ControllerBase
         var user = _currentUserService.UserId;
         foreach (var ingredient in ingredients)
         {
+            ingredient.RecipeId = recipeId;
             ingredient.CreatedBy = user;
         }
         await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, ingredients);
         return Ok();
+    }
+
+    [HttpGet("{recipeId:guid}/ingredients/{recipeIngredientId:guid}")]
+    public async Task<ActionResult> GetRecipeIngredient([FromRoute] Guid recipeId, [FromRoute] Guid recipeIngredientId)
+    {
+        var recipeIngredient = await _cookBookService.GetRecipeIngredientAsync(recipeId, recipeIngredientId);
+        return Ok(new
+        {
+            recipeIngredient.Id,
+            recipeIngredient.Quantity,
+            recipeIngredient.Part,
+            recipeIngredient.IngredientId,
+            recipeIngredient.IngredientName
+        });
     }
 
     [HttpGet("{recipeId:guid}/images")]
