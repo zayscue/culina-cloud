@@ -379,6 +379,27 @@ public class RecipesController : ControllerBase
         }));
     }
 
+    [HttpPost("{recipeId:guid}/ingredients")]
+    public async Task<ActionResult> CreateRecipeIngredient([FromRoute] Guid recipeId,
+        [FromBody] RecipeIngredientDto recipeIngredient)
+    {
+        var user = _currentUserService.UserId;
+        recipeIngredient.CreatedBy = user;
+        recipeIngredient.RecipeId = recipeId;
+        var createdRecipeIngredient = await _cookBookService.CreateRecipeIngredientAsync(recipeId, recipeIngredient);
+        return CreatedAtAction(
+            nameof(GetRecipeIngredient),
+            new {recipeId, recipeIngredientId = createdRecipeIngredient.Id},
+            new
+            {
+                createdRecipeIngredient.Id,
+                createdRecipeIngredient.Quantity,
+                createdRecipeIngredient.Part,
+                createdRecipeIngredient.IngredientId,
+                createdRecipeIngredient.IngredientName
+            });
+    }
+
     [HttpPut("{recipeId:guid}/ingredients")]
     public async Task<ActionResult> BatchUpdateRecipeIngredients([FromRoute] Guid recipeId,
         [FromBody] List<RecipeIngredientDto> ingredients)

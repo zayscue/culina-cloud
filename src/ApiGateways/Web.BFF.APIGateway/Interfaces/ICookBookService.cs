@@ -39,6 +39,9 @@ public interface ICookBookService
 
     Task<List<RecipeIngredientDto>> GetRecipeIngredientsAsync(Guid recipeId, CancellationToken cancellation = default);
 
+    Task<RecipeIngredientDto> CreateRecipeIngredientAsync(Guid recipeId, RecipeIngredientDto recipeIngredient,
+        CancellationToken cancellation = default);
+
     Task BatchUpdateRecipeIngredientsAsync(Guid recipeId, List<RecipeIngredientDto> ingredients,
         CancellationToken cancellation = default);
 
