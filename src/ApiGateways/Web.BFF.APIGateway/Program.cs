@@ -69,6 +69,7 @@ builder.Services
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -77,5 +78,11 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.Run();

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace CulinaCloud.Users.Application.Favorites.Queries.GetFavorites
 {
-    public class GetFavoritesQuery : IRequest<PaginatedList<Guid>>
+    public class GetFavoritesQuery : IRequest<PaginatedList<GetFavoritesResponse>>
     {
         public string UserId { get; set; }
         public Guid? RecipeId { get; set; }
@@ -24,7 +24,7 @@ namespace CulinaCloud.Users.Application.Favorites.Queries.GetFavorites
         public int Limit { get; set; } = 1000;
     }
 
-    public class GetFavoritesQueryHandler : IRequestHandler<GetFavoritesQuery, PaginatedList<Guid>>
+    public class GetFavoritesQueryHandler : IRequestHandler<GetFavoritesQuery, PaginatedList<GetFavoritesResponse>>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -37,7 +37,7 @@ namespace CulinaCloud.Users.Application.Favorites.Queries.GetFavorites
             _mapper = mapper;
         }
 
-        public async Task<PaginatedList<Guid>> Handle(GetFavoritesQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedList<GetFavoritesResponse>> Handle(GetFavoritesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Favorites
                 .AsNoTracking()
@@ -63,8 +63,7 @@ namespace CulinaCloud.Users.Application.Favorites.Queries.GetFavorites
                 query = query.Where(x => request.RecipeIds.Contains(x.RecipeId));
             }
             var response = await query
-                .Select(x => x.RecipeId)
-                .ProjectTo<Guid>(_mapper.ConfigurationProvider)
+                .ProjectTo<GetFavoritesResponse>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.Limit);
             return response;
         }

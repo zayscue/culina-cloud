@@ -23,7 +23,7 @@ public class RecipesController : ControllerBase
         _interactionsService = interactionsService ?? throw new ArgumentNullException(nameof(interactionsService));
     }
 
-    [HttpGet("personal-feed")]
+    [HttpGet("recommended")]
     public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] string? user = null,
         [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
@@ -32,7 +32,7 @@ public class RecipesController : ControllerBase
             userId, page, limit);
         recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
         var recipeIds = recipeRecommendations.Items.Select(x => x.RecipeId).ToList();
-        
+
         var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
             userId, recipeIds, 1, limit);
         var favoritesDict = recipeRecommendations.Items
@@ -41,16 +41,16 @@ public class RecipesController : ControllerBase
         {
             foreach (var favoriteRecipeId in recipeFavorites.Items)
             {
-                favoritesDict[favoriteRecipeId] = true;
-            }   
+                favoritesDict[favoriteRecipeId.RecipeId] = true;
+            }
         }
 
         var recipes = await _cookBookService.GetRecipesAsync(
             recipeIds, 1, limit);
         var recipesDict = recipes.Items?
             .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
-        
-        var feedItems = recipeRecommendations.Items.Select(x => 
+
+        var feedItems = recipeRecommendations.Items.Select(x =>
             new
             {
                 Id = x.RecipeId,
@@ -76,17 +76,17 @@ public class RecipesController : ControllerBase
         return Ok(feed);
     }
 
-    [HttpGet("favorite-recipes")]
+    [HttpGet("favorite")]
     public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string? user = null,
         [FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
         var userId = user ?? _currentUserService.UserId;
         var favoriteRecipes = await _usersService.GetUsersFavoritesAsync(
-            userId, 1, limit);
-        favoriteRecipes.Items ??= new List<Guid>();
+            userId, page, limit);
+        var favoriteRecipeIds = favoriteRecipes.Items?.Select(x => x.RecipeId).ToList() ?? new List<Guid>();
 
-        var recipes = await _cookBookService.GetRecipesAsync(favoriteRecipes.Items,
-            page, limit);
+        var recipes = await _cookBookService.GetRecipesAsync(favoriteRecipeIds,
+            1, limit);
         recipes.Items ??= new List<RecipesDto>();
 
         var items = recipes.Items.Select(x => new
@@ -109,15 +109,28 @@ public class RecipesController : ControllerBase
         });
     }
 
-    [HttpGet("popular-recipes")]
-    public async Task<ActionResult> GetPopularRecipes([FromQuery] string orderBy = "",
-        [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    [HttpGet("popular")]
+    public async Task<ActionResult> GetPopularRecipes([FromQuery] string? user = null,
+        [FromQuery] string orderBy = "", [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
+        var userId = user ?? _currentUserService.UserId;
         var popularRecipes = await _analyticsService.GetPopularRecipesAsync(
             orderBy, page, limit);
         popularRecipes.Items ??= new List<RecipePopularityDto>();
         var popularRecipeIds = popularRecipes.Items.Select(x => x.RecipeId).ToList();
-        
+
+        var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
+            userId, popularRecipeIds, 1, limit);
+        var favoritesDict = popularRecipes.Items
+            .ToDictionary(x => x.RecipeId, x => false);
+        if (recipeFavorites.Items is {Count: > 0})
+        {
+            foreach (var favoriteRecipeId in recipeFavorites.Items)
+            {
+                favoritesDict[favoriteRecipeId.RecipeId] = true;
+            }
+        }
+
         var recipes = await _cookBookService.GetRecipesAsync(popularRecipeIds, 1, limit);
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
@@ -130,6 +143,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.RecipeId].Serves,
             recipesDict[x.RecipeId].Yield,
             Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
+            IsAFavorite = favoritesDict[x.RecipeId],
             x.RatingAverage,
             x.RatingCount,
             x.RatingSum,
@@ -155,7 +169,7 @@ public class RecipesController : ControllerBase
             UserId = user
         });
         return CreatedAtAction(
-            nameof(GetRecipe), 
+            nameof(GetRecipe),
             new
             {
                 recipeId = createdRecipe.Id
@@ -196,12 +210,12 @@ public class RecipesController : ControllerBase
                     {
                         x.TagId,
                         x.TagName
-                    }) ?? null   
+                    }) ?? null
                 }
             }
         );
     }
-    
+
     [HttpGet("{recipeId:guid}")]
     public async Task<ActionResult> GetRecipe([FromRoute] Guid recipeId)
     {
@@ -248,7 +262,7 @@ public class RecipesController : ControllerBase
                 {
                     x.TagId,
                     x.TagName
-                }) ?? null   
+                }) ?? null
             }
         };
         return Ok(response);
@@ -261,13 +275,13 @@ public class RecipesController : ControllerBase
         recipe.LastModifiedBy = user;
 
         await _cookBookService.UpdateRecipeAsync(recipeId, recipe);
-        
+
         if (recipe.Nutrition != null)
         {
             recipe.Nutrition.LastModifiedBy = user;
             await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
         }
-        
+
         if (recipe.Images is {Count: > 0})
         {
             foreach (var image in recipe.Images)
@@ -277,7 +291,7 @@ public class RecipesController : ControllerBase
 
             await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, recipe.Images.ToList());
         }
-        
+
         if (recipe.Ingredients is {Count: > 0})
         {
             foreach (var ingredient in recipe.Ingredients)
@@ -288,7 +302,7 @@ public class RecipesController : ControllerBase
 
             await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, recipe.Ingredients.ToList());
         }
-        
+
         if (recipe.Tags is {Count: > 0})
         {
             foreach (var tag in recipe.Tags)
@@ -298,7 +312,7 @@ public class RecipesController : ControllerBase
 
             await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, recipe.Tags.ToList());
         }
-        
+
         if (recipe.Steps is {Count: > 0})
         {
             foreach (var step in recipe.Steps)
@@ -545,7 +559,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/reviews")]
-    public async Task<ActionResult> GetRecipeReviews([FromRoute] Guid recipeId, [FromQuery] int page = 1, 
+    public async Task<ActionResult> GetRecipeReviews([FromRoute] Guid recipeId, [FromQuery] int page = 1,
         [FromQuery] int limit = 10)
     {
         var recipeReviews = await _interactionsService.GetRecipeReviews(recipeId, page, limit);
