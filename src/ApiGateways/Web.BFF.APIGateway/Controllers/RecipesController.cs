@@ -1,6 +1,7 @@
 ﻿namespace CulinaCloud.Web.BFF.APIGateway.Controllers;
 
 [Route("recipes")]
+[Authorize]
 public class RecipesController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
@@ -24,10 +25,9 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("recommended")]
-    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] string? user = null,
-        [FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
-        var userId = user ?? _currentUserService.UserId;
+        var userId = _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
             userId, page, limit);
         recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
@@ -77,10 +77,9 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("favorite")]
-    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] string? user = null,
-        [FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
-        var userId = user ?? _currentUserService.UserId;
+        var userId = _currentUserService.UserId;
         var favoriteRecipes = await _usersService.GetUsersFavoritesAsync(
             userId, page, limit);
         var favoriteRecipeIds = favoriteRecipes.Items?.Select(x => x.RecipeId).ToList() ?? new List<Guid>();
@@ -110,10 +109,10 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("popular")]
-    public async Task<ActionResult> GetPopularRecipes([FromQuery] string? user = null,
-        [FromQuery] string orderBy = "", [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    public async Task<ActionResult> GetPopularRecipes([FromQuery] string orderBy = "",
+        [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
-        var userId = user ?? _currentUserService.UserId;
+        var userId = _currentUserService.UserId;
         var popularRecipes = await _analyticsService.GetPopularRecipesAsync(
             orderBy, page, limit);
         popularRecipes.Items ??= new List<RecipePopularityDto>();

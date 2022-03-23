@@ -12,11 +12,13 @@ namespace CulinaCloud.Analytics.API.Controllers
     public class RecipePopularityController : ApiControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PaginatedList<GetRecipePopularitiesResponse>>> Get([FromQuery] int? limit, [FromQuery] string orderBy = "", [FromQuery] bool descending = false)
+        public async Task<ActionResult<PaginatedList<GetRecipePopularitiesResponse>>> Get([FromQuery] int? limit,
+            [FromQuery] string orderBy = "", [FromQuery] bool descending = false, [FromQuery] int page = 1)
         {
-            var response = await Mediator.Send(new GetRecipePopularitiesQuery 
-            { 
+            var response = await Mediator.Send(new GetRecipePopularitiesQuery
+            {
                 Limit = limit,
+                Page = page,
                 OrderBy = orderBy,
                 Descending = descending
             });

@@ -14,6 +14,25 @@ var configuration = GetConfiguration();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins(configuration["AllowedHosts"])
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.Authority = configuration["Auth0:Domain"];
+    options.Audience = configuration["Auth0:Audience"];
+});
 builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("CookBookService"));
 builder.Services.Configure<UsersServiceSettings>(configuration.GetSection("UsersService"));
 builder.Services.Configure<AnalyticsServiceSettings>(configuration.GetSection("AnalyticsService"));
@@ -86,9 +105,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseHttpsRedirection();
-
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

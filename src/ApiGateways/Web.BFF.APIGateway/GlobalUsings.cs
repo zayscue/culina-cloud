@@ -18,3 +18,5 @@ global using CulinaCloud.Web.BFF.APIGateway.Interfaces;
 global using CulinaCloud.Web.BFF.APIGateway.Models;
 global using CulinaCloud.Web.BFF.APIGateway.Settings;
 global using CulinaCloud.Web.BFF.APIGateway.Exceptions;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;

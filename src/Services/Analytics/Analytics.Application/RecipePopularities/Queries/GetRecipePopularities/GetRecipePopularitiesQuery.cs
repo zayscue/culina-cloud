@@ -14,7 +14,8 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
 {
     public class GetRecipePopularitiesQuery : IRequest<PaginatedList<GetRecipePopularitiesResponse>>
     {
-        public int? Limit { get; set; }
+        public int Page { get; set; } = 1;
+        public int? Limit { get; set; } = 10000;
         public string OrderBy { get; set; }
         public bool Descending { get; set; }
     }
@@ -66,7 +67,7 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
             }
             var response = await query
                 .ProjectTo<GetRecipePopularitiesResponse>(_mapper.ConfigurationProvider)
-                .ToPaginatedListAsync(request.Limit);
+                .ToPaginatedListAsync(request.Page, request.Limit);
             return response;
         }
     }
