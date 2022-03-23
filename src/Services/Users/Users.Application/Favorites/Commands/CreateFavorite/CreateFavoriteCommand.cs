@@ -16,6 +16,7 @@ namespace CulinaCloud.Users.Application.Favorites.Commands.CreateFavorite
     {
         public string UserId { get; set; }
         public Guid RecipeId { get; set; }
+        public string CreatedBy { get; set; }
     }
 
     public class CreateFavoriteCommandHandler : IRequestHandler<CreateFavoriteCommand, CreateFavoriteResponse>
@@ -35,10 +36,12 @@ namespace CulinaCloud.Users.Application.Favorites.Commands.CreateFavorite
         {
             var userId = request.UserId;
             var recipeId = request.RecipeId;
+            var createdBy = request.CreatedBy;
             var entity = new Favorite
             {
                 UserId = userId,
-                RecipeId = recipeId
+                RecipeId = recipeId,
+                CreatedBy = createdBy
             };
             try
             {
@@ -54,7 +57,7 @@ namespace CulinaCloud.Users.Application.Favorites.Commands.CreateFavorite
                 if (e.InnerException?.Message.Contains("PK_Reviews", StringComparison.Ordinal) ??
                     false)
                 {
-                    throw new EntityConflictException(nameof(Favorite), JsonSerializer.Serialize(new { 
+                    throw new EntityConflictException(nameof(Favorite), JsonSerializer.Serialize(new {
                         RecipeId = entity.RecipeId.ToString(),
                         UserId = entity.UserId
                     }));

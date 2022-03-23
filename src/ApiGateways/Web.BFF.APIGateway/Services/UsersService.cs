@@ -43,7 +43,7 @@ public class UsersService : IUsersService
             new ("userId", userId)
         };
         urlParams.AddRange(recipeIds.Select(recipeId =>
-            new KeyValuePair<string, string>("recipeId", recipeId.ToString())));
+            new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");

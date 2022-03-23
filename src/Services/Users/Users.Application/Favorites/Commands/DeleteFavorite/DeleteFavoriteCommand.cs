@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
-using CulinaCloud.BuildingBlocks.CurrentUser.Abstractions;
 using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Domain.Entities;
 using MediatR;
@@ -15,31 +14,29 @@ namespace CulinaCloud.Users.Application.Favorites.Commands.DeleteFavorite
     public class DeleteFavoriteCommand : IRequest<DeleteFavoriteResponse>
     {
         public Guid RecipeId { get; set; }
+        public string UserId { get; set; }
     }
 
     public class DeleteFavoriteCommandHandler : IRequestHandler<DeleteFavoriteCommand, DeleteFavoriteResponse>
     {
         private readonly IApplicationDbContext _context;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
         public DeleteFavoriteCommandHandler(
             IApplicationDbContext context,
-            ICurrentUserService currentUserService,
             IMapper mapper)
         {
             _context = context;
-            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
         public async Task<DeleteFavoriteResponse> Handle(DeleteFavoriteCommand request, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
+            var userId = request.UserId;
+            var recipeId = request.RecipeId;
             var entity = await _context.Favorites
                 .AsNoTracking()
-                .Where(f => f.RecipeId == f.RecipeId && f.UserId == userId)
-                .SingleOrDefaultAsync(cancellationToken);
+                .SingleOrDefaultAsync(f => f.RecipeId == recipeId && f.UserId == userId, cancellationToken);
 
             if (entity == null)
             {

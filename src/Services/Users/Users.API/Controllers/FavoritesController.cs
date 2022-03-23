@@ -6,6 +6,7 @@ using CulinaCloud.Users.Application.Favorites.Queries.GetFavorites;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CulinaCloud.Users.API.Controllers

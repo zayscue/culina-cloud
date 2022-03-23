@@ -583,7 +583,8 @@ public class RecipesController : ControllerBase
         var favorite = new FavoriteDto
         {
             RecipeId = recipeId,
-            UserId = userId
+            UserId = userId,
+            CreatedBy = userId
         };
         await _usersService.CreateFavoriteAsync(favorite);
         return Ok();
