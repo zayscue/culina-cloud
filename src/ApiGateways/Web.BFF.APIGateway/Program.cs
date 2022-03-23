@@ -1,10 +1,23 @@
+IConfiguration GetConfiguration()
+{
+    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    return new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build();
+}
+
+var configuration = GetConfiguration();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.Configure<CookBookServiceSettings>(builder.Configuration.GetSection("CookBookService"));
-builder.Services.Configure<UsersServiceSettings>(builder.Configuration.GetSection("UsersService"));
-builder.Services.Configure<AnalyticsServiceSettings>(builder.Configuration.GetSection("AnalyticsService"));
-builder.Services.Configure<InteractionsServiceSettings>(builder.Configuration.GetSection("InteractionsService"));
+builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("CookBookService"));
+builder.Services.Configure<UsersServiceSettings>(configuration.GetSection("UsersService"));
+builder.Services.Configure<AnalyticsServiceSettings>(configuration.GetSection("AnalyticsService"));
+builder.Services.Configure<InteractionsServiceSettings>(configuration.GetSection("InteractionsService"));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
