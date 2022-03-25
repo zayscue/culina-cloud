@@ -1,21 +1,17 @@
-﻿using CulinaCloud.BuildingBlocks.API.Controllers;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.Users.Application.Favorites.Commands.CreateFavorite;
 using CulinaCloud.Users.Application.Favorites.Commands.DeleteFavorite;
 using CulinaCloud.Users.Application.Favorites.Queries.GetFavorites;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace CulinaCloud.Users.API.Controllers
 {
     [Route("users/favorites")]
     public class FavoritesController : ApiControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PaginatedList<Guid>>> Get([FromQuery] GetFavoritesQuery query)
+        public async Task<ActionResult<PaginatedList<GetFavoritesResponse>>> Get([FromQuery] GetFavoritesQuery query)
         {
             var response = await Mediator.Send(query);
             return Ok(response);

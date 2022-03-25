@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CulinaCloud.Users.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210718010633_Users_InitialCreate")]
-    partial class Users_InitialCreate
+    [Migration("20220324203406_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -55,6 +55,55 @@ namespace CulinaCloud.Users.Infrastructure.Persistence.Migrations
                     b.HasKey("RecipeId", "UserId");
 
                     b.ToTable("Favorites");
+                });
+
+            modelBuilder.Entity("CulinaCloud.Users.Domain.Entities.RecipeEntitlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("Created");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<Guid>("RecipeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("RecipeId");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Type");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RecipeId")
+                        .IsUnique();
+
+                    b.ToTable("RecipeEntitlements");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
+using CulinaCloud.Users.Application.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -94,6 +95,132 @@ namespace CulinaCloud.Users.API.Middleware
                                         message = ne.Message,
                                         stackTrace = ne.StackTrace,
                                         source = ne.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case CanNotHaveMoreThanOneAuthorException canNotHaveMoreThanOneAuthorException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}006";
+                                errorResponse.message = canNotHaveMoreThanOneAuthorException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = canNotHaveMoreThanOneAuthorException.Message,
+                                        stackTrace = canNotHaveMoreThanOneAuthorException.StackTrace,
+                                        source = canNotHaveMoreThanOneAuthorException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case CanNotModifyRecipeEntitlementException canNotModifyRecipeEntitlementException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}007";
+                                errorResponse.message = canNotModifyRecipeEntitlementException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = canNotModifyRecipeEntitlementException.Message,
+                                        stackTrace = canNotModifyRecipeEntitlementException.StackTrace,
+                                        source = canNotModifyRecipeEntitlementException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case RecipeHasNoAuthorException recipeHasNoAuthorException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}008";
+                                errorResponse.message = recipeHasNoAuthorException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = recipeHasNoAuthorException.Message,
+                                        stackTrace = recipeHasNoAuthorException.StackTrace,
+                                        source = recipeHasNoAuthorException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case RecipeAuthorEntitlementDoesNotMatch recipeAuthorEntitlementDoesNotMatch:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}009";
+                                errorResponse.message = recipeAuthorEntitlementDoesNotMatch.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = recipeAuthorEntitlementDoesNotMatch.Message,
+                                        stackTrace = recipeAuthorEntitlementDoesNotMatch.StackTrace,
+                                        source = recipeAuthorEntitlementDoesNotMatch.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case UserDoesNotExistException userDoesNotExistException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}010";
+                                errorResponse.message = userDoesNotExistException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = userDoesNotExistException.Message,
+                                        stackTrace = userDoesNotExistException.StackTrace,
+                                        source = userDoesNotExistException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case CanNotChangeRecipeAuthorException canNotChangeRecipeAuthorException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}011";
+                                errorResponse.message = canNotChangeRecipeAuthorException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = canNotChangeRecipeAuthorException.Message,
+                                        stackTrace = canNotChangeRecipeAuthorException.StackTrace,
+                                        source = canNotChangeRecipeAuthorException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
+                        case CanNotDeleteRecipeAuthorException canNotDeleteRecipeAuthorException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}012";
+                                errorResponse.message = canNotDeleteRecipeAuthorException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = canNotDeleteRecipeAuthorException.Message,
+                                        stackTrace = canNotDeleteRecipeAuthorException.StackTrace,
+                                        source = canNotDeleteRecipeAuthorException.Source
                                     };
                                 }
                                 await context.Response.WriteAsJsonAsync((object)errorResponse);
