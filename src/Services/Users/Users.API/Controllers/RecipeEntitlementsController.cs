@@ -12,7 +12,7 @@ using CulinaCloud.Users.Application.RecipeEntitlements.Commands.DeleteRecipeEnti
 namespace CulinaCloud.Users.API.Controllers
 {
     [Route("users/recipe-entitlements")]
-    public class recipeEntitlementsController : ApiControllerBase
+    public class RecipeEntitlementsController : ApiControllerBase
     {
         [HttpGet]
         public async Task<ActionResult<PaginatedList<GetRecipeEntitlementsResponse>>> Get([FromQuery] GetRecipeEntitlementsQuery query)

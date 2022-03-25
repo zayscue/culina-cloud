@@ -37,19 +37,19 @@ namespace CulinaCloud.Users.Infrastructure.Persistence.Configurations
                     e => (RecipeEntitlementType)Enum.Parse(typeof(RecipeEntitlementType), e)
                 ).IsRequired();
 
-            builder.Property(f => f.Created)
+            builder.Property(e => e.Created)
                 .HasColumnName("Created")
                 .IsRequired();
 
-            builder.Property(f => f.CreatedBy)
+            builder.Property(e => e.CreatedBy)
                 .HasColumnName("CreatedBy")
                 .HasMaxLength(128)
                 .IsRequired();
 
-            builder.Property(f => f.LastModified)
+            builder.Property(e => e.LastModified)
                 .HasColumnName("LastModified");
 
-            builder.Property(f => f.LastModifiedBy)
+            builder.Property(e => e.LastModifiedBy)
                 .HasColumnName("LastModifiedBy")
                 .HasMaxLength(128);
         }

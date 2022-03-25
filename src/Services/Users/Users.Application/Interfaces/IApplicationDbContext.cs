@@ -8,5 +8,6 @@ namespace CulinaCloud.Users.Application.Interfaces
     {
         DbSet<Favorite> Favorites { get; set; }
         DbSet<RecipeEntitlement> RecipeEntitlements { get; set; }
+        DbSet<ApplicationUser> ApplicationUsers { get; set; }
     }
 }
