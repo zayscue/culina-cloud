@@ -225,9 +225,18 @@ public class RecipesController : ControllerBase
         var favorite = await _usersService.GetUsersFavoritesAsync(user, recipeIds, 1, 1);
         var isAFavorite = favorite.Items?.Count > 0;
 
+        var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(recipeId, user);
+        var canEdit = false;
+        if (recipeEntitlements.Items?.Count > 0)
+        {
+            canEdit = recipeEntitlements.Items.Select(x => x.Type).Contains("author")
+                || recipeEntitlements.Items.Select(x => x.Type).Contains("contributor");
+        }
+
         var response = new
         {
             IsAFavorite = isAFavorite,
+            CanEdit = canEdit,
             Recipe = new
             {
                 recipe.Id,

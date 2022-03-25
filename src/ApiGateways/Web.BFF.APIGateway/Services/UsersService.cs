@@ -90,4 +90,24 @@ public class UsersService : IUsersService
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
     }
+
+    public async Task<PaginatedDto<RecipeEntitlementDto>> GetRecipeEntitlementsAsync(Guid recipeId, string userId, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new ("userId", userId),
+            new ("recipeId", recipeId.ToString())
+        };
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        }) ?? new PaginatedDto<RecipeEntitlementDto>();
+        recipeEntitlementsPaginatedList.Items ??= new List<RecipeEntitlementDto>();
+        return recipeEntitlementsPaginatedList;
+    }
 }
