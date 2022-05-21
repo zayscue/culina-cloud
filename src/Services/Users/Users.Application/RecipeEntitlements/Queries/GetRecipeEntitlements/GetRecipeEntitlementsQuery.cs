@@ -40,23 +40,14 @@ namespace CulinaCloud.Users.Application.RecipeEntitlements.Queries.GetRecipeEnti
         public async Task<PaginatedList<GetRecipeEntitlementsResponse>> Handle(GetRecipeEntitlementsQuery request, CancellationToken cancellationToken)
         {
             var query = _context.RecipeEntitlements
-                .AsNoTracking();
-
-            if (request.RecipeId.HasValue && request.RecipeId.Value != Guid.Empty)
-            {
-                query = query.Where(x => x.RecipeId == request.RecipeId.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.UserId))
-            {
-                query = query.Where(x => x.UserId == request.UserId);
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.Type))
-            {
-                var type = (RecipeEntitlementType)Enum.Parse(typeof(RecipeEntitlementType), request.Type.Trim().ToUpper());
-                query = query.Where(x => x.Type == type);
-            }
+                .AsNoTracking()
+                .WhereIf(request.RecipeId.HasValue && request.RecipeId.Value != Guid.Empty,
+                    x => x.RecipeId == request.RecipeId.Value)
+                .WhereIf(!string.IsNullOrWhiteSpace(request.UserId),
+                    x => x.UserId == request.UserId)
+                .WhereIf(!string.IsNullOrWhiteSpace(request.Type),
+                    x => x.Type == ((RecipeEntitlementType)Enum.Parse(typeof(RecipeEntitlementType),
+                    request.Type.Trim().ToUpper())));
 
             var orderBy = request.OrderBy.Trim().ToLower();
             switch (orderBy)
