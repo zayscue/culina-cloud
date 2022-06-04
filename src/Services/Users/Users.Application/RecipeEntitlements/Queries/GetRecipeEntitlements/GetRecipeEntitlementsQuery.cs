@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,8 @@ namespace CulinaCloud.Users.Application.RecipeEntitlements.Queries.GetRecipeEnti
     {
         public Guid? RecipeId { get; set; }
         public string UserId { get; set; }
+        public List<string> UserIds { get; set; } = new List<string>();
+        public List<Guid> RecipeIds { get; set; } = new List<Guid>();
         public string Type { get; set; }
         public string OrderBy { get; set; } = "granted";
         public bool Descending { get; set; } = true;
@@ -45,6 +48,10 @@ namespace CulinaCloud.Users.Application.RecipeEntitlements.Queries.GetRecipeEnti
                     x => x.RecipeId == request.RecipeId.Value)
                 .WhereIf(!string.IsNullOrWhiteSpace(request.UserId),
                     x => x.UserId == request.UserId)
+                .WhereIf(request.UserIds != null && request.UserIds.Count > 0,
+                    x => request.UserIds.Contains(x.UserId))
+                .WhereIf(request.RecipeIds != null && request.RecipeIds.Count > 0,
+                    x => request.RecipeIds.Contains(x.RecipeId))
                 .WhereIf(!string.IsNullOrWhiteSpace(request.Type),
                     x => x.Type == ((RecipeEntitlementType)Enum.Parse(typeof(RecipeEntitlementType),
                     request.Type.Trim().ToUpper())));

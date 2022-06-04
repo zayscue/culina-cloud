@@ -42,7 +42,9 @@ namespace CulinaCloud.Analytics.Infrastructure.Recommendations
                 {
                     RecipeId = x.RecipeId,
                     PopularityScore = x.RatingWeightedAverage,
-                    PredictedScore = x.RecommendationScore
+                    PredictedScore = x.RecommendationScore.HasValue && !float.IsNaN(x.RecommendationScore.Value) 
+                        ? x.RecommendationScore 
+                        : null
                 });
         }
     }

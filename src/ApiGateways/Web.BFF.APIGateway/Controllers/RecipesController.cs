@@ -33,78 +33,98 @@ public class RecipesController : ControllerBase
         recipeRecommendations.Items ??= new List<RecipeRecommendationDto>();
         var recipeIds = recipeRecommendations.Items.Select(x => x.RecipeId).ToList();
 
-        var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
-            userId, recipeIds, 1, limit);
-        var favoritesDict = recipeRecommendations.Items
-            .ToDictionary(x => x.RecipeId, x => false);
-        if (recipeFavorites.Items is {Count: > 0})
-        {
-            foreach (var favoriteRecipeId in recipeFavorites.Items)
-            {
-                favoritesDict[favoriteRecipeId.RecipeId] = true;
-            }
-        }
+        var areRecipesFavoritesOfTheUserTask = AreRecipesFavoritesOfTheUser(recipeIds, userId);
+        var IsUserOwnerOfTheRecipesTask = IsUserOwnerOfTheRecipes(recipeIds, userId);
+        var canUserEditRecipesTask = CanUserEditRecipes(recipeIds, userId);
+        var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
 
-        var recipes = await _cookBookService.GetRecipesAsync(
-            recipeIds, 1, limit);
+        var recipes = await getRecipesTask;
         var recipesDict = recipes.Items?
             .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
+        var favoritesDict = await areRecipesFavoritesOfTheUserTask;
+        var recipeOwnersDict = await IsUserOwnerOfTheRecipesTask;
+        var editableRecipesDict = await canUserEditRecipesTask;
 
         var feedItems = recipeRecommendations.Items.Select(x =>
-            new
+            new RecipeAPIResponse
             {
-                Id = x.RecipeId,
-                recipesDict[x.RecipeId].Name ,
-                recipesDict[x.RecipeId].EstimatedMinutes,
-                IsAFavorite = favoritesDict[x.RecipeId],
-                recipesDict[x.RecipeId].Serves,
-                recipesDict[x.RecipeId].Yield,
-                Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
-                x.PopularityScore,
-                x.PredictedScore,
-                UserId = userId
+                Policy = new RecipePolicy
+                {
+                    IsAFavorite = favoritesDict[x.RecipeId],
+                    CanEdit = editableRecipesDict[x.RecipeId],
+                    IsOwner = recipeOwnersDict[x.RecipeId]
+                },
+                Data = new
+                {
+                    Id = x.RecipeId,
+                    recipesDict[x.RecipeId].Name,
+                    recipesDict[x.RecipeId].EstimatedMinutes,
+                    recipesDict[x.RecipeId].Serves,
+                    recipesDict[x.RecipeId].Yield,
+                    Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
+                    x.PopularityScore,
+                    x.PredictedScore,
+                    UserId = userId
+                }
             }
         ).ToList();
-        var feed = new
+
+        return Ok(new PaginatedRecipeAPIResponse
         {
             Items = feedItems,
-            recipeRecommendations.Page,
-            recipeRecommendations.TotalCount,
-            recipeRecommendations.TotalPages
-        };
-
-        return Ok(feed);
+            Page = recipeRecommendations.Page,
+            TotalCount = recipeRecommendations.TotalCount,
+            TotalPages = recipeRecommendations.TotalPages
+        });
     }
 
-    [HttpGet("favorite")]
+    [HttpGet("favorites")]
     public async Task<ActionResult> GetFavoriteRecipes([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
         var userId = _currentUserService.UserId;
         var favoriteRecipes = await _usersService.GetUsersFavoritesAsync(
             userId, page, limit);
-        var favoriteRecipeIds = favoriteRecipes.Items?.Select(x => x.RecipeId).ToList() ?? new List<Guid>();
+        favoriteRecipes.Items ??= new List<FavoriteDto>();
+        var recipeIds = favoriteRecipes.Items.Select(x => x.RecipeId).ToList();
 
-        var recipes = await _cookBookService.GetRecipesAsync(favoriteRecipeIds,
-            1, limit);
-        recipes.Items ??= new List<RecipesDto>();
+        var areRecipesFavoritesOfTheUserTask = AreRecipesFavoritesOfTheUser(recipeIds, userId);
+        var IsUserOwnerOfTheRecipesTask = IsUserOwnerOfTheRecipes(recipeIds, userId);
+        var canUserEditRecipesTask = CanUserEditRecipes(recipeIds, userId);
+        var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
 
-        var items = recipes.Items.Select(x => new
-        {
-            x.Id,
-            x.Name,
-            x.EstimatedMinutes,
-            x.Serves,
-            x.Yield,
-            Images = x.Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
-            IsAFavorite = true
-        }).ToList();
+        var recipes = await getRecipesTask;
+        var favoritesDict = await areRecipesFavoritesOfTheUserTask;
+        var recipeOwnersDict = await IsUserOwnerOfTheRecipesTask;
+        var editableRecipesDict = await canUserEditRecipesTask;
 
-        return Ok(new
+
+        var items = recipes.Items?.Select(x =>
+            new RecipeAPIResponse
+            {
+                Policy = new RecipePolicy
+                {
+                    IsAFavorite = favoritesDict[x.Id],
+                    CanEdit = editableRecipesDict[x.Id],
+                    IsOwner = recipeOwnersDict[x.Id]
+                },
+                Data = new
+                {
+                    x.Id,
+                    x.Name,
+                    x.EstimatedMinutes,
+                    x.Serves,
+                    x.Yield,
+                    Images = x.Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null
+                }
+            }
+        ).ToList();
+
+        return Ok(new PaginatedRecipeAPIResponse
         {
             Items = items,
-            favoriteRecipes.Page,
-            favoriteRecipes.TotalCount,
-            favoriteRecipes.TotalPages
+            Page = favoriteRecipes.Page,
+            TotalCount = favoriteRecipes.TotalCount,
+            TotalPages = favoriteRecipes.TotalPages
         });
     }
 
@@ -116,44 +136,50 @@ public class RecipesController : ControllerBase
         var popularRecipes = await _analyticsService.GetPopularRecipesAsync(
             orderBy, page, limit);
         popularRecipes.Items ??= new List<RecipePopularityDto>();
-        var popularRecipeIds = popularRecipes.Items.Select(x => x.RecipeId).ToList();
+        var recipeIds = popularRecipes.Items.Select(x => x.RecipeId).ToList();
 
-        var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
-            userId, popularRecipeIds, 1, limit);
-        var favoritesDict = popularRecipes.Items
-            .ToDictionary(x => x.RecipeId, x => false);
-        if (recipeFavorites.Items is {Count: > 0})
-        {
-            foreach (var favoriteRecipeId in recipeFavorites.Items)
-            {
-                favoritesDict[favoriteRecipeId.RecipeId] = true;
-            }
-        }
+        var areRecipesFavoritesOfTheUserTask = AreRecipesFavoritesOfTheUser(recipeIds, userId);
+        var IsUserOwnerOfTheRecipesTask = IsUserOwnerOfTheRecipes(recipeIds, userId);
+        var canUserEditRecipesTask = CanUserEditRecipes(recipeIds, userId);
+        var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
 
-        var recipes = await _cookBookService.GetRecipesAsync(popularRecipeIds, 1, limit);
+        var recipes = await getRecipesTask;
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
+        var favoritesDict = await areRecipesFavoritesOfTheUserTask;
+        var recipeOwnersDict = await IsUserOwnerOfTheRecipesTask;
+        var editableRecipesDict = await canUserEditRecipesTask;
 
-        var items = popularRecipes.Items.Select(x => new
-        {
-            Id = x.RecipeId,
-            recipesDict[x.RecipeId].Name,
-            recipesDict[x.RecipeId].EstimatedMinutes,
-            recipesDict[x.RecipeId].Serves,
-            recipesDict[x.RecipeId].Yield,
-            Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
-            IsAFavorite = favoritesDict[x.RecipeId],
-            x.RatingAverage,
-            x.RatingCount,
-            x.RatingSum,
-            x.RatingWeightedAverage
-        });
-        return Ok(new
+        var items = popularRecipes.Items.Select(x =>
+            new RecipeAPIResponse
+            {
+                Policy = new RecipePolicy
+                {
+                    IsAFavorite = favoritesDict[x.RecipeId],
+                    CanEdit = editableRecipesDict[x.RecipeId],
+                    IsOwner = recipeOwnersDict[x.RecipeId]
+                },
+                Data = new
+                {
+                    Id = x.RecipeId,
+                    recipesDict[x.RecipeId].Name,
+                    recipesDict[x.RecipeId].EstimatedMinutes,
+                    recipesDict[x.RecipeId].Serves,
+                    recipesDict[x.RecipeId].Yield,
+                    Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
+                    x.RatingAverage,
+                    x.RatingCount,
+                    x.RatingSum,
+                    x.RatingWeightedAverage
+                }
+            }
+        ).ToList();
+        return Ok(new PaginatedRecipeAPIResponse
         {
             Items = items,
-            popularRecipes.Page,
-            popularRecipes.TotalCount,
-            popularRecipes.TotalPages
+            Page = popularRecipes.Page,
+            TotalCount = popularRecipes.TotalCount,
+            TotalPages = popularRecipes.TotalPages
         });
     }
 
@@ -162,21 +188,37 @@ public class RecipesController : ControllerBase
     {
         var user = _currentUserService.UserId;
         var createdRecipe = await _cookBookService.CreateRecipeAsync(recipe);
-        var favorite = await _usersService.CreateFavoriteAsync(new FavoriteDto
+        //var createFavoriteTask = _usersService.CreateFavoriteAsync(new FavoriteDto
+        //{
+        //    RecipeId = createdRecipe.Id,
+        //    UserId = user
+        //});
+        var createRecipeEntitlementTask = _usersService.CreateRecipeEntitlementAsync(new RecipeEntitlementDto
         {
             RecipeId = createdRecipe.Id,
-            UserId = user
+            UserId = user,
+            GrantedBy = user,
+            Type = "author"
         });
+
+        //var createdFavorite = await createFavoriteTask;
+        var createdRecipeEntitlement = await createRecipeEntitlementTask;
+
         return CreatedAtAction(
             nameof(GetRecipe),
             new
             {
                 recipeId = createdRecipe.Id
             },
-            new
+            new RecipeAPIResponse
             {
-                IsAFavorite = favorite != null,
-                Recipe = new
+                Policy = new RecipePolicy
+                {
+                    IsAFavorite = false,
+                    CanEdit = createdRecipeEntitlement != null,
+                    IsOwner = createdRecipeEntitlement != null
+                },
+                Data = new
                 {
                     createdRecipe.Id,
                     createdRecipe.Name,
@@ -218,26 +260,14 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}")]
     public async Task<ActionResult> GetRecipe([FromRoute] Guid recipeId)
     {
-        var user = _currentUserService.UserId;
-        var recipe = await _cookBookService.GetRecipeAsync(recipeId);
-
-        var recipeIds = new List<Guid>(new [] { recipeId } );
-        var favorite = await _usersService.GetUsersFavoritesAsync(user, recipeIds, 1, 1);
-        var isAFavorite = favorite.Items?.Count > 0;
-
-        var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(recipeId, user);
-        var canEdit = false;
-        if (recipeEntitlements.Items?.Count > 0)
+        async Task<object?> GetData(Guid id)
         {
-            canEdit = recipeEntitlements.Items.Select(x => x.Type).Contains("author")
-                || recipeEntitlements.Items.Select(x => x.Type).Contains("contributor");
-        }
-
-        var response = new
-        {
-            IsAFavorite = isAFavorite,
-            CanEdit = canEdit,
-            Recipe = new
+            var recipe = await _cookBookService.GetRecipeAsync(id);
+            if (recipe == null)
+            {
+                return null;
+            }
+            return new
             {
                 recipe.Id,
                 recipe.Name,
@@ -252,7 +282,7 @@ public class RecipesController : ControllerBase
                     x.Url
                 }) ?? null,
                 recipe.NumberOfIngredients,
-                Ingredients = recipe.Ingredients?.Select(x =>  new
+                Ingredients = recipe.Ingredients?.Select(x => new
                 {
                     x.Id,
                     x.Quantity,
@@ -271,7 +301,28 @@ public class RecipesController : ControllerBase
                     x.TagId,
                     x.TagName
                 }) ?? null
-            }
+            };
+        };
+        var userId = _currentUserService.UserId;
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
         };
         return Ok(response);
     }
@@ -280,14 +331,21 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, [FromBody] RecipeDto recipe)
     {
         var user = _currentUserService.UserId;
-        recipe.LastModifiedBy = user;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
 
-        await _cookBookService.UpdateRecipeAsync(recipeId, recipe);
+        var updateTasks = new List<Task>();
+
+        recipe.LastModifiedBy = user;
+        var updateRecipeTask = _cookBookService.UpdateRecipeAsync(recipeId, recipe);
+        updateTasks.Add(updateRecipeTask);
+
 
         if (recipe.Nutrition != null)
         {
             recipe.Nutrition.LastModifiedBy = user;
-            await _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
+            var updateRecipeNutTask = _cookBookService.UpdateRecipeNutritionAsync(recipeId, recipe.Nutrition);
+            updateTasks.Add(updateRecipeNutTask);
         }
 
         if (recipe.Images is {Count: > 0})
@@ -296,8 +354,8 @@ public class RecipesController : ControllerBase
             {
                 image.CreatedBy = user;
             }
-
-            await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, recipe.Images.ToList());
+            var updateRecipeImagesTask = _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, recipe.Images.ToList());
+            updateTasks.Add(updateRecipeImagesTask);
         }
 
         if (recipe.Ingredients is {Count: > 0})
@@ -307,8 +365,8 @@ public class RecipesController : ControllerBase
                 ingredient.RecipeId = recipeId;
                 ingredient.CreatedBy = user;
             }
-
-            await _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, recipe.Ingredients.ToList());
+            var updateRecipeIngredientsTask = _cookBookService.BatchUpdateRecipeIngredientsAsync(recipeId, recipe.Ingredients.ToList());
+            updateTasks.Add(updateRecipeIngredientsTask);
         }
 
         if (recipe.Tags is {Count: > 0})
@@ -317,8 +375,8 @@ public class RecipesController : ControllerBase
             {
                 tag.CreatedBy = user;
             }
-
-            await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, recipe.Tags.ToList());
+            var updateRecipeTagsTask = _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, recipe.Tags.ToList());
+            updateTasks.Add(updateRecipeTagsTask);
         }
 
         if (recipe.Steps is {Count: > 0})
@@ -327,8 +385,10 @@ public class RecipesController : ControllerBase
             {
                 step.CreatedBy = user;
             }
-            await _cookBookService.BatchUpdateRecipeStepsAsync(recipeId, recipe.Steps.ToList());
+            var updateRecipeStepsTask = _cookBookService.BatchUpdateRecipeStepsAsync(recipeId, recipe.Steps.ToList());
+            updateTasks.Add(updateRecipeStepsTask);
         }
+        await Task.WhenAll(updateTasks);
 
         return Ok();
     }
@@ -337,6 +397,9 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> CreateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
     {
+        var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         var createdNutrition = await _cookBookService.CreateRecipeNutritionAsync(recipeId, nutrition);
         return CreatedAtAction(
             nameof(GetRecipeNutrition),
@@ -348,14 +411,43 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}/nutrition")]
     public async Task<ActionResult> GetRecipeNutrition([FromRoute] Guid recipeId)
     {
-        var nutrition = await _cookBookService.GetRecipeNutritionAsync(recipeId);
-        return Ok(nutrition);
+        async Task<object?> GetData(Guid id)
+        {
+            var nutrition = await _cookBookService.GetRecipeNutritionAsync(id);
+            return nutrition;
+        };
+        var userId = _currentUserService.UserId;
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpPut("{recipeId:guid}/nutrition")]
     public async Task<ActionResult> UpdateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
     {
+        var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
+        nutrition.LastModifiedBy = user;
         await _cookBookService.UpdateRecipeNutritionAsync(recipeId, nutrition);
         return Ok();
     }
@@ -363,15 +455,65 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}/steps")]
     public async Task<ActionResult> GetRecipeSteps([FromRoute] Guid recipeId)
     {
-        var steps = await _cookBookService.GetRecipeStepsAsync(recipeId);
-        return Ok(steps);
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid id)
+        {
+            var steps = await _cookBookService.GetRecipeStepsAsync(id);
+            return steps;
+        };
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpGet("{recipeId:guid}/steps/{order:int}")]
     public async Task<ActionResult> GetRecipeStep([FromRoute] Guid recipeId, [FromRoute] int order)
     {
-        var recipeStep = await _cookBookService.GetRecipeStepAsync(recipeId, order);
-        return Ok(recipeStep);
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid id, int ix)
+        {
+            var recipeStep = await _cookBookService.GetRecipeStepAsync(id, ix);
+            return recipeStep;
+        };
+        var getDataTask = GetData(recipeId, order);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpPut("{recipeId:guid}/steps")]
@@ -379,6 +521,8 @@ public class RecipesController : ControllerBase
         [FromBody] List<RecipeStepDto> steps)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         foreach (var step in steps)
         {
             step.CreatedBy = user;
@@ -390,15 +534,33 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}/ingredients")]
     public async Task<ActionResult> GetRecipeIngredients([FromRoute] Guid recipeId)
     {
-        var ingredients = await _cookBookService.GetRecipeIngredientsAsync(recipeId);
-        return Ok(ingredients.Select(x => new
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid id)
         {
-            x.Id,
-            x.Quantity,
-            x.Part,
-            x.IngredientId,
-            x.IngredientName
-        }));
+            var ingredients = await _cookBookService.GetRecipeIngredientsAsync(id);
+            return ingredients;
+        };
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpPost("{recipeId:guid}/ingredients")]
@@ -406,6 +568,8 @@ public class RecipesController : ControllerBase
         [FromBody] RecipeIngredientDto recipeIngredient)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         recipeIngredient.CreatedBy = user;
         recipeIngredient.RecipeId = recipeId;
         var createdRecipeIngredient = await _cookBookService.CreateRecipeIngredientAsync(recipeId, recipeIngredient);
@@ -427,6 +591,8 @@ public class RecipesController : ControllerBase
         [FromBody] List<RecipeIngredientDto> ingredients)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         foreach (var ingredient in ingredients)
         {
             ingredient.RecipeId = recipeId;
@@ -439,28 +605,73 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}/ingredients/{recipeIngredientId:guid}")]
     public async Task<ActionResult> GetRecipeIngredient([FromRoute] Guid recipeId, [FromRoute] Guid recipeIngredientId)
     {
-        var recipeIngredient = await _cookBookService.GetRecipeIngredientAsync(recipeId, recipeIngredientId);
-        return Ok(new
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid _recipeId, Guid _recipeIngredientId)
         {
-            recipeIngredient.Id,
-            recipeIngredient.Quantity,
-            recipeIngredient.Part,
-            recipeIngredient.IngredientId,
-            recipeIngredient.IngredientName
-        });
+            var recipeIngredient = await _cookBookService.GetRecipeIngredientAsync(_recipeId, _recipeIngredientId);
+            return recipeIngredient;
+        };
+        var getDataTask = GetData(recipeId, recipeIngredientId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpGet("{recipeId:guid}/images")]
     public async Task<ActionResult> GetRecipeImages([FromRoute] Guid recipeId)
     {
-        var images = await _cookBookService.GetRecipeImagesAsync(recipeId);
-        return Ok(images);
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid _recipeId)
+        {
+            var images = await _cookBookService.GetRecipeImagesAsync(_recipeId);
+            return images;
+        };
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpPost("{recipeId:guid}/images")]
     public async Task<ActionResult> CreateRecipeImage([FromRoute] Guid recipeId, [FromBody] RecipeImageDto image)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         image.CreatedBy = user;
         var createdRecipeImage = await _cookBookService.CreateRecipeImageAsync(recipeId, image);
         return CreatedAtAction(
@@ -474,11 +685,12 @@ public class RecipesController : ControllerBase
         [FromBody] List<RecipeImageDto> images)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         foreach (var image in images)
         {
             image.CreatedBy = user;
         }
-
         await _cookBookService.BatchUpdateRecipeImagesAsync(recipeId, images);
         return Ok();
     }
@@ -486,24 +698,77 @@ public class RecipesController : ControllerBase
     [HttpGet("{recipeId:guid}/images/{imageId:guid}")]
     public async Task<ActionResult> GetRecipeImage([FromRoute] Guid recipeId, [FromRoute] Guid imageId)
     {
-        var recipeImage = await _cookBookService.GetRecipeImageAsync(recipeId, imageId);
-        return Ok(recipeImage);
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid _recipeId, Guid _imageId)
+        {
+            var recipeImage = await _cookBookService.GetRecipeImageAsync(_recipeId, _imageId);
+            return recipeImage;
+        };
+        var getDataTask = GetData(recipeId, imageId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpGet("{recipeId:guid}/tags")]
     public async Task<ActionResult> GetRecipeTags([FromRoute] Guid recipeId)
     {
-        var tags = await _cookBookService.GetRecipeTagsAsync(recipeId);
-        return Ok(tags.Select(x => new
+        var userId = _currentUserService.UserId;
+        async Task<object?> GetData(Guid _recipeId)
         {
-            x.TagId,
-            x.TagName
-        }));
+            var tags = await _cookBookService.GetRecipeTagsAsync(_recipeId);
+            return tags.Select(x => new
+            {
+                x.TagId,
+                x.TagName
+            });
+        };
+        var getDataTask = GetData(recipeId);
+        var isFavoriteTask = IsRecipeAFavoriteOfTheUser(recipeId, userId);
+        var canEditTask = CanUserEditRecipe(recipeId, userId);
+        var isOwnerTask = IsUserOwnerOfTheRecipe(recipeId, userId);
+
+        var getDataResult = await getDataTask;
+        var isFavoriteResult = await isFavoriteTask;
+        var canEditResult = await canEditTask;
+        var isOwnerResult = await isOwnerTask;
+
+        var response = new RecipeAPIResponse
+        {
+            Policy = new RecipePolicy
+            {
+                IsAFavorite = isFavoriteResult.Item2,
+                CanEdit = canEditResult.Item2,
+                IsOwner = isOwnerResult.Item2
+            },
+            Data = getDataResult
+        };
+        return Ok(response);
     }
 
     [HttpPost("{recipeId:guid}/tags")]
     public async Task<ActionResult> CreateRecipeTag([FromRoute] Guid recipeId, [FromBody] RecipeTagDto tag)
     {
+        var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         var createdRecipeTag = await _cookBookService.CreateRecipeTagAsync(recipeId, tag);
         return CreatedAtAction(
             nameof(GetRecipeTag),
@@ -516,11 +781,12 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> BatchUpdateRecipeTags([FromRoute] Guid recipeId, [FromBody] List<RecipeTagDto> tags)
     {
         var user = _currentUserService.UserId;
+        var canEditResult = await CanUserEditRecipe(recipeId, user);
+        if (!canEditResult.Item2) return Forbid();
         foreach (var tag in tags)
         {
             tag.CreatedBy = user;
         }
-
         await _cookBookService.BatchUpdateRecipeTagsAsync(recipeId, tags);
         return Ok();
     }
@@ -537,13 +803,18 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
         [FromQuery] int page = 1, [FromQuery] int limit = 20)
     {
+        var userId = _currentUserService.UserId;
         var similarRecipes = await _analyticsService.GetSimilarRecipesAsync(recipeId, page, limit);
         similarRecipes.Items ??= new List<RecipeSimilarityDto>();
         var similarRecipeIds = similarRecipes.Items.Select(x => x.SimilarRecipeId).ToList();
 
-        var recipes = await _cookBookService.GetRecipesAsync(similarRecipeIds, 1, limit);
+        var getFavoritesTask = AreRecipesFavoritesOfTheUser(similarRecipeIds, userId);
+        var getRecipesTask = _cookBookService.GetRecipesAsync(similarRecipeIds, 1, limit);
+
+        var recipes = await getRecipesTask;
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
+        var favoritesDict = await getFavoritesTask;
 
         var items = similarRecipes.Items.Select(x => new
         {
@@ -553,6 +824,7 @@ public class RecipesController : ControllerBase
             recipesDict[x.SimilarRecipeId].Serves,
             recipesDict[x.SimilarRecipeId].Yield,
             Images = recipesDict[x.SimilarRecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
+            IsAFavorite = favoritesDict[x.RecipeId],
             SimilarTo = x.RecipeId,
             x.SimilarityScore,
             x.PopularityScore
@@ -610,5 +882,121 @@ public class RecipesController : ControllerBase
         };
         await _usersService.DeleteFavoriteAsync(favorite);
         return Ok();
+    }
+
+    private async Task<(Guid, bool)> IsRecipeAFavoriteOfTheUser(Guid recipeId, string userId)
+    {
+        try
+        {
+            var recipeIds = new List<Guid>(new[] { recipeId });
+            var favorite = await _usersService.GetUsersFavoritesAsync(userId, recipeIds, 1, 1);
+            var isAFavorite = favorite.Items?.Count > 0;
+            return (recipeId, isAFavorite);
+        }
+        catch 
+        {
+            return (recipeId, false);
+        }
+    }
+
+    private async Task<Dictionary<Guid, bool>> AreRecipesFavoritesOfTheUser(List<Guid> recipeIds, string userId)
+    {
+        var favoritesDict = recipeIds
+            .ToDictionary(x => x, x => false);
+        try
+        {
+            var recipeFavorites = await _usersService.GetUsersFavoritesAsync(
+                userId, recipeIds, 1, recipeIds.Count);
+            if (recipeFavorites.Items is { Count: > 0 })
+            {
+                foreach (var favoriteRecipeId in recipeFavorites.Items)
+                {
+                    if (favoritesDict.ContainsKey(favoriteRecipeId.RecipeId))
+                    {
+                        favoritesDict[favoriteRecipeId.RecipeId] = true;
+                    }
+                }
+            }
+        }
+        catch { }
+        return favoritesDict;
+    }
+
+    private async Task<Dictionary<Guid, bool>> CanUserEditRecipes(List<Guid> recipeIds, string userId)
+    {
+        var editableRecipesDict = recipeIds
+            .ToDictionary(x => x, x => false);
+        try
+        {
+            var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(
+                recipeIds, userId);
+            if (recipeEntitlements.Items is { Count: > 0 })
+            {
+                foreach (var recipeEntitlement in recipeEntitlements.Items)
+                {
+                    if (editableRecipesDict.ContainsKey(recipeEntitlement.RecipeId))
+                    {
+                        editableRecipesDict[recipeEntitlement.RecipeId] = recipeEntitlement.Type.Contains("author")
+                            || recipeEntitlement.Type.Contains("contributor");
+                    }
+                }
+            }
+        }
+        catch { }
+        return editableRecipesDict;
+    }
+
+    private async Task<(Guid, bool)> CanUserEditRecipe(Guid recipeId, string userId)
+    {
+        var canEdit = false;
+        try
+        {
+            var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(recipeId, userId);
+            if (recipeEntitlements.Items?.Count > 0)
+            {
+                canEdit = recipeEntitlements.Items.Select(x => x.Type).Contains("author")
+                    || recipeEntitlements.Items.Select(x => x.Type).Contains("contributor");
+            }
+        }
+        catch { }
+        return (recipeId, canEdit);
+    }
+
+
+    private async Task<Dictionary<Guid, bool>> IsUserOwnerOfTheRecipes(List<Guid> recipeIds, string userId)
+    {
+        var recipeOwnersDict = recipeIds
+            .ToDictionary(x => x, x => false);
+        try
+        {
+            var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(recipeIds, userId);
+            if (recipeEntitlements.Items is { Count: > 0 })
+            {
+                foreach (var recipeEntitlement in recipeEntitlements.Items)
+                {
+                    if (recipeOwnersDict.ContainsKey(recipeEntitlement.RecipeId))
+                    {
+                        recipeOwnersDict[recipeEntitlement.RecipeId] = recipeEntitlement.Type.Contains("author");
+                    }
+                }
+            }
+        }
+        catch { }
+        return recipeOwnersDict;
+    }
+
+    private async Task<(Guid, bool)> IsUserOwnerOfTheRecipe(Guid recipeId, string userId)
+    {
+        var isOwner = false;
+        try
+        {
+            var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(recipeId, userId);
+            if (recipeEntitlements.Items?.Count > 0)
+            {
+                isOwner = recipeEntitlements.Items.Select(x => x.Type).Contains("author");
+            }
+        }
+        catch { }
+        return (recipeId, isOwner);
     }
 }

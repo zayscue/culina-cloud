@@ -7,5 +7,5 @@ public record RecipeEntitlementDto
     public string UserId { get; set; } = default!;
     public string Type { get; set; } = default!;
     public string GrantedBy { get; set; }  = default!;
-    public string? Granted { get; set; }
+    public DateTime Granted { get; set; }
 }
