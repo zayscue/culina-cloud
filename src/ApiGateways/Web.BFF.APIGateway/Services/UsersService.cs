@@ -226,4 +226,22 @@ public class UsersService : IUsersService
         recipeEntitlementsPaginatedList.Items ??= new List<RecipeEntitlementDto>();
         return recipeEntitlementsPaginatedList;
     }
+
+    public async Task<List<ApplicationUserPolicyDto>> GetApplicationUserPoliciesAsync(string userId, List<Guid> recipeIds, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>();
+        urlParams.AddRange(recipeIds.Select(userId =>
+            new KeyValuePair<string, string>("recipeIds", userId.ToString())));
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{userId}/policies?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var applicationUserPolicies = JsonSerializer.Deserialize<List<ApplicationUserPolicyDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new List<ApplicationUserPolicyDto>();
+        return applicationUserPolicies;
+    }
 }

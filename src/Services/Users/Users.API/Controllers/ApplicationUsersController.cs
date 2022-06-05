@@ -4,6 +4,8 @@ using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.Users.Application.ApplicationUsers.Queries.GetApplicationUser;
 using CulinaCloud.Users.Application.ApplicationUsers.Commands.CreateApplicationUser;
 using CulinaCloud.Users.Application.ApplicationUsers.Commands.UpdateApplicationUser;
+using CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetApplicationUsersPolicies;
+using System.Collections.Generic;
 
 namespace CulinaCloud.Users.API.Controllers
 {
@@ -33,6 +35,14 @@ namespace CulinaCloud.Users.API.Controllers
         {
             command.Id = id;
             var response = await Mediator.Send(command);
+            return Ok(response);
+        }
+
+        [HttpGet("{id}/policies")]
+        public async Task<ActionResult<List<GetApplicationUsersPoliciesResponse>>> GetApplicationUsersPolicies([FromRoute] string id, [FromQuery] GetApplicationUsersPoliciesQuery query)
+        {
+            query.UserId = id;
+            var response = await Mediator.Send(query);
             return Ok(response);
         }
     }
