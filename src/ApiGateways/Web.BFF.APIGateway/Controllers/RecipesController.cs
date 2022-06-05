@@ -84,6 +84,19 @@ public class RecipesController : ControllerBase
         return recipePolicy.Item2.CanEdit;
     }
 
+    private async Task<bool> DoesRecipeExist(Guid recipeId)
+    {
+        try
+        {
+            var recipe = await _cookBookService.GetRecipeAsync(recipeId);
+            return recipe != null;
+        }
+        catch(RecipeNotFoundException)
+        {
+            return false;
+        }
+    }
+
     [HttpGet("recommended")]
     public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
     {
@@ -221,11 +234,6 @@ public class RecipesController : ControllerBase
     {
         var user = _currentUserService.UserId;
         var createdRecipe = await _cookBookService.CreateRecipeAsync(recipe);
-        //var createFavoriteTask = _usersService.CreateFavoriteAsync(new FavoriteDto
-        //{
-        //    RecipeId = createdRecipe.Id,
-        //    UserId = user
-        //});
         var createRecipeEntitlementTask = _usersService.CreateRecipeEntitlementAsync(new RecipeEntitlementDto
         {
             RecipeId = createdRecipe.Id,
@@ -233,8 +241,6 @@ public class RecipesController : ControllerBase
             GrantedBy = user,
             Type = "author"
         });
-
-        //var createdFavorite = await createFavoriteTask;
         var createdRecipeEntitlement = await createRecipeEntitlementTask;
 
         return CreatedAtAction(
@@ -810,6 +816,13 @@ public class RecipesController : ControllerBase
         review.RecipeId = recipeId;
         review.CreatedBy = user;
         review.UserId = user;
+
+        var doesRecipeExist = await DoesRecipeExist(review.RecipeId);
+        if (!doesRecipeExist)
+        {
+            return BadRequest($"Recipe {review.RecipeId} Not Found");
+        }
+
         var createdReview = await _interactionsService.CreateRecipeReviewAsync(review);
         return Ok(createdReview);
     }
@@ -824,6 +837,13 @@ public class RecipesController : ControllerBase
             UserId = userId,
             CreatedBy = userId
         };
+
+        var doesRecipeExist = await DoesRecipeExist(favorite.RecipeId);
+        if (!doesRecipeExist)
+        {
+            return BadRequest($"Recipe {favorite.RecipeId} Not Found");
+        }
+
         await _usersService.CreateFavoriteAsync(favorite);
         return Ok();
     }
@@ -837,6 +857,13 @@ public class RecipesController : ControllerBase
             RecipeId = recipeId,
             UserId = userId
         };
+
+        var doesRecipeExist = await DoesRecipeExist(favorite.RecipeId);
+        if (!doesRecipeExist)
+        {
+            return BadRequest($"Recipe {favorite.RecipeId} Not Found");
+        }
+
         await _usersService.DeleteFavoriteAsync(favorite);
         return Ok();
     }

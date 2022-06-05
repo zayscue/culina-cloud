@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace CulinaCloud.BuildingBlocks.Application.Common.Behaviours
 {
-    public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    {
+    public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+    { 
         private readonly Stopwatch _timer;
-        private readonly ILogger<TRequest> _logger;
+        private readonly ILogger<PerformanceBehaviour<TRequest, TResponse>> _logger;
 
-        public PerformanceBehaviour(ILogger<TRequest> logger)
+        public PerformanceBehaviour(ILogger<PerformanceBehaviour<TRequest, TResponse>> logger)
         {
             _timer = new Stopwatch();
 

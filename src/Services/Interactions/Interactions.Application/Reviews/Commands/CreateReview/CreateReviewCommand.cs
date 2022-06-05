@@ -26,20 +26,17 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
 
     public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, CreateReviewResponse>
     {
-        private readonly IRecipesService _recipesService;
         private readonly IApplicationDbContext _context;
         private readonly IDateTime _dateTime;
         private readonly IAggregateEventService _aggregateEventService;
         private readonly IMapper _mapper;
 
         public CreateReviewCommandHandler(
-            IRecipesService recipesService,
             IApplicationDbContext context,
             IDateTime dateTime,
             IAggregateEventService aggregateEventService,
             IMapper mapper)
         {
-            _recipesService = recipesService;
             _context = context;
             _dateTime = dateTime;
             _aggregateEventService = aggregateEventService;
@@ -75,16 +72,6 @@ namespace CulinaCloud.Interactions.Application.Reviews.Commands.CreateReview
                     Comments = entity.Comments
                 }
             };
-            var recipeServiceIsHealthy = await _recipesService.CheckHealth(cancellationToken);
-            if (!recipeServiceIsHealthy)
-            {
-                throw new RecipeServiceIsNotHealthyException();
-            }
-            var recipeExists = await _recipesService.RecipeExistsAsync(entity.RecipeId, cancellationToken);
-            if (!recipeExists)
-            {
-                throw new RecipeDoesNotExistException(entity.RecipeId);
-            }
             try
             {
                 await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);

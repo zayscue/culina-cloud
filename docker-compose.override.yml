@@ -10,24 +10,23 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  eventstoreapi:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
-    ports:
-      - "80"
-      - "443"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  #eventstoreapi:
+  #  environment:
+  #    - ASPNETCORE_ENVIRONMENT=Development
+  #    - ASPNETCORE_URLS=https://+:443;http://+:80
+  #    - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
+  #  ports:
+  #    - "80"
+  #    - "443"
+  #  volumes:
+  #    - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+  #    - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
   cookbookapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
-      - EventStore__BaseAddress=http://eventstoreapi
     ports:
       - "55002:80"
       - "55003:443"
@@ -40,8 +39,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
-      - EventStore__BaseAddress=http://eventstoreapi
-      - RecipesService__BaseAddress=http://cookbookapi
     ports:
       - "55004:80"
       - "55005:443"
@@ -66,7 +63,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionString=Host=postgres;Database=CulinaCloudDB;Username=postgres;Password=postgres
-      - RecipesService__BaseAddress=http://cookbookapi
     ports:
       - "55008:80"
       - "55009:443"

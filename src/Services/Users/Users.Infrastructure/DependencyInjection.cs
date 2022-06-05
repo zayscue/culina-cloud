@@ -1,13 +1,10 @@
-﻿using System;
-using System.Net.Http.Headers;
-using Amazon.SecretsManager;
+﻿using Amazon.SecretsManager;
 using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Settings;
 using CulinaCloud.BuildingBlocks.Common.Interfaces;
 using CulinaCloud.Users.Application.Interfaces;
-using CulinaCloud.Users.Infrastructure.CookBook;
 using CulinaCloud.Users.Infrastructure.Persistence;
 using CulinaCloud.Users.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +22,6 @@ namespace CulinaCloud.Users.Infrastructure
             var connectionString = configuration["ConnectionString"];
 
             services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
-            services.Configure<RecipesServiceSettings>(configuration.GetSection("RecipesService"));
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
@@ -56,17 +52,6 @@ namespace CulinaCloud.Users.Infrastructure
                 var settings = provider.GetService<IOptions<Auth0Settings>>();
                 var secretsProvider = provider.GetService<Auth0SecretsProvider>();
                 return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
-            });
-
-            services.AddHttpClient<IRecipesService, RecipesService>((client, provider) =>
-            {
-                var settings = provider.GetService<IOptions<RecipesServiceSettings>>();
-                var baseAddress = new Uri(settings.Value.BaseAddress);
-                client.BaseAddress = baseAddress;
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
-                var tokenService = tokenServiceManager.GetTokenService(settings.Value.Audience);
-                return new RecipesService(tokenService, client);
             });
 
             return services;
