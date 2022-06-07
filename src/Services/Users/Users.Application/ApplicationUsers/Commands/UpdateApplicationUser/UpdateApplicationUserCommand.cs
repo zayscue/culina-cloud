@@ -1,11 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CulinaCloud.Users.Application.ApplicationUsers.Commands.UpdateApplicationUser
 {
@@ -19,42 +17,27 @@ namespace CulinaCloud.Users.Application.ApplicationUsers.Commands.UpdateApplicat
 
     public class UpdateApplicationUserCommandHandler : IRequestHandler<UpdateApplicationUserCommand, UpdateApplicationUserResponse>
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationUserManagementService _users;
         private readonly IMapper _mapper;
 
         public UpdateApplicationUserCommandHandler(
-            IApplicationDbContext context,
+            IApplicationUserManagementService users,
             IMapper mapper)
         {
-            _context = context;
+            _users = users;
             _mapper = mapper;
         }
 
         public async Task<UpdateApplicationUserResponse> Handle(UpdateApplicationUserCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _context.ApplicationUsers
-                .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-            if (entity == null)
+            var updatedApplicationUser = new ApplicationUser
             {
-                throw new NotFoundException(
-                    nameof(ApplicationUser),
-                    request.Id
-                );
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.DisplayName))
-            {
-                entity.DisplayName = request.DisplayName;
-            }
-            if (!string.IsNullOrWhiteSpace(request.Picture))
-            {
-                entity.Picture = request.Picture;
-            }
-            entity.LastModifiedBy = request.LastModifiedBy;
-
-            _context.ApplicationUsers.Update(entity);
-            await _context.SaveChangesAsync(cancellationToken);
+                Id = request.Id,
+                DisplayName = request.DisplayName,
+                Picture = request.Picture,
+                LastModifiedBy = request.LastModifiedBy
+            };
+            var entity = await _users.SaveApplicationUser(updatedApplicationUser, cancellationToken);
             var response = _mapper.Map<UpdateApplicationUserResponse>(entity);
             return response;
         }

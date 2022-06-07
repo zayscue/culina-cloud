@@ -1,11 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using CulinaCloud.Users.Application.Interfaces;
-using CulinaCloud.Users.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CulinaCloud.Users.Application.ApplicationUsers.Queries.GetApplicationUser
 {
@@ -16,27 +13,20 @@ namespace CulinaCloud.Users.Application.ApplicationUsers.Queries.GetApplicationU
 
     public class GetApplicationUserQueryHandler : IRequestHandler<GetApplicationUserQuery, GetApplicationUserResponse>
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationUserManagementService _users;
         private readonly IMapper _mapper;
 
         public GetApplicationUserQueryHandler(
-            IApplicationDbContext context,
+            IApplicationUserManagementService users,
             IMapper mapper)
         {
-            _context = context;
+            _users = users;
             _mapper = mapper;
         }
 
         public async Task<GetApplicationUserResponse> Handle(GetApplicationUserQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _context.ApplicationUsers
-                .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-            if (entity == null)
-            {
-                throw new NotFoundException(nameof(ApplicationUser), request.Id);
-            }
+            var entity = await _users.GetApplicationUser(request.Id, cancellationToken);
 
             var response = _mapper.Map<GetApplicationUserResponse>(entity);
 

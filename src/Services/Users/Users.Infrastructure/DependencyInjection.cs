@@ -1,4 +1,5 @@
 ﻿using Amazon.SecretsManager;
+using Auth0.ManagementApi;
 using CulinaCloud.BuildingBlocks.Authentication.Abstractions;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0;
 using CulinaCloud.BuildingBlocks.Authentication.Auth0.Secrets.Providers;
@@ -52,6 +53,19 @@ namespace CulinaCloud.Users.Infrastructure
                 var settings = provider.GetService<IOptions<Auth0Settings>>();
                 var secretsProvider = provider.GetService<Auth0SecretsProvider>();
                 return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
+            });
+            services.AddSingleton<IManagementConnection, HttpClientManagementConnection>();
+
+
+            services.AddTransient<IApplicationUserManagementService, Auth0ApplicationUserManagementService>(provider =>
+            {
+                var audience = configuration["Auth0ManagementService:Audience"];
+                var domain = configuration["Auth0ManagementService:Domain"];
+                var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+                var tokenService = tokenServiceManager.GetTokenService(audience);
+                var managementConnection = provider.GetService<IManagementConnection>();
+                var dbContext = provider.GetService<IApplicationDbContext>();
+                return new Auth0ApplicationUserManagementService(dbContext, tokenService, domain, managementConnection);
             });
 
             return services;

@@ -107,6 +107,7 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseHttpsRedirection();
+app.UsePathBase(new PathString("/app"));
 app.UseRouting();
 
 app.UseAuthentication();
