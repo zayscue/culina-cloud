@@ -7,20 +7,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210716202022_Analytics_InitialCreate")]
-    partial class Analytics_InitialCreate
+    [Migration("20220608151711_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("Analytics")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.5")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("CulinaCloud.Analytics.Domain.Entities.RecipePopularity", b =>
                 {
@@ -30,7 +33,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("RecipeId");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("Created");
 
                     b.Property<string>("CreatedBy")
@@ -40,7 +43,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("LastModified");
 
                     b.Property<string>("LastModifiedBy")
@@ -64,15 +67,13 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(18,16)")
                         .HasColumnName("RatingWeightedAverage");
 
-                    b.Property<string>("Submitted")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("character varying(12)")
+                    b.Property<DateOnly>("Submitted")
+                        .HasColumnType("DATE")
                         .HasColumnName("Submitted");
 
                     b.HasKey("RecipeId");
 
-                    b.ToTable("RecipePopularity");
+                    b.ToTable("RecipePopularity", "Analytics");
                 });
 
             modelBuilder.Entity("CulinaCloud.Analytics.Domain.Entities.RecipeSimilarity", b =>
@@ -91,7 +92,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("SimilarityType");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("Created");
 
                     b.Property<string>("CreatedBy")
@@ -101,7 +102,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
                         .HasColumnName("CreatedBy");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("LastModified");
 
                     b.Property<string>("LastModifiedBy")
@@ -115,7 +116,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Migrations
 
                     b.HasKey("RecipeId", "SimilarRecipeId", "SimilarityType");
 
-                    b.ToTable("RecipeSimilarity");
+                    b.ToTable("RecipeSimilarity", "Analytics");
                 });
 #pragma warning restore 612, 618
         }

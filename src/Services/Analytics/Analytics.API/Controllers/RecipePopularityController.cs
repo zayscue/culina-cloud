@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CulinaCloud.Analytics.Application.RecipePopularities.Commands.CreateRecipePopularity;
+using CulinaCloud.Analytics.Application.RecipePopularities.Commands.UpdateRecipePopularity;
 using CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipePopularities;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.BuildingBlocks.Application.Common.Models;
@@ -26,8 +27,14 @@ namespace CulinaCloud.Analytics.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "CreateRecipePopularity")]
         public async Task<ActionResult<CreateRecipePopularityResponse>> Create([FromBody] CreateRecipePopularityCommand command)
+        {
+            var response = await Mediator.Send(command);
+            return Ok(response);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<UpdateRecipePopularityResponse>> Update([FromBody] UpdateRecipePopularityCommand command)
         {
             var response = await Mediator.Send(command);
             return Ok(response);

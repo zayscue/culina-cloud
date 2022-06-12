@@ -18,7 +18,7 @@ namespace CulinaCloud.Analytics.Infrastructure.Persistence.Configurations
 
             builder.Property(r => r.Submitted)
                 .HasColumnName("Submitted")
-                .HasMaxLength(12)
+                .HasColumnType("DATE")
                 .IsRequired();
 
             builder.Property(r => r.RatingCount)
