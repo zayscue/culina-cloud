@@ -39,7 +39,8 @@ namespace CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetAppl
                         UserId = request.UserId,
                         IsAFavorite = false,
                         IsOwner = false,
-                        CanEdit = false
+                        CanEdit = false,
+                        CanShare = false
                     });
                 }
             }
@@ -53,7 +54,8 @@ namespace CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetAppl
                         UserId = request.UserId,
                         IsAFavorite = false,
                         IsOwner = false,
-                        CanEdit = false
+                        CanEdit = false,
+                        CanShare = false
                     });
                 }
             }
@@ -92,7 +94,8 @@ namespace CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetAppl
                             UserId = request.UserId,
                             IsAFavorite = true,
                             IsOwner = false,
-                            CanEdit = false
+                            CanEdit = false,
+                            CanShare = false
                         });
                     }
                 }
@@ -104,6 +107,9 @@ namespace CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetAppl
                         recipePolicy.CanEdit = usersRecipeEntitlement.Type == RecipeEntitlementType.CONTRIBUTOR
                             || usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR;
                         recipePolicy.IsOwner = usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR;
+                        recipePolicy.CanShare = usersRecipeEntitlement.Type == RecipeEntitlementType.CONTRIBUTOR
+                            || usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR
+                            || usersRecipeEntitlement.Type == RecipeEntitlementType.READER;
                     }
                     else
                     {
@@ -114,7 +120,10 @@ namespace CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetAppl
                             IsAFavorite = false,
                             IsOwner = usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR,
                             CanEdit = usersRecipeEntitlement.Type == RecipeEntitlementType.CONTRIBUTOR
+                                || usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR,
+                            CanShare = usersRecipeEntitlement.Type == RecipeEntitlementType.CONTRIBUTOR
                                 || usersRecipeEntitlement.Type == RecipeEntitlementType.AUTHOR
+                                || usersRecipeEntitlement.Type == RecipeEntitlementType.READER
                         });
                     }
                 }

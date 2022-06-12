@@ -51,24 +51,36 @@ namespace CulinaCloud.Users.Application.RecipeEntitlements.Commands.CreateRecipe
                 var recipeAuthor = await _context.RecipeEntitlements
                     .SingleOrDefaultAsync(x => x.RecipeId == entity.RecipeId && x.Type == RecipeEntitlementType.AUTHOR, cancellationToken);
 
-                if (recipeAuthor != null && entity.Type == RecipeEntitlementType.AUTHOR)
+                if (recipeAuthor == null)
                 {
-                    throw new CanNotHaveMoreThanOneAuthorException(entity.RecipeId);
-                }
+                    if (entity.Type != RecipeEntitlementType.AUTHOR)
+                    {
+                        throw new RecipeHasNoAuthorException(entity.RecipeId);
+                    }
 
-                if (recipeAuthor != null && !string.Equals(recipeAuthor.UserId, entity.CreatedBy, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new CanNotModifyRecipeEntitlementException(entity.RecipeId, entity.UserId);
+                    if (entity.Type == RecipeEntitlementType.AUTHOR && !string.Equals(entity.CreatedBy, entity.UserId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new RecipeAuthorEntitlementDoesNotMatch(entity.UserId, entity.CreatedBy);
+                    }
                 }
-
-                if (recipeAuthor == null && entity.Type != RecipeEntitlementType.AUTHOR)
+                else
                 {
-                    throw new RecipeHasNoAuthorException(entity.RecipeId);
-                }
+                    var grantedBysEntitlement = await _context.RecipeEntitlements
+                        .SingleOrDefaultAsync(x => x.RecipeId == entity.RecipeId && x.UserId == entity.CreatedBy);
+                    if (grantedBysEntitlement == null)
+                    {
+                        throw new NoEntitlementException(entity.RecipeId);
+                    }
 
-                if (recipeAuthor == null && entity.Type == RecipeEntitlementType.AUTHOR && !string.Equals(entity.CreatedBy, entity.UserId, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new RecipeAuthorEntitlementDoesNotMatch(entity.UserId, entity.CreatedBy);
+                    if (entity.Type != RecipeEntitlementType.READER && entity.Type >= grantedBysEntitlement.Type)
+                    {
+                        throw new CanNotModifyRecipeEntitlementException(entity.RecipeId, entity.Type.ToString(), entity.UserId);
+                    }
+
+                    if (entity.Type == RecipeEntitlementType.AUTHOR)
+                    {
+                        throw new CanNotHaveMoreThanOneAuthorException(entity.RecipeId);
+                    }
                 }
 
                 await _context.RecipeEntitlements.AddAsync(entity, cancellationToken);

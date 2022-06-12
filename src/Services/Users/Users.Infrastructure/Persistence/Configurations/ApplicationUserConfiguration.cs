@@ -12,6 +12,9 @@ namespace CulinaCloud.Users.Infrastructure.Persistence.Configurations
 
             builder.HasKey(u => u.Id);
 
+            builder.HasIndex(t => t.Email)
+                .IsUnique();
+
             builder.Property(u => u.Id)
                 .HasColumnName("Id")
                 .HasMaxLength(128)

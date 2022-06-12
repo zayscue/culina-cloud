@@ -4,8 +4,8 @@ namespace CulinaCloud.Users.Domain.Enums
 {
     public enum RecipeEntitlementType
     {
-        AUTHOR = 1,
+        AUTHOR = 3,
         CONTRIBUTOR = 2,
-        READER = 3
+        READER = 1
     }
 }

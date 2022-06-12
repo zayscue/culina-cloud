@@ -60,10 +60,16 @@ namespace CulinaCloud.Users.Application.RecipeEntitlements.Commands.UpdateRecipe
             entity.Type = (RecipeEntitlementType)Enum.Parse(typeof(RecipeEntitlementType), request.Type.Trim().ToUpper());
             entity.LastModifiedBy = request.GrantedBy;
 
-
-            if (!string.Equals(recipeAuthor.CreatedBy, entity.LastModifiedBy, StringComparison.OrdinalIgnoreCase))
+            var grantedBysEntitlement = await _context.RecipeEntitlements
+                .SingleOrDefaultAsync(x => x.RecipeId == entity.RecipeId && x.UserId == entity.LastModifiedBy);
+            if (grantedBysEntitlement == null)
             {
-                throw new CanNotModifyRecipeEntitlementException(entity.RecipeId, entity.UserId);
+                throw new NoEntitlementException(entity.RecipeId);
+            }
+
+            if (entity.Type != RecipeEntitlementType.READER && entity.Type >= grantedBysEntitlement.Type)
+            {
+                throw new CanNotModifyRecipeEntitlementException(entity.RecipeId, entity.Type.ToString(), entity.UserId);
             }
 
             _context.RecipeEntitlements.Update(entity);

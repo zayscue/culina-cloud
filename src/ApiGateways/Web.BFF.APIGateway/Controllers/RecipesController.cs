@@ -36,14 +36,16 @@ public class RecipesController : ControllerBase
             {
                 IsAFavorite = false,
                 IsOwner = false,
-                CanEdit = false
+                CanEdit = false,
+                CanShare = false
             });
         }
         return (applicationUserPolicy.RecipeId, new RecipePolicy
         {
             IsOwner = applicationUserPolicy.IsOwner,
             IsAFavorite = applicationUserPolicy.IsAFavorite,
-            CanEdit = applicationUserPolicy.CanEdit
+            CanEdit = applicationUserPolicy.CanEdit,
+            CanShare = applicationUserPolicy.CanShare
         });
     }
 
@@ -53,7 +55,8 @@ public class RecipesController : ControllerBase
         {
             IsAFavorite = false,
             IsOwner = false,
-            CanEdit = false
+            CanEdit = false,
+            CanShare = false
         });
 
         var applicationUserPolicies = await _usersService.GetApplicationUserPoliciesAsync(userId, recipeIds);
@@ -67,7 +70,8 @@ public class RecipesController : ControllerBase
                     {
                         IsOwner = applicationUserPolicy.IsOwner,
                         IsAFavorite = applicationUserPolicy.IsAFavorite,
-                        CanEdit = applicationUserPolicy.CanEdit
+                        CanEdit = applicationUserPolicy.CanEdit,
+                        CanShare = applicationUserPolicy.CanShare
                     };
                     recipePoliciesDict[applicationUserPolicy.RecipeId] = recipePolicy;
                 }
@@ -82,6 +86,20 @@ public class RecipesController : ControllerBase
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
         var recipePolicy = await getRecipePolicyTask;
         return recipePolicy.Item2.CanEdit;
+    }
+
+    private async Task<bool> CanUserShareRecipe(string userId, Guid recipeId)
+    {
+        var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
+        var recipePolicy = await getRecipePolicyTask;
+        return recipePolicy.Item2.CanShare;
+    }
+
+    private async Task<bool> IsUserTheRecipeOwner(string userId, Guid recipeId)
+    {
+        var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
+        var recipePolicy = await getRecipePolicyTask;
+        return recipePolicy.Item2.IsOwner;
     }
 
     private async Task<bool> DoesRecipeExist(Guid recipeId)
@@ -257,7 +275,8 @@ public class RecipesController : ControllerBase
                 {
                     IsAFavorite = false,
                     CanEdit = createdRecipeEntitlement != null,
-                    IsOwner = createdRecipeEntitlement != null
+                    IsOwner = createdRecipeEntitlement != null,
+                    CanShare = createdRecipeEntitlement != null
                 },
                 Data = new
                 {
@@ -835,6 +854,64 @@ public class RecipesController : ControllerBase
         {
             return BadRequest(e.Message);
         }
+    }
+
+    [HttpPost("{recipeId:guid}/share")]
+    public async Task<ActionResult> ShareRecipe([FromRoute] Guid recipeId, [FromBody] ShareRecipeRequest request)
+    {
+        var userId = _currentUserService.UserId;
+        request.RecipeId = recipeId;
+        var doesRecipeExist = await DoesRecipeExist(recipeId);
+        if (!doesRecipeExist)
+        {
+            return BadRequest($"Recipe {recipeId} Not Found");
+        }
+        var getUserRecipePolicy = await GetRecipePolicy(userId, recipeId);
+        var canUserEditRecipe = getUserRecipePolicy.Item2.CanEdit;
+        var canUserShareRecipe = getUserRecipePolicy.Item2.CanShare;
+        var isOwner = getUserRecipePolicy.Item2.IsOwner;
+        if (!canUserShareRecipe)
+        {
+            return Forbid();
+        }
+
+        if (isOwner && request.Type == "author")
+        {
+            return Forbid();
+        }
+
+        if (!isOwner && (request.Type == "author" || request.Type == "contributor"))
+        {
+            return Forbid();
+        }
+
+        if (request.Id.HasValue)
+        {
+            var dto = new RecipeEntitlementDto
+            {
+                Id = request.Id.Value,
+                Type = request.Type,
+                GrantedBy = userId
+            };
+            await _usersService.UpdateRecipeEntitlementAsync(dto.Id, dto);
+        }
+        else
+        {
+            var user = await _usersService.FindApplicationUserByEmailAsync(request.UserEmail);
+            if (user == null)
+            {
+                return BadRequest($"Couldn't Find Active User with Email {request.UserEmail}");
+            }
+            var dto = new RecipeEntitlementDto
+            {
+                RecipeId = request.RecipeId,
+                UserId = user.Id ?? string.Empty,
+                GrantedBy = userId,
+                Type = request.Type
+            };
+            await _usersService.CreateRecipeEntitlementAsync(dto);
+        }
+        return Ok();
     }
 
     [HttpPost("{recipeId:guid}/favorite")]

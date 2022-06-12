@@ -82,7 +82,7 @@ builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =
 builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, provider) =>
 {
     var config = provider.GetService<IConfiguration>();
-    var clientId = config["ClientId"];
+    var clientId = config != null ? config["ClientId"] : null;
     var settings = provider.GetService<IOptions<AnalyticsServiceSettings>>();
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;

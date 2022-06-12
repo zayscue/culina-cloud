@@ -41,7 +41,7 @@ namespace CulinaCloud.Users.Infrastructure.Services
 
             try
             {
-                var user = await auth0.Users.GetAsync($"auth0|{userId}", cancellationToken: cancellation);
+                var user = await auth0.Users.GetAsync(userId, cancellationToken: cancellation);
                 if (user == null)
                 {
                     throw new NotFoundException(nameof(ApplicationUser), userId);
@@ -132,7 +132,7 @@ namespace CulinaCloud.Users.Infrastructure.Services
             {
                 var token = await _tokenService.GetToken(cancellation);
                 var auth0 = new ManagementApiClient(token.AccessToken, _domain, _managementConnection);
-                await auth0.Users.UpdateAsync($"auth0|{userId}", updateRequest, cancellationToken: cancellation);
+                await auth0.Users.UpdateAsync(userId, updateRequest, cancellationToken: cancellation);
             }
             return entity;
         }

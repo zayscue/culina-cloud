@@ -8,6 +8,7 @@ public interface IUsersService
         CancellationToken cancellation = default);
     Task<FavoriteDto> CreateFavoriteAsync(FavoriteDto favorite, CancellationToken cancellation = default);
     Task DeleteFavoriteAsync(FavoriteDto favorite, CancellationToken cancellation = default);
+    Task<ApplicationUserDto?> FindApplicationUserByEmailAsync(string email, CancellationToken cancellation = default);
     Task<ApplicationUserDto?> GetApplicationUserAsync(string userId, CancellationToken cancellation = default);
     Task<List<ApplicationUserPolicyDto>> GetApplicationUserPoliciesAsync(string userId, List<Guid>? recipeIds = null, CancellationToken cancellation = default);
     Task<PaginatedDto<RecipeEntitlementDto>> GetRecipeEntitlementsAsync(Guid recipeId, CancellationToken cancellation = default);

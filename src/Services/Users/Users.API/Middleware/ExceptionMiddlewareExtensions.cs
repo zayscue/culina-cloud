@@ -226,6 +226,24 @@ namespace CulinaCloud.Users.API.Middleware
                                 await context.Response.WriteAsJsonAsync((object)errorResponse);
                                 return;
                             }
+                        case NoEntitlementException noEntitlementException:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                context.Response.ContentType = applicationJsonContentType;
+                                errorResponse.errorCode = $"{errorCodePrefix}012";
+                                errorResponse.message = noEntitlementException.Message;
+                                if (env.IsDevelopment())
+                                {
+                                    errorResponse.exception = new
+                                    {
+                                        message = noEntitlementException.Message,
+                                        stackTrace = noEntitlementException.StackTrace,
+                                        source = noEntitlementException.Source
+                                    };
+                                }
+                                await context.Response.WriteAsJsonAsync((object)errorResponse);
+                                return;
+                            }
                         default:
                             {
                                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;

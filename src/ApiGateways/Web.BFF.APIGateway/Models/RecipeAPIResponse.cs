@@ -11,5 +11,6 @@
         public bool IsAFavorite { get; init; }
         public bool CanEdit { get; init; }
         public bool IsOwner { get; init; }
+        public bool CanShare { get; init; }
     }
 }

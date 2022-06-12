@@ -8,7 +8,7 @@ public class AnalyticsService : IAnalyticsService
     private readonly string _clientId;
     private const string ServiceName = "Analytics";
 
-    public AnalyticsService(HttpClient httpClient, string clientId)
+    public AnalyticsService(HttpClient httpClient, string? clientId)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         if (clientId == null)

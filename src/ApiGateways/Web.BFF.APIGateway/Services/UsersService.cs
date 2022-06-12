@@ -61,7 +61,8 @@ public class UsersService : IUsersService
     {
         var jsonStr = JsonSerializer.Serialize(favorite, new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Post, "/users/favorites")
@@ -81,7 +82,8 @@ public class UsersService : IUsersService
     {
         var jsonStr = JsonSerializer.Serialize(favorite, new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Delete, "/users/favorites")
@@ -113,9 +115,17 @@ public class UsersService : IUsersService
 
     public async Task<RecipeEntitlementDto> CreateRecipeEntitlementAsync(RecipeEntitlementDto recipeEntitlement, CancellationToken cancellation = default)
     {
-        var jsonStr = JsonSerializer.Serialize(recipeEntitlement, new JsonSerializerOptions
+        var jsonStr = JsonSerializer.Serialize(new
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            UserId = recipeEntitlement.UserId,
+            RecipeId = recipeEntitlement.RecipeId,
+            Type = recipeEntitlement.Type,
+            GrantedBy = recipeEntitlement.GrantedBy
+        }, 
+        new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Post, "/users/recipe-entitlements")
@@ -133,9 +143,16 @@ public class UsersService : IUsersService
 
     public async Task<bool> UpdateRecipeEntitlementAsync(Guid recipeEntitlementId, RecipeEntitlementDto recipeEntitlement, CancellationToken cancellation = default)
     {
-        var jsonStr = JsonSerializer.Serialize(recipeEntitlement, new JsonSerializerOptions
+        var jsonStr = JsonSerializer.Serialize(new
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            Id = recipeEntitlement.Id,
+            Type = recipeEntitlement.Type,
+            GrantedBy = recipeEntitlement.GrantedBy
+        },
+        new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Put, $"/users/recipe-entitlements/{recipeEntitlementId}")
@@ -173,7 +190,8 @@ public class UsersService : IUsersService
     {
         var jsonStr = JsonSerializer.Serialize(recipeEntitlement, new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/recipe-entitlements/{recipeEntitlementId}")
@@ -260,5 +278,29 @@ public class UsersService : IUsersService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new ApplicationUserDto();
         return applicationUser;
+    }
+
+    public async Task<ApplicationUserDto?> FindApplicationUserByEmailAsync(string email, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new ("email", email)
+        };
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var applicationUsersPaginatedList = JsonSerializer.Deserialize<PaginatedDto<ApplicationUserDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<ApplicationUserDto>();
+        applicationUsersPaginatedList.Items ??= new List<ApplicationUserDto>();
+        return applicationUsersPaginatedList.Items.FirstOrDefault();
     }
 }

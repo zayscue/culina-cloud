@@ -7,5 +7,6 @@
         public bool IsAFavorite { get; set; }
         public bool IsOwner { get; set; }
         public bool CanEdit { get; set; }
+        public bool CanShare { get; set; }
     }
 }
