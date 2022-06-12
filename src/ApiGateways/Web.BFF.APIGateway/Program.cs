@@ -81,11 +81,13 @@ builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =
 });
 builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, provider) =>
 {
+    var config = provider.GetService<IConfiguration>();
+    var clientId = config["ClientId"];
     var settings = provider.GetService<IOptions<AnalyticsServiceSettings>>();
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    return new AnalyticsService(client);
+    return new AnalyticsService(client, clientId);
 });
 builder.Services.AddHttpClient<IInteractionsService, InteractionsService>((client, provider) =>
 {

@@ -1,13 +1,21 @@
-﻿namespace CulinaCloud.Web.BFF.APIGateway.Services;
+﻿using System.Text;
+
+namespace CulinaCloud.Web.BFF.APIGateway.Services;
 
 public class AnalyticsService : IAnalyticsService
 {
-    private const string ServiceName = "Analytics";
     private readonly HttpClient _httpClient;
+    private readonly string _clientId;
+    private const string ServiceName = "Analytics";
 
-    public AnalyticsService(HttpClient httpClient)
+    public AnalyticsService(HttpClient httpClient, string clientId)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        if (clientId == null)
+        {
+            throw new ArgumentNullException(nameof(clientId));
+        }
+        _clientId = $"{clientId}@clients";
     }
 
     public async Task<PaginatedDto<RecipeRecommendationDto>> GetPersonalizedRecipeRecommendationsAsync(string userId, 
@@ -76,5 +84,54 @@ public class AnalyticsService : IAnalyticsService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new PaginatedDto<RecipePopularityDto>();
         return popularRecipes;
+    }
+
+    public async Task<RecipePopularityDto> CreateRecipePopularityStatAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(
+            new
+            {
+                RecipeId = recipeId,
+                CreatedBy = _clientId
+            },
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync("/analytics/recipe-popularity", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var createdRecipePopularityStat = JsonSerializer.Deserialize<RecipePopularityDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipePopularityDto();
+        return createdRecipePopularityStat;
+    }
+
+    public async Task<RecipePopularityDto> UpdateRecipePopularityStatAsync(Guid recipeId, int rating, CancellationToken cancellation = default)
+    {
+        var json = JsonSerializer.Serialize(
+            new
+            {
+                RecipeId = recipeId,
+                Rating = rating,
+                LastModifiedBy = _clientId
+            },
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PutAsync("/analytics/recipe-popularity", requestContent, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var updatedRecipePopularityStat = JsonSerializer.Deserialize<RecipePopularityDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipePopularityDto();
+        return updatedRecipePopularityStat;
     }
 }

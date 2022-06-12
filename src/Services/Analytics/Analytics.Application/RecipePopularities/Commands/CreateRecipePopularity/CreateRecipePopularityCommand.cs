@@ -14,7 +14,7 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Commands.CreateRe
     public class CreateRecipePopularityCommand : IRequest<CreateRecipePopularityResponse>
     {
         public Guid RecipeId { get; set; }
-        public DateOnly? Submitted { get; set; } = null;
+        public DateTime? Submitted { get; set; } = null;
         public int RatingCount { get; set; } = 0;
         public int RatingSum { get; set; } = 0;
         public decimal? RatingAverage { get; set; } = null;
@@ -42,7 +42,7 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Commands.CreateRe
             var entity = new RecipePopularity
             {
                 RecipeId = request.RecipeId,
-                Submitted = request.Submitted.HasValue ? request.Submitted.Value : date,
+                Submitted = request.Submitted.HasValue ? DateOnly.FromDateTime(request.Submitted.Value) : date,
                 RatingCount = request.RatingCount,
                 RatingSum = request.RatingSum,
                 RatingAverage = request.RatingAverage.HasValue ? request.RatingAverage.Value : 0,

@@ -241,7 +241,9 @@ public class RecipesController : ControllerBase
             GrantedBy = user,
             Type = "author"
         });
+        var createRecipePopularityStatTask = _analyticsService.CreateRecipePopularityStatAsync(createdRecipe.Id);
         var createdRecipeEntitlement = await createRecipeEntitlementTask;
+        var createRecipePopularityStat = await createRecipePopularityStatTask;
 
         return CreatedAtAction(
             nameof(GetRecipe),
@@ -823,8 +825,16 @@ public class RecipesController : ControllerBase
             return BadRequest($"Recipe {review.RecipeId} Not Found");
         }
 
-        var createdReview = await _interactionsService.CreateRecipeReviewAsync(review);
-        return Ok(createdReview);
+        try
+        {
+            var createdReview = await _interactionsService.CreateRecipeReviewAsync(review);
+            await _analyticsService.UpdateRecipePopularityStatAsync(recipeId, review.Rating);
+            return Ok(createdReview);
+        }
+        catch (ReviewAlreadyExistsException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPost("{recipeId:guid}/favorite")]

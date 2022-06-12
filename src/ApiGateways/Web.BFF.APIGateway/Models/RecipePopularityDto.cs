@@ -8,4 +8,6 @@ public record RecipePopularityDto
     public int RatingSum { get; set; }
     public decimal RatingAverage { get; set; }
     public decimal RatingWeightedAverage { get; set; }
+    public string? CreatedBy { get; set; }
+    public string? LastModifiedBy { get; set; }
 }

@@ -44,6 +44,17 @@ public class InteractionsService : IInteractionsService
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
         using var response = await _httpClient.PostAsync("/interactions/reviews", requestContent, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+                throw new ReviewAlreadyExistsException(review.RecipeId, review.UserId ?? string.Empty);
+            }
+            else
+            {
+                throw new InternalServiceException(responseContent);
+            }
+        }
         var createdReview = JsonSerializer.Deserialize<ReviewDto>(responseContent,
             new JsonSerializerOptions
             {

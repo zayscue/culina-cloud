@@ -14,8 +14,8 @@ namespace CulinaCloud.Analytics.Application.RecentRecipes.Queries.GetRecentRecip
 {
     public class GetRecentRecipesQuery : IRequest<PaginatedList<RecentRecipeResponse>>
     {
-        public DateOnly? Lower { get; set; } = null;
-        public DateOnly? Upper { get; set; } = null;
+        public DateTime? Lower { get; set; } = null;
+        public DateTime? Upper { get; set; } = null;
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 1000;
     }
@@ -38,12 +38,12 @@ namespace CulinaCloud.Analytics.Application.RecentRecipes.Queries.GetRecentRecip
 
             if (request.Lower.HasValue)
             {
-                query = query.Where(x => x.Submitted >= request.Lower.Value);
+                query = query.Where(x => x.Submitted >= DateOnly.FromDateTime(request.Lower.Value));
             }
 
             if (request.Upper.HasValue)
             {
-                query = query.Where(x => x.Submitted <= request.Upper.Value);
+                query = query.Where(x => x.Submitted <= DateOnly.FromDateTime(request.Upper.Value));
             }
 
             var recentRecipes = await query.OrderByDescending(x => x.Submitted)
