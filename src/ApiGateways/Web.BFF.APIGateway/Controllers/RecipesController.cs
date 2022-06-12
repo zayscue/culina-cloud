@@ -201,7 +201,7 @@ public class RecipesController : ControllerBase
         });
     }
 
-    [HttpGet("my-cookbook")]
+    [HttpGet("mine")]
     public async Task<ActionResult> GetMyRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -860,7 +860,7 @@ public class RecipesController : ControllerBase
     }
 
 
-    [HttpGet("{recipeId:guid}/similar-recipes")]
+    [HttpGet("{recipeId:guid}/similar")]
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
         [FromQuery] int page = 1, [FromQuery] int limit = 20)
     {
