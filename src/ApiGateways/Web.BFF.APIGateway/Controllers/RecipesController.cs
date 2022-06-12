@@ -116,7 +116,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("recommended")]
-    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
         var recipeRecommendations = await _analyticsService.GetPersonalizedRecipeRecommendationsAsync(
@@ -161,7 +161,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("favorites")]
-    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetFavoriteRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
         var favoriteRecipes = await _usersService.GetUsersFavoritesAsync(
@@ -202,7 +202,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("my-cookbook")]
-    public async Task<ActionResult> GetMyRecipes([FromQuery] int page = 1, [FromQuery] int limit = 24)
+    public async Task<ActionResult> GetMyRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
         var recipeEntitlements = await _usersService.GetRecipeEntitlementsAsync(userId, page, limit);
@@ -283,6 +283,49 @@ public class RecipesController : ControllerBase
             Page = popularRecipes.Page,
             TotalCount = popularRecipes.TotalCount,
             TotalPages = popularRecipes.TotalPages
+        });
+    }
+
+    [HttpGet("recent")]
+    public async Task<ActionResult> GetRecentRecipes([FromQuery] string orderBy = "",
+        [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    {
+        var userId = _currentUserService.UserId;
+        var recentRecipes = await _analyticsService.GetRecentRecipesAsync(page, limit);
+        recentRecipes.Items ??= new List<RecentRecipeDto>();
+        var recipeIds = recentRecipes.Items.Select(x => x.RecipeId).ToList();
+
+        var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
+        var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+
+        var recipes = await getRecipesTask;
+        recipes.Items ??= new List<RecipesDto>();
+        var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
+        var recipePoliciesDict = await getRecipePoliciesTask;
+
+        var items = recentRecipes.Items.Select(x =>
+            new RecipeAPIResponse
+            {
+                Policy = recipePoliciesDict[x.RecipeId],
+                Data = new
+                {
+                    Id = x.RecipeId,
+                    recipesDict[x.RecipeId].Name,
+                    recipesDict[x.RecipeId].EstimatedMinutes,
+                    recipesDict[x.RecipeId].Serves,
+                    recipesDict[x.RecipeId].Yield,
+                    Images = recipesDict[x.RecipeId].Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null,
+                    x.Submitted,
+                    x.PopularityScore
+                }
+            }
+        ).ToList();
+        return Ok(new PaginatedRecipeAPIResponse
+        {
+            Items = items,
+            Page = recentRecipes.Page,
+            TotalCount = recentRecipes.TotalCount,
+            TotalPages = recentRecipes.TotalPages
         });
     }
 

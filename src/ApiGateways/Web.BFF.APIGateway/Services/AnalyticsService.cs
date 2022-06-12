@@ -134,4 +134,25 @@ public class AnalyticsService : IAnalyticsService
             }) ?? new RecipePopularityDto();
         return updatedRecipePopularityStat;
     }
+
+    public async Task<PaginatedDto<RecentRecipeDto>> GetRecentRecipesAsync(int page, int limit, CancellationToken cancellation = default)
+    {
+        using var urlContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
+        {
+            new ("page", page.ToString()),
+            new ("limit", limit.ToString())
+        });
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request =
+            new HttpRequestMessage(HttpMethod.Get,
+                $"/analytics/recent-recipes?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recentRecipes = JsonSerializer.Deserialize<PaginatedDto<RecentRecipeDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<RecentRecipeDto>();
+        return recentRecipes;
+    }
 }

@@ -46,7 +46,9 @@ namespace CulinaCloud.Analytics.Application.RecentRecipes.Queries.GetRecentRecip
                 query = query.Where(x => x.Submitted <= DateOnly.FromDateTime(request.Upper.Value));
             }
 
-            var recentRecipes = await query.OrderByDescending(x => x.Submitted)
+            var recentRecipes = await query
+                .OrderByDescending(x => x.Submitted)
+                    .ThenByDescending(x => x.RatingWeightedAverage)
                 .ProjectTo<RecentRecipeResponse>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.Limit);
             return recentRecipes;
