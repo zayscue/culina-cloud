@@ -303,4 +303,70 @@ public class UsersService : IUsersService
         applicationUsersPaginatedList.Items ??= new List<ApplicationUserDto>();
         return applicationUsersPaginatedList.Items.FirstOrDefault();
     }
+
+    public async Task<PaginatedDto<ApplicationUserDto>> GetApplicationUsersAsync(List<string> userIds, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>();
+        if (userIds != null)
+        {
+            urlParams.AddRange(userIds.Select(userId =>
+                new KeyValuePair<string, string>("userIds", userId)));
+        }
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var applicationUsersPaginatedList = JsonSerializer.Deserialize<PaginatedDto<ApplicationUserDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<ApplicationUserDto>();
+        applicationUsersPaginatedList.Items ??= new List<ApplicationUserDto>();
+        return applicationUsersPaginatedList;
+    }
+
+    public async Task<PaginatedDto<RecipeEntitlementDto>> GetRecipeEntitlementsAsync(string userId, int page, int limit, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new ("userId", userId),
+            new ("page", page.ToString()),
+            new ("limit", limit.ToString())
+        };
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<RecipeEntitlementDto>();
+        recipeEntitlementsPaginatedList.Items ??= new List<RecipeEntitlementDto>();
+        return recipeEntitlementsPaginatedList;
+    }
+
+    public async Task<PaginatedDto<RecipeEntitlementDto>> GetRecipeEntitlementsAsync(Guid recipeId, int page, int limit, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new ("recipeId", recipeId.ToString()),
+            new ("page", page.ToString()),
+            new ("limit", limit.ToString())
+        };
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<RecipeEntitlementDto>();
+        recipeEntitlementsPaginatedList.Items ??= new List<RecipeEntitlementDto>();
+        return recipeEntitlementsPaginatedList;
+    }
 }

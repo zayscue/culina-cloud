@@ -6,8 +6,17 @@ namespace CulinaCloud.Users.Application.ApplicationUsers.Queries.GetApplicationU
     {
         public GetApplicationUsersQueryValidator()
         {
-            RuleFor(q => q.Email)
-                .NotEmpty();
+            When(q => q.UserIds == null || q.UserIds.Count <= 0, () =>
+            {
+                RuleFor(q => q.Email)
+                    .NotEmpty();
+            });
+            When(q => string.IsNullOrWhiteSpace(q.Email), () =>
+            {
+                RuleFor(c => c.UserIds)
+                    .NotNull()
+                    .NotEmpty();
+            });
         }
     }
 }
