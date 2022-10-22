@@ -26,8 +26,10 @@ public class RecipesController : ControllerBase
 
     private async Task<(Guid, RecipePolicy)> GetRecipePolicy(string userId, Guid recipeId)
     {
-        var recipeIds = new List<Guid>();
-        recipeIds.Add(recipeId);
+        var recipeIds = new List<Guid>
+        {
+            recipeId
+        };
         var applicationUserPolicies = await _usersService.GetApplicationUserPoliciesAsync(userId, recipeIds);
         var applicationUserPolicy = applicationUserPolicies.FirstOrDefault();
         if (applicationUserPolicy == null)
