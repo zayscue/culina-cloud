@@ -8,5 +8,6 @@ namespace CulinaCloud.Users.Application.Interfaces
     {
         Task<ApplicationUser> GetApplicationUser(string userId, CancellationToken cancellation = default);
         Task<ApplicationUser> SaveApplicationUser(ApplicationUser applicationUser, CancellationToken cancellation = default);
+        Task GetApplicationUsersStatistics(CancellationToken cancellation = default);
     }
 }
