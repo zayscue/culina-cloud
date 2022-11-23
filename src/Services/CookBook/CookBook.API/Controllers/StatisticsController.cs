@@ -1,7 +1,7 @@
 ﻿using CulinaCloud.BuildingBlocks.API.Controllers;
-using CulinaCloud.CookBook.Application.CookBookStatistics.Queries.GetCookBookStatistics;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using CulinaCloud.CookBook.Application.Statistics.Queries.GetStatistics;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
@@ -9,9 +9,9 @@ namespace CulinaCloud.CookBook.API.Controllers
     public class StatisticsController : ApiControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<GetCookBookStatisticsResponse>> Get()
+        public async Task<ActionResult<GetStatisticsResponse>> Get()
         {
-            var response = await Mediator.Send(new GetCookBookStatisticsQuery());
+            var response = await Mediator.Send(new GetStatisticsQuery());
             return Ok(response);
         }
     }

@@ -6,6 +6,8 @@ using CulinaCloud.Users.Application.Interfaces;
 using CulinaCloud.Users.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,15 +16,13 @@ namespace CulinaCloud.Users.Infrastructure.Services
     public class Auth0ApplicationUserManagementService : IApplicationUserManagementService
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IDateTime _dateTime;
         private readonly ITokenService _tokenService;
         private readonly string _domain;
         private readonly IManagementConnection _managementConnection;
 
-        public Auth0ApplicationUserManagementService(IApplicationDbContext dbContext, IDateTime dateTime, ITokenService tokenService, string domain, IManagementConnection managementConnection)
+        public Auth0ApplicationUserManagementService(IApplicationDbContext dbContext, ITokenService tokenService, string domain, IManagementConnection managementConnection)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _dateTime = dateTime ?? throw new ArgumentNullException(nameof(dateTime));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             _domain = domain ?? throw new ArgumentNullException(nameof(domain));
             _managementConnection = managementConnection ?? throw new ArgumentNullException(nameof(managementConnection));
@@ -79,21 +79,44 @@ namespace CulinaCloud.Users.Infrastructure.Services
             }
         }
 
-        public async Task GetApplicationUsersStatistics(CancellationToken cancellation = default)
+        public async Task<Domain.Entities.Statistics> GetApplicationUsersStatistics(DateTime from, DateTime to, CancellationToken cancellation = default)
         {
             var token = await _tokenService.GetToken(cancellation);
             var auth0 = new ManagementApiClient(token.AccessToken, _domain, _managementConnection);
 
-            var now = _dateTime.Now;
-            var lastWeekCriteria = _dateTime.Now.AddDays(-7);
-            var lastMonthCriteria = _dateTime.Now.AddDays(-30);
-            var lastYearCriteria = _dateTime.Now.AddDays(-365);
-
             var activeUsers = await auth0.Stats.GetActiveUsersAsync(cancellation);
-            var dailyUsersInTheLastWeek = await auth0.Stats.GetDailyStatsAsync(lastWeekCriteria, now, cancellation);
-            var dailyUsersInTheLastMonth = await auth0.Stats.GetDailyStatsAsync(lastMonthCriteria, now, cancellation);
-            var dailyUsersInTheLastYear = await auth0.Stats.GetDailyStatsAsync(lastYearCriteria, now, cancellation);
-            throw new NotImplementedException();
+            var dailyUsersInTheLastYear = await auth0.Stats.GetDailyStatsAsync(from, to, cancellation);
+            var dailyUsersStatisticsInTheLastYear = dailyUsersInTheLastYear.ToDictionary(x => x.Date, x => new
+            {
+                SignUps = x.SignUps,
+                Logins = x.Logins
+            });
+
+            var dailyApplicationUsersStatistics = new List<DailyApplicationUsersStatistics>();
+            var current = to;
+            while (current > from)
+            {
+                var currentDateStatistics = new DailyApplicationUsersStatistics
+                {
+                    Date = current,
+                    Logins = 0,
+                    SignUps = 0
+                };
+                if (dailyUsersStatisticsInTheLastYear.ContainsKey(currentDateStatistics.Date))
+                {
+                    currentDateStatistics.Logins = dailyUsersStatisticsInTheLastYear[currentDateStatistics.Date].Logins;
+                    currentDateStatistics.SignUps =
+                        dailyUsersStatisticsInTheLastYear[currentDateStatistics.Date].SignUps;
+                }
+                dailyApplicationUsersStatistics.Add(currentDateStatistics);
+                current = current.AddDays(-1);
+            }
+
+            return new Statistics
+            {
+                TotalActiveApplicationUsers = activeUsers,
+                DailyApplicationUsersStatistics = dailyApplicationUsersStatistics
+            };
         }
 
         public async Task<ApplicationUser> SaveApplicationUser(ApplicationUser applicationUser, CancellationToken cancellation = default)

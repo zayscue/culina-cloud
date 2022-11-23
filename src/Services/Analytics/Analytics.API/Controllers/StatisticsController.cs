@@ -1,7 +1,7 @@
-﻿using CulinaCloud.Analytics.Application.RecipeStatistics.Queries.GetRecipeStatistics;
-using CulinaCloud.BuildingBlocks.API.Controllers;
+﻿using CulinaCloud.BuildingBlocks.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using CulinaCloud.Analytics.Application.Statistics.Queries.GetStatistics;
 
 namespace CulinaCloud.Analytics.API.Controllers
 {
@@ -9,9 +9,9 @@ namespace CulinaCloud.Analytics.API.Controllers
     public class StatisticsController : ApiControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<GetRecipeStatisticsResponse>> Get()
+        public async Task<ActionResult<GetStatisticsResponse>> Get()
         {
-            var response = await Mediator.Send(new GetRecipeStatisticsQuery());
+            var response = await Mediator.Send(new GetStatisticsQuery());
             return Ok(response);
         }
     }

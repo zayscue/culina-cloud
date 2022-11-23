@@ -65,8 +65,7 @@ namespace CulinaCloud.Users.Infrastructure
                 var tokenService = tokenServiceManager.GetTokenService(audience);
                 var managementConnection = provider.GetService<IManagementConnection>();
                 var dbContext = provider.GetService<IApplicationDbContext>();
-                var dateTime = provider.GetService<IDateTime>();
-                return new Auth0ApplicationUserManagementService(dbContext, dateTime, tokenService, domain, managementConnection);
+                return new Auth0ApplicationUserManagementService(dbContext, tokenService, domain, managementConnection);
             });
 
             return services;
