@@ -37,6 +37,7 @@ builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("Co
 builder.Services.Configure<UsersServiceSettings>(configuration.GetSection("UsersService"));
 builder.Services.Configure<AnalyticsServiceSettings>(configuration.GetSection("AnalyticsService"));
 builder.Services.Configure<InteractionsServiceSettings>(configuration.GetSection("InteractionsService"));
+builder.Services.Configure<ImagesServiceSettings>(configuration.GetSection("ImagesService"));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
