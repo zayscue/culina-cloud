@@ -16,4 +16,6 @@ public interface IAnalyticsService
     Task<RecipePopularityDto> CreateRecipePopularityStatAsync(Guid recipeId, CancellationToken cancellation = default);
 
     Task<RecipePopularityDto> UpdateRecipePopularityStatAsync(Guid recipeId, int rating, CancellationToken cancellation = default);
+
+    Task<RecipePopularityStatisticsDto> GetRecipePopularityStatisticsAsync(CancellationToken cancellationToken = default);
 }

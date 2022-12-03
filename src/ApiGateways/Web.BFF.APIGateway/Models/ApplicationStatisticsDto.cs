@@ -3,7 +3,6 @@
     public record ApplicationStatisticsDto
     {
         public ApplicationMetricsDto ApplicationMetrics { get; set; } = new();
-        public RankedApplicationStatisticsDto ApplicationRankedStatistics { get; set; } = new();
         public HistoricalApplicationStatisticsDto HistoricalApplicationStatistics { get; set; } = new();
     }
 
@@ -14,36 +13,7 @@
         public long TotalReviews { get; set; }
     }
 
-    public record RankedApplicationStatisticsDto
-    {
-        public ICollection<RecipePopularityRankingDto> MostPopularRecipes { get; set; } = 
-            new List<RecipePopularityRankingDto>();
-        public ICollection<TagPopularityRankingDto> MostPopularTags { get; set; } = 
-            new List<TagPopularityRankingDto>();
-        public ICollection<IngredientPopularityRankingDto> MostPopularIngredients { get; set; } = 
-            new List<IngredientPopularityRankingDto>();
-    }
 
-    public record RecipePopularityRankingDto
-    {
-        public string? RecipeName { get; set; }
-        public int RatingCount { get; set; }
-        public int RatingSum { get; set; }
-        public decimal RatingAverage { get; set; }
-        public decimal RatingWeightedAverage { get; set; }
-    }
-
-    public record TagPopularityRankingDto
-    {
-        public string? TagName { get; set; }
-        public long TotalRecipeTags { get; set; }
-    }
-
-    public record IngredientPopularityRankingDto
-    {
-        public string? IngredientName { get; set; }
-        public long TotalIngredientReferences { get; set; }
-    }
 
     public record HistoricalApplicationStatisticsDto
     {

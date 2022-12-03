@@ -202,6 +202,18 @@ public class UsersService : IUsersService
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<UserStatisticsDto> GetUserStatisticsAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.GetAsync($"/statistics", cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        var userStatistics = JsonSerializer.Deserialize<UserStatisticsDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new UserStatisticsDto();
+        return userStatistics;
+    }
+
     public async Task<PaginatedDto<RecipeEntitlementDto>> GetRecipeEntitlementsAsync(Guid recipeId, List<string> userIds, CancellationToken cancellation = default)
     {
         var urlParams = new List<KeyValuePair<string, string>>

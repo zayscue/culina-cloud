@@ -56,4 +56,7 @@ public interface ICookBookService
         CancellationToken cancellation = default);
 
     Task<RecipeTagDto> GetRecipeTagAsync(Guid recipeId, Guid tagId, CancellationToken cancellation = default);
+
+
+    Task<RecipeStatisticsDto> GetRecipeStatisticsAsync(CancellationToken cancellation = default);
 }

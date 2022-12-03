@@ -26,8 +26,47 @@
         [HttpGet("statistics")]
         public async Task<ActionResult> GetApplicationStatistics()
         {
-
-            return Ok();
+            try
+            {
+                var cancellationToken = new CancellationToken();
+                var recipePopularityStatisticsTask = _analyticsService.GetRecipePopularityStatisticsAsync(cancellationToken);
+                var recipeStatisticsTask = _cookBookService.GetRecipeStatisticsAsync(cancellationToken);
+                var userStatisticsTask = _usersService.GetUserStatisticsAsync(cancellationToken);
+                var recipePopularityStatistics = await recipePopularityStatisticsTask;
+                var recipeIds = recipePopularityStatistics.MostPopularRecipes.Select(x => x.RecipeId).ToList();
+                var recipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, recipeIds.Count(), cancellationToken);
+                var recipeStatistics = await recipeStatisticsTask;
+                var userStatistics = await userStatisticsTask;
+                var recipes = await recipesTask;
+                if (recipes.Items == null)
+                {
+                    return StatusCode(500);
+                }
+                var recipeDictionary = recipes.Items.ToDictionary(x => x.Id, x => x.Name);
+                return Ok(new
+                {
+                    RecipePopularityStatistics = new
+                    {
+                        recipePopularityStatistics.TotalHistoricalRecipes,
+                        recipePopularityStatistics.TotalHistoricalReviews,
+                        MostPopularRecipes = recipePopularityStatistics.MostPopularRecipes.Select(x => new
+                        {
+                            x.RecipeId,
+                            RecipeName = recipeDictionary[x.RecipeId],
+                            x.RatingAverage,
+                            x.RatingCount,
+                            x.RatingSum,
+                            x.RatingWeightedAverage
+                        })
+                    },
+                    RecipeStatistics = recipeStatistics,
+                    UserStatistics = userStatistics
+                });
+            }
+            catch(Exception)
+            {
+                return StatusCode(500); 
+            }
         }
     }
 }

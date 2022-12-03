@@ -21,4 +21,5 @@ public interface IUsersService
     Task<RecipeEntitlementDto> CreateRecipeEntitlementAsync(RecipeEntitlementDto recipeEntitlement, CancellationToken cancellation = default);
     Task<bool> UpdateRecipeEntitlementAsync(Guid recipeEntitlementId, RecipeEntitlementDto recipeEntitlement, CancellationToken cancellation = default);
     Task<bool> DeleteRecipeEntitlementAsync(Guid recipeEntitlementId, RecipeEntitlementDto recipeEntitlement, CancellationToken cancellation = default);
+    Task<UserStatisticsDto> GetUserStatisticsAsync(CancellationToken cancellationToken = default);
 }

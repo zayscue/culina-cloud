@@ -379,4 +379,16 @@ public class CookBookService : ICookBookService
             }) ?? new RecipeTagDto();
         return recipeTag;
     }
+
+    public async Task<RecipeStatisticsDto> GetRecipeStatisticsAsync(CancellationToken cancellation = default)
+    {
+        using var response = await _httpClient.GetAsync($"/statistics", cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeStatistics = JsonSerializer.Deserialize<RecipeStatisticsDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipeStatisticsDto();
+        return recipeStatistics;
+    }
 }

@@ -135,6 +135,20 @@ public class AnalyticsService : IAnalyticsService
         return updatedRecipePopularityStat;
     }
 
+    public async Task<RecipePopularityStatisticsDto> GetRecipePopularityStatisticsAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            "/analytics/statistics");
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        var recipePopularityStatistics = JsonSerializer.Deserialize<RecipePopularityStatisticsDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new RecipePopularityStatisticsDto();
+        return recipePopularityStatistics;
+    }
+
     public async Task<PaginatedDto<RecentRecipeDto>> GetRecentRecipesAsync(int page, int limit, CancellationToken cancellation = default)
     {
         using var urlContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
