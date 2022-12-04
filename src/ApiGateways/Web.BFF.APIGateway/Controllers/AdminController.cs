@@ -25,6 +25,7 @@
         }
 
         [HttpGet("statistics")]
+        [Authorize("read:statistics")]
         public async Task<ActionResult> GetApplicationStatistics()
         {
             try

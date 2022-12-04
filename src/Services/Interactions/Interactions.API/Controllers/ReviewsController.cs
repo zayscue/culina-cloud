@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.Interactions.API.Controllers
 {
+    [Authorize]
     [Route("interactions/reviews")]
     public class ReviewsController : ApiControllerBase
     {

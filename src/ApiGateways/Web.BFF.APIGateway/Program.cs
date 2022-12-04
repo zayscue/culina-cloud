@@ -39,6 +39,14 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("permissions", "read:tags"));
     options.AddPolicy("read:ingredients", policy =>
         policy.RequireClaim("permissions", "read:ingredients"));
+    options.AddPolicy("create:image", policy =>
+        policy.RequireClaim("permissions", "create:image"));
+    options.AddPolicy("read:statistics", policy =>
+        policy.RequireClaim("permissions", "read:statistics"));
+    options.AddPolicy("read:popular_recipes", policy =>
+        policy.RequireClaim("permissions", "read:popular_recipes"));
+    options.AddPolicy("create:recipe", policy =>
+        policy.RequireClaim("permissions", "create:recipe"));
 });
 builder.Services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
 builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("CookBookService"));
@@ -89,17 +97,23 @@ builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    return new UsersService(client);
+    var audience = configuration["UsersService:Audience"];
+    var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+    var tokenService = tokenServiceManager.GetTokenService(audience);
+    return new UsersService(client, tokenService);
 });
 builder.Services.AddHttpClient<IAnalyticsService, AnalyticsService>((client, provider) =>
 {
     var config = provider.GetService<IConfiguration>();
-    var clientId = config != null ? config["ClientId"] : null;
+    var clientId = config?["ClientId"];
     var settings = provider.GetService<IOptions<AnalyticsServiceSettings>>();
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    return new AnalyticsService(client, clientId);
+    var audience = configuration["AnalyticsService:Audience"];
+    var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+    var tokenService = tokenServiceManager.GetTokenService(audience);
+    return new AnalyticsService(client, clientId, tokenService);
 });
 builder.Services.AddHttpClient<IInteractionsService, InteractionsService>((client, provider) =>
 {
@@ -107,7 +121,10 @@ builder.Services.AddHttpClient<IInteractionsService, InteractionsService>((clien
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    return new InteractionsService(client);
+    var audience = configuration["InteractionsService:Audience"];
+    var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+    var tokenService = tokenServiceManager.GetTokenService(audience);
+    return new InteractionsService(client, tokenService);
 });
 builder.Services
     .AddControllers()

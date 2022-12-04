@@ -7,9 +7,11 @@ using CulinaCloud.Users.Application.ApplicationUsers.Commands.UpdateApplicationU
 using CulinaCloud.Users.Application.ApplicationUsersPolicies.Queries.GetApplicationUsersPolicies;
 using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.Users.Application.ApplicationUsers.Queries.GetApplicationUsers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CulinaCloud.Users.API.Controllers
 {
+    [Authorize]
     [Route("users")]
     public class ApplicationUsersController : ApiControllerBase
     {

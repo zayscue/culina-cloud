@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using System.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CulinaCloud.Web.BFF.APIGateway.Services;
 
@@ -6,10 +8,12 @@ public class UsersService : IUsersService
 {
     private const string ServiceName = "Users";
     private readonly HttpClient _httpClient;
+    private readonly ITokenService _tokenService;
 
-    public UsersService(HttpClient httpClient)
+    public UsersService(HttpClient httpClient, ITokenService tokenService)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
     }
 
     public async Task<PaginatedDto<FavoriteDto>> GetUsersFavoritesAsync(string userId, int page, int limit,
@@ -22,7 +26,14 @@ public class UsersService : IUsersService
             new ("userId", userId)
         });
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedDto<FavoriteDto>>(responseContent, new JsonSerializerOptions
@@ -46,7 +57,14 @@ public class UsersService : IUsersService
             new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/favorites?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var favoritesPaginatedList = JsonSerializer.Deserialize<PaginatedDto<FavoriteDto>>(responseContent, new JsonSerializerOptions
@@ -65,9 +83,14 @@ public class UsersService : IUsersService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Post, "/users/favorites")
         {
-            Content = requestBodyContent
+            Content = requestBodyContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
@@ -86,9 +109,14 @@ public class UsersService : IUsersService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Delete, "/users/favorites")
         {
-            Content = requestBodyContent
+            Content = requestBodyContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
     }
@@ -102,7 +130,14 @@ public class UsersService : IUsersService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent, new JsonSerializerOptions
@@ -128,9 +163,14 @@ public class UsersService : IUsersService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Post, "/users/recipe-entitlements")
         {
-            Content = requestBodyContent
+            Content = requestBodyContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
@@ -155,9 +195,14 @@ public class UsersService : IUsersService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Put, $"/users/recipe-entitlements/{recipeEntitlementId}")
         {
-            Content = requestBodyContent
+            Content = requestBodyContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
         return response.IsSuccessStatusCode;
@@ -174,7 +219,14 @@ public class UsersService : IUsersService
             new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent, 
@@ -194,9 +246,14 @@ public class UsersService : IUsersService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
         using var requestBodyContent = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/recipe-entitlements/{recipeEntitlementId}")
         {
-            Content = requestBodyContent
+            Content = requestBodyContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
         };
         using var response = await _httpClient.SendAsync(request, cancellation);
         return response.IsSuccessStatusCode;
@@ -204,7 +261,15 @@ public class UsersService : IUsersService
 
     public async Task<UserStatisticsDto> GetUserStatisticsAsync(CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.GetAsync($"/statistics", cancellationToken);
+        var token = await _tokenService.GetToken(cancellationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/statistics")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         var userStatistics = JsonSerializer.Deserialize<UserStatisticsDto>(responseContent,
             new JsonSerializerOptions
@@ -225,7 +290,14 @@ public class UsersService : IUsersService
             new KeyValuePair<string, string>("userIds", userId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,
@@ -245,7 +317,14 @@ public class UsersService : IUsersService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,
@@ -267,7 +346,14 @@ public class UsersService : IUsersService
         }
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{userId}/policies?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{userId}/policies?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var applicationUserPolicies = JsonSerializer.Deserialize<List<ApplicationUserPolicyDto>>(responseContent,
@@ -280,7 +366,14 @@ public class UsersService : IUsersService
 
     public async Task<ApplicationUserDto?> GetApplicationUserAsync(string userId, CancellationToken cancellation = default)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{userId}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{userId}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         if (!response.IsSuccessStatusCode) return null;
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
@@ -300,7 +393,14 @@ public class UsersService : IUsersService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         if (!response.IsSuccessStatusCode)
         {
@@ -326,7 +426,14 @@ public class UsersService : IUsersService
         }
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var applicationUsersPaginatedList = JsonSerializer.Deserialize<PaginatedDto<ApplicationUserDto>>(responseContent,
@@ -348,7 +455,14 @@ public class UsersService : IUsersService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,
@@ -370,7 +484,14 @@ public class UsersService : IUsersService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/users/recipe-entitlements?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeEntitlementsPaginatedList = JsonSerializer.Deserialize<PaginatedDto<RecipeEntitlementDto>>(responseContent,

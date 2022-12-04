@@ -4,7 +4,6 @@ using Amazon.S3.Transfer;
 namespace CulinaCloud.Web.BFF.APIGateway.Controllers
 {
     [Route("images")]
-    [Authorize]
     public class ImagesController : ControllerBase
     {
         private readonly ICurrentUserService _currentUserService;
@@ -22,6 +21,7 @@ namespace CulinaCloud.Web.BFF.APIGateway.Controllers
 
 
         [HttpPost("upload")]
+        [Authorize("create:image")]
         public async Task<ActionResult> UploadImage(IFormFile image)
         {
             var s3 = new AmazonS3Client();
@@ -32,13 +32,13 @@ namespace CulinaCloud.Web.BFF.APIGateway.Controllers
             var uploadedImages = new Dictionary<string, string>();
             if (image.Length <= 0)
             {
-                BadRequest("Image Size Not Permitted");
+                return BadRequest("Image Size Not Permitted");
             }
             var trustedFileNameForDisplay = WebUtility.HtmlEncode(image.FileName);
             var ext = Path.GetExtension(trustedFileNameForDisplay).ToLowerInvariant();
             if (string.IsNullOrEmpty(ext) || !_permittedExtensions.Contains(ext))
             {
-                BadRequest("Image Type Not Permitted");
+                return BadRequest("Image Type Not Permitted");
             }
             var trustedFileNameForFileStorage = Guid.NewGuid().ToString();
 

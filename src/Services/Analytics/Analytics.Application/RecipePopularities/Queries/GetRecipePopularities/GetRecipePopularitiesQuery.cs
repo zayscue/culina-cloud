@@ -6,6 +6,7 @@ using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
         public int Page { get; set; } = 1;
         public int? Limit { get; set; } = 10000;
         public string OrderBy { get; set; }
-        public bool Descending { get; set; }
+        public bool Descending { get; set; } = true;
     }
 
     public class GetRecipePopularitiesQueryHandler : IRequestHandler<GetRecipePopularitiesQuery, PaginatedList<GetRecipePopularitiesResponse>>
@@ -34,7 +35,8 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
         public async Task<PaginatedList<GetRecipePopularitiesResponse>> Handle(GetRecipePopularitiesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.RecipePopularity
-                .AsNoTracking();
+                .AsNoTracking()
+                .AsQueryable();
             switch (request.OrderBy)
             {
                 case "submitted":
@@ -58,13 +60,14 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
                         : query.OrderBy(x => x.RatingAverage);
                     break;
                 case "ratingWeightedAverage":
-                    query = request.Descending
-                        ? query.OrderByDescending(x => x.RatingWeightedAverage)
+                    query = request.Descending 
+                        ? query.OrderByDescending(x => x.RatingWeightedAverage) 
                         : query.OrderBy(x => x.RatingWeightedAverage);
                     break;
                 default:
                     break;
             }
+
             var response = await query
                 .ProjectTo<GetRecipePopularitiesResponse>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.Limit);

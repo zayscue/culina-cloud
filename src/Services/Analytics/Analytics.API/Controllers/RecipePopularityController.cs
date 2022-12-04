@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.Analytics.API.Controllers
 {
+    [Authorize]
     [Route("analytics/recipe-popularity")]
     public class RecipePopularityController : ApiControllerBase
     {

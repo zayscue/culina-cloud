@@ -8,9 +8,11 @@ using CulinaCloud.Users.Application.RecipeEntitlements.Queries.GetRecipeEntitlem
 using CulinaCloud.Users.Application.RecipeEntitlements.Queries.GetRecipeEntitlements;
 using CulinaCloud.Users.Application.RecipeEntitlements.Commands.UpdateRecipeEntitlement;
 using CulinaCloud.Users.Application.RecipeEntitlements.Commands.DeleteRecipeEntitlement;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CulinaCloud.Users.API.Controllers
 {
+    [Authorize]
     [Route("users/recipe-entitlements")]
     public class RecipeEntitlementsController : ApiControllerBase
     {

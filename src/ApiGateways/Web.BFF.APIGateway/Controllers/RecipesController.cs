@@ -243,12 +243,11 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("popular")]
-    public async Task<ActionResult> GetPopularRecipes([FromQuery] string orderBy = "",
-        [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    [Authorize("read:popular_recipes")]
+    public async Task<ActionResult> GetPopularRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
-        var popularRecipes = await _analyticsService.GetPopularRecipesAsync(
-            orderBy, page, limit);
+        var popularRecipes = await _analyticsService.GetPopularRecipesAsync(page, limit, "ratingWeightedAverage", true);
         popularRecipes.Items ??= new List<RecipePopularityDto>();
         var recipeIds = popularRecipes.Items.Select(x => x.RecipeId).ToList();
 
@@ -364,6 +363,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize("create:recipe")]
     public async Task<ActionResult> CreateRecipe([FromBody] CreateRecipeDto recipe)
     {
         try

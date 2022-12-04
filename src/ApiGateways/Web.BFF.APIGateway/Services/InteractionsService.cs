@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CulinaCloud.Web.BFF.APIGateway.Services;
 
@@ -6,10 +7,12 @@ public class InteractionsService : IInteractionsService
 {
     private const string ServiceName = "Interactions";
     private readonly HttpClient _httpClient;
+    private readonly ITokenService _tokenService;
 
-    public InteractionsService(HttpClient httpClient)
+    public InteractionsService(HttpClient httpClient, ITokenService tokenService)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
     }
 
     public async Task<PaginatedDto<ReviewDto>> GetRecipeReviews(Guid recipeId, int page, int limit, CancellationToken cancellation = default)
@@ -22,7 +25,14 @@ public class InteractionsService : IInteractionsService
         };
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/interactions/reviews?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/interactions/reviews?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeReviews = JsonSerializer.Deserialize<PaginatedDto<ReviewDto>>(responseContent,
@@ -42,7 +52,16 @@ public class InteractionsService : IInteractionsService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync("/interactions/reviews", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/interactions/reviews")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         if (!response.IsSuccessStatusCode)
         {

@@ -5,8 +5,11 @@ using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using CulinaCloud.Users.Application.Favorites.Commands.CreateFavorite;
 using CulinaCloud.Users.Application.Favorites.Commands.DeleteFavorite;
 using CulinaCloud.Users.Application.Favorites.Queries.GetFavorites;
+using Microsoft.AspNetCore.Authorization;
+
 namespace CulinaCloud.Users.API.Controllers
 {
+    [Authorize]
     [Route("users/favorites")]
     public class FavoritesController : ApiControllerBase
     {

@@ -29,15 +29,15 @@ namespace CulinaCloud.Analytics.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddAuthentication(options =>
-            // {
-            //     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            // }).AddJwtBearer(options =>
-            // {
-            //     options.Authority = Configuration["Auth0:Domain"];
-            //     options.Audience = Configuration["Auth0:Audience"];
-            // });
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = Configuration["Auth0:Domain"];
+                options.Audience = Configuration["Auth0:Audience"];
+            });
             // services.AddAuthorization(options =>
             // {
             //     options.AddPolicy("CreateRecipePopularity", policy =>

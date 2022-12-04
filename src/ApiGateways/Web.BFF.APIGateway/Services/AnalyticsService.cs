@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using System.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CulinaCloud.Web.BFF.APIGateway.Services;
 
@@ -6,9 +8,10 @@ public class AnalyticsService : IAnalyticsService
 {
     private readonly HttpClient _httpClient;
     private readonly string _clientId;
+    private readonly ITokenService _tokenService;
     private const string ServiceName = "Analytics";
 
-    public AnalyticsService(HttpClient httpClient, string? clientId)
+    public AnalyticsService(HttpClient httpClient, string? clientId, ITokenService tokenService)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         if (clientId == null)
@@ -16,6 +19,7 @@ public class AnalyticsService : IAnalyticsService
             throw new ArgumentNullException(nameof(clientId));
         }
         _clientId = $"{clientId}@clients";
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
     }
 
     public async Task<PaginatedDto<RecipeRecommendationDto>> GetPersonalizedRecipeRecommendationsAsync(string userId, 
@@ -29,9 +33,14 @@ public class AnalyticsService : IAnalyticsService
             new ("page", page.ToString())
         });
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request =
-            new HttpRequestMessage(HttpMethod.Get,
-                $"/analytics/recommendations/personal-recipe-recommendations?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recommendations/personal-recipe-recommendations?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeRecommendations = JsonSerializer.Deserialize<PaginatedDto<RecipeRecommendationDto>>(responseContent,
@@ -51,9 +60,14 @@ public class AnalyticsService : IAnalyticsService
             new ("limit", limit.ToString())
         });
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = 
-            new HttpRequestMessage(HttpMethod.Get,
-                $"/analytics/recommendations/similar-recipes?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recommendations/similar-recipes?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var similarRecipes = JsonSerializer.Deserialize<PaginatedDto<RecipeSimilarityDto>>(responseContent,
@@ -64,18 +78,24 @@ public class AnalyticsService : IAnalyticsService
         return similarRecipes;
     }
 
-    public async Task<PaginatedDto<RecipePopularityDto>> GetPopularRecipesAsync(string orderBy, int page, int limit, CancellationToken cancellation = default)
+    public async Task<PaginatedDto<RecipePopularityDto>> GetPopularRecipesAsync(int page, int limit, string orderBy, bool descending, CancellationToken cancellation = default)
     {
         using var urlContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
             new ("orderBy", orderBy),
+            new ("descending", descending.ToString()),
             new ("page", page.ToString()),
             new ("limit", limit.ToString())
         });
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request =
-            new HttpRequestMessage(HttpMethod.Get,
-                $"/analytics/recipe-popularity?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recipe-popularity?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var popularRecipes = JsonSerializer.Deserialize<PaginatedDto<RecipePopularityDto>>(responseContent,
@@ -100,7 +120,16 @@ public class AnalyticsService : IAnalyticsService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync("/analytics/recipe-popularity", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/analytics/recipe-popularity")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdRecipePopularityStat = JsonSerializer.Deserialize<RecipePopularityDto>(responseContent,
             new JsonSerializerOptions
@@ -125,7 +154,16 @@ public class AnalyticsService : IAnalyticsService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync("/analytics/recipe-popularity", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/analytics/recipe-popularity")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipePopularityStat = JsonSerializer.Deserialize<RecipePopularityDto>(responseContent,
             new JsonSerializerOptions
@@ -137,8 +175,14 @@ public class AnalyticsService : IAnalyticsService
 
     public async Task<RecipePopularityStatisticsDto> GetRecipePopularityStatisticsAsync(CancellationToken cancellationToken = default)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get,
-            "/analytics/statistics");
+        var token = await _tokenService.GetToken(cancellationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/analytics/statistics")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         var recipePopularityStatistics = JsonSerializer.Deserialize<RecipePopularityStatisticsDto>(responseContent,
@@ -157,9 +201,14 @@ public class AnalyticsService : IAnalyticsService
             new ("limit", limit.ToString())
         });
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request =
-            new HttpRequestMessage(HttpMethod.Get,
-                $"/analytics/recent-recipes?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recent-recipes?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recentRecipes = JsonSerializer.Deserialize<PaginatedDto<RecentRecipeDto>>(responseContent,
