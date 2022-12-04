@@ -26,7 +26,7 @@ public class CookBookService : ICookBookService
                 case HttpStatusCode.Unauthorized:
                     throw new InternalServiceAuthorizationException(_httpClient.BaseAddress?.ToString() ?? ServiceName);
                 default:
-                    throw new InternalServiceException(responseContent);
+                    throw new InternalServiceException(ServiceName,  response.StatusCode, responseContent);
             }
         }
         var recipe = JsonSerializer.Deserialize<RecipeDto>(responseContent, new JsonSerializerOptions
@@ -36,7 +36,7 @@ public class CookBookService : ICookBookService
         return recipe;
     }
 
-    public async Task<RecipeDto> CreateRecipeAsync(RecipeDto recipe, CancellationToken cancellation = default)
+    public async Task<RecipeDto> CreateRecipeAsync(CreateRecipeDto recipe, CancellationToken cancellation = default)
     {
         var json = JsonSerializer.Serialize(recipe,
             new JsonSerializerOptions
@@ -47,6 +47,10 @@ public class CookBookService : ICookBookService
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
         using var response = await _httpClient.PostAsync("/recipes", requestContent, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InternalServiceException(ServiceName, response.StatusCode, responseContent);
+        }
         var createdRecipe = JsonSerializer.Deserialize<RecipeDto>(responseContent,
             new JsonSerializerOptions
             {
@@ -68,6 +72,30 @@ public class CookBookService : ICookBookService
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}") ;
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var recipeResults = JsonSerializer.Deserialize<PaginatedDto<RecipesDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<RecipesDto>();
+        return recipeResults;
+    }
+
+    public async Task<PaginatedDto<RecipesDto>> GetRecipesAsync(string name, int page, int limit, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new("limit", limit.ToString()),
+            new("page", page.ToString())
+        };
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            urlParams.Add(new KeyValuePair<string, string>("name", name));
+        }
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}");
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeResults = JsonSerializer.Deserialize<PaginatedDto<RecipesDto>>(responseContent,
@@ -390,5 +418,63 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }) ?? new RecipeStatisticsDto();
         return recipeStatistics;
+    }
+
+    public async Task<PaginatedDto<IngredientDto>> GetIngredientsAsync(string name, int page, int limit, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new("limit", limit.ToString()),
+            new("page", page.ToString())
+        };
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            urlParams.Add(new KeyValuePair<string, string>("name", name));
+        }
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/ingredients?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InternalServiceException(ServiceName, response.StatusCode, responseContent);
+        }
+        var ingredients = JsonSerializer.Deserialize<PaginatedDto<IngredientDto>>(
+            responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<IngredientDto>();
+        return ingredients;
+    }
+
+    public async Task<PaginatedDto<TagDto>> GetTagsAsync(string name, int page, int limit, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new("limit", limit.ToString()),
+            new("page", page.ToString())
+        };
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            urlParams.Add(new KeyValuePair<string, string>("name", name));
+        }
+        using var urlContent = new FormUrlEncodedContent(urlParams);
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/tags?{query}");
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InternalServiceException(ServiceName, response.StatusCode, responseContent);
+        }
+        var tags = JsonSerializer.Deserialize<PaginatedDto<TagDto>>(
+            responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<TagDto>();
+        return tags;
     }
 }

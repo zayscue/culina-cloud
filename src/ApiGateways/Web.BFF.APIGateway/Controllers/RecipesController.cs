@@ -289,8 +289,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("recent")]
-    public async Task<ActionResult> GetRecentRecipes([FromQuery] string orderBy = "",
-        [FromQuery] int page = 1, [FromQuery] int limit = 100)
+    public async Task<ActionResult> GetRecentRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
         var recentRecipes = await _analyticsService.GetRecentRecipesAsync(page, limit);
@@ -331,74 +330,117 @@ public class RecipesController : ControllerBase
         });
     }
 
-    [HttpPost]
-    public async Task<ActionResult> CreateRecipe([FromBody] RecipeDto recipe)
+    [HttpGet]
+    public async Task<ActionResult> GetRecipes([FromQuery] string name = "", [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
-        var user = _currentUserService.UserId;
-        var createdRecipe = await _cookBookService.CreateRecipeAsync(recipe);
-        var createRecipeEntitlementTask = _usersService.CreateRecipeEntitlementAsync(new RecipeEntitlementDto
-        {
-            RecipeId = createdRecipe.Id,
-            UserId = user,
-            GrantedBy = user,
-            Type = "author"
-        });
-        var createRecipePopularityStatTask = _analyticsService.CreateRecipePopularityStatAsync(createdRecipe.Id);
-        var createdRecipeEntitlement = await createRecipeEntitlementTask;
-        var createRecipePopularityStat = await createRecipePopularityStatTask;
+        var userId = _currentUserService.UserId;
+        var recipes = await _cookBookService.GetRecipesAsync(name, page, limit);
+        recipes.Items ??= new List<RecipesDto>();
+        var getRecipePoliciesTask = GetRecipePolicies(userId, recipes.Items.Select(x => x.Id).ToList());
+        var recipePoliciesDict = await getRecipePoliciesTask;
 
-        return CreatedAtAction(
-            nameof(GetRecipe),
-            new
-            {
-                recipeId = createdRecipe.Id
-            },
+        var items = recipes.Items.Select(x =>
             new RecipeAPIResponse
             {
-                Policy = new RecipePolicy
-                {
-                    IsAFavorite = false,
-                    CanEdit = createdRecipeEntitlement != null,
-                    IsOwner = createdRecipeEntitlement != null,
-                    CanShare = createdRecipeEntitlement != null
-                },
+                Policy = recipePoliciesDict[x.Id],
                 Data = new
                 {
-                    createdRecipe.Id,
-                    createdRecipe.Name,
-                    createdRecipe.Description,
-                    createdRecipe.EstimatedMinutes,
-                    createdRecipe.Serves,
-                    createdRecipe.Yield,
-                    createdRecipe.Nutrition,
-                    Images = createdRecipe.Images?.Select(x => new
-                    {
-                        x.ImageId,
-                        x.Url
-                    }) ?? null,
-                    createdRecipe.NumberOfIngredients,
-                    Ingredients = createdRecipe.Ingredients?.Select(x =>  new
-                    {
-                        x.Id,
-                        x.Quantity,
-                        x.Part,
-                        x.IngredientId,
-                        x.IngredientName
-                    }) ?? null,
-                    createdRecipe.NumberOfSteps,
-                    Steps = createdRecipe.Steps?.Select(x => new
-                    {
-                        x.Order,
-                        x.Instruction
-                    }) ?? null,
-                    Tags = createdRecipe.Tags?.Select(x => new
-                    {
-                        x.TagId,
-                        x.TagName
-                    }) ?? null
+                    x.Id,
+                    x.Name,
+                    x.EstimatedMinutes,
+                    x.Serves,
+                    x.Yield,
+                    Images = x.Images?.Select(i => new { i.ImageId, i.Url }).ToList() ?? null
                 }
             }
-        );
+        ).ToList();
+        return Ok(new PaginatedRecipeAPIResponse
+        {
+            Items = items,
+            Page = recipes.Page,
+            TotalCount = recipes.TotalCount,
+            TotalPages = recipes.TotalPages
+        });
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateRecipe([FromBody] CreateRecipeDto recipe)
+    {
+        try
+        {
+            var user = _currentUserService.UserId;
+            recipe.CreatedBy = user;
+            var createdRecipe = await _cookBookService.CreateRecipeAsync(recipe);
+
+            var cancellationToken = new CancellationToken();
+            var createRecipeEntitlementTask = _usersService.CreateRecipeEntitlementAsync(new RecipeEntitlementDto
+            {
+                RecipeId = createdRecipe.Id,
+                UserId = user,
+                GrantedBy = user,
+                Type = "author"
+            }, cancellationToken);
+            var createRecipePopularityStatTask = _analyticsService.CreateRecipePopularityStatAsync(createdRecipe.Id, cancellationToken);
+            var createdRecipeEntitlement = await createRecipeEntitlementTask;
+            var createRecipePopularityStat = await createRecipePopularityStatTask;
+
+            return CreatedAtAction(
+                nameof(GetRecipe),
+                new
+                {
+                    recipeId = createdRecipe.Id
+                },
+                new RecipeAPIResponse
+                {
+                    Policy = new RecipePolicy
+                    {
+                        IsAFavorite = false,
+                        CanEdit = createdRecipeEntitlement != null,
+                        IsOwner = createdRecipeEntitlement != null,
+                        CanShare = createdRecipeEntitlement != null
+                    },
+                    Data = new
+                    {
+                        createdRecipe.Id,
+                        createdRecipe.Name,
+                        createdRecipe.Description,
+                        createdRecipe.EstimatedMinutes,
+                        createdRecipe.Serves,
+                        createdRecipe.Yield,
+                        createdRecipe.Nutrition,
+                        Images = createdRecipe.Images?.Select(x => new
+                        {
+                            x.ImageId,
+                            x.Url
+                        }) ?? null,
+                        createdRecipe.NumberOfIngredients,
+                        Ingredients = createdRecipe.Ingredients?.Select(x => new
+                        {
+                            x.Id,
+                            x.Quantity,
+                            x.Part,
+                            x.IngredientId,
+                            x.IngredientName
+                        }) ?? null,
+                        createdRecipe.NumberOfSteps,
+                        Steps = createdRecipe.Steps?.Select(x => new
+                        {
+                            x.Order,
+                            x.Instruction
+                        }) ?? null,
+                        Tags = createdRecipe.Tags?.Select(x => new
+                        {
+                            x.TagId,
+                            x.TagName
+                        }) ?? null
+                    }
+                }
+            );
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e);
+        }
     }
 
     [HttpGet("{recipeId:guid}")]

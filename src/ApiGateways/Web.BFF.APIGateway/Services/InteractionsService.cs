@@ -52,7 +52,7 @@ public class InteractionsService : IInteractionsService
             }
             else
             {
-                throw new InternalServiceException(responseContent);
+                throw new InternalServiceException(ServiceName, response.StatusCode, responseContent);
             }
         }
         var createdReview = JsonSerializer.Deserialize<ReviewDto>(responseContent,

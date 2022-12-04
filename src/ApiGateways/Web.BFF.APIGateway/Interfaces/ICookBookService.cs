@@ -4,9 +4,12 @@ public interface ICookBookService
 {
     Task<RecipeDto> GetRecipeAsync(Guid id, CancellationToken cancellation = default);
 
-    Task<RecipeDto> CreateRecipeAsync(RecipeDto recipe, CancellationToken cancellation = default);
+    Task<RecipeDto> CreateRecipeAsync(CreateRecipeDto recipe, CancellationToken cancellation = default);
 
     Task<PaginatedDto<RecipesDto>> GetRecipesAsync(List<Guid> recipeIds, int page, int limit,
+        CancellationToken cancellation = default);
+
+    Task<PaginatedDto<RecipesDto>> GetRecipesAsync(string name, int page, int limit,
         CancellationToken cancellation = default);
 
     Task UpdateRecipeAsync(Guid recipeId, RecipeDto recipe,
@@ -59,4 +62,10 @@ public interface ICookBookService
 
 
     Task<RecipeStatisticsDto> GetRecipeStatisticsAsync(CancellationToken cancellation = default);
+
+    Task<PaginatedDto<IngredientDto>> GetIngredientsAsync(string name, int page, int limit,
+        CancellationToken cancellation = default);
+
+    Task<PaginatedDto<TagDto>> GetTagsAsync(string name, int page, int limit,
+        CancellationToken cancellation = default);
 }

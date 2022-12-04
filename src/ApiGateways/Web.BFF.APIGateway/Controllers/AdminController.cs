@@ -1,6 +1,7 @@
 ﻿namespace CulinaCloud.Web.BFF.APIGateway.Controllers
 {
     [Route("admin")]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly ICurrentUserService _currentUserService;

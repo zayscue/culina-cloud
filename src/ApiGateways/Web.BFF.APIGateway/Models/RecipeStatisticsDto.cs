@@ -15,13 +15,13 @@
 
     public record TagPopularityRankingDto
     {
-        public string TagName { get; set; }
+        public string TagName { get; set; } = default!;
         public long TotalRecipeTags { get; set; }
     }
 
     public record IngredientPopularityRankingDto
     {
-        public string IngredientName { get; set; }
+        public string IngredientName { get; set; } = default!;
         public long TotalIngredientReferences { get; set; }
     }
 
