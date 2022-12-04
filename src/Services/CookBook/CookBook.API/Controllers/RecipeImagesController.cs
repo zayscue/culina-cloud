@@ -8,10 +8,12 @@ using CulinaCloud.CookBook.Application.RecipeImages.Commands.DeleteRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Commands.UpdateRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Queries.GetRecipeImage;
 using CulinaCloud.CookBook.Application.RecipeImages.Queries.GetRecipeImages;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipeImagesController : ApiControllerBase
     {

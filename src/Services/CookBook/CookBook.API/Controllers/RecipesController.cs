@@ -7,9 +7,11 @@ using CulinaCloud.CookBook.Application.Recipes.Commands.UpdateRecipe;
 using CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe;
 using CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipesController : ApiControllerBase
     {

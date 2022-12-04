@@ -8,10 +8,12 @@ using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.DeleteRecipeIn
 using CulinaCloud.CookBook.Application.RecipeIngredients.Commands.UpdateRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredient;
 using CulinaCloud.CookBook.Application.RecipeIngredients.Queries.GetRecipeIngredients;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipeIngredientsController : ApiControllerBase
     {

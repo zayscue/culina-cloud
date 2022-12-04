@@ -8,10 +8,12 @@ using CulinaCloud.CookBook.Application.RecipeSteps.Commands.DeleteRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Commands.UpdateRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeStep;
 using CulinaCloud.CookBook.Application.RecipeSteps.Queries.GetRecipeSteps;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipeStepsController : ApiControllerBase
     {

@@ -4,6 +4,7 @@ using Amazon.S3.Transfer;
 namespace CulinaCloud.Web.BFF.APIGateway.Controllers
 {
     [Route("images")]
+    [Authorize]
     public class ImagesController : ControllerBase
     {
         private readonly ICurrentUserService _currentUserService;

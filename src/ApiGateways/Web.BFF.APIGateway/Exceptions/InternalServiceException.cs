@@ -2,20 +2,27 @@
 
 public class InternalServiceException : Exception
 {
-    public string ErrorCode { get; set; }
+    public string? ErrorCode { get; set; }
+    public string? ErrorMessage { get; set; }
 
-    public Dictionary<string, string[]> ValidationErrors { get; set; }
+    public Dictionary<string, string[]>? ValidationErrors { get; set; }
 
     public InternalServiceException(string serviceName, HttpStatusCode code, string httpErrorResponseContent) : base(GetMessage(serviceName, code, httpErrorResponseContent))
     {
+        if (string.IsNullOrWhiteSpace(httpErrorResponseContent)) return;
         var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent)
-            ?? new InternalServiceError();
+                       ?? new InternalServiceError();
         ErrorCode = document.ErrorCode;
+        ErrorMessage = document.Message;
         ValidationErrors = document.ValidationErrors;
     }
 
     private static string GetMessage(string serviceName, HttpStatusCode code, string httpErrorResponseContent)
     {
+        if (string.IsNullOrWhiteSpace(httpErrorResponseContent))
+        {
+            return $"An internal error has occurred with status code {code} in the {serviceName} service";
+        }
         var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent)
                        ?? new InternalServiceError();
         return string.IsNullOrWhiteSpace(document.Message)

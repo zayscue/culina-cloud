@@ -33,6 +33,14 @@ builder.Services.AddAuthentication(options =>
     options.Authority = configuration["Auth0:Domain"];
     options.Audience = configuration["Auth0:Audience"];
 });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("read:tags", policy =>
+        policy.RequireClaim("permissions", "read:tags"));
+    options.AddPolicy("read:ingredients", policy =>
+        policy.RequireClaim("permissions", "read:ingredients"));
+});
+builder.Services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
 builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("CookBookService"));
 builder.Services.Configure<UsersServiceSettings>(configuration.GetSection("UsersService"));
 builder.Services.Configure<AnalyticsServiceSettings>(configuration.GetSection("AnalyticsService"));
@@ -41,36 +49,39 @@ builder.Services.Configure<ImagesServiceSettings>(configuration.GetSection("Imag
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
-// if (builder.Environment.IsDevelopment())
-// {
-//     builder.Services.AddTransient<Auth0SecretsProvider, Auth0UserSecretsProvider>(provider =>
-//     {
-//         var config = provider.GetService<IConfiguration>();
-//         return new Auth0UserSecretsProvider(config, "ClientId", "ClientSecret");
-//     });
-// }
-// else
-// {
-//     builder.Services.AddTransient<Auth0SecretsProvider, Auth0AWSSecretsProvider>(provider =>
-//     {
-//         var secretsManager = new AmazonSecretsManagerClient();
-//         return new Auth0AWSSecretsProvider(secretsManager, "CulinaCloud/API/OAuthSecrets");
-//     });
-// }
-// builder.Services.AddSingleton<ITokenServiceManager, Auth0TokenServiceManager>(provider =>
-// {
-//     var dateTime = provider.GetService<IDateTime>();
-//     var settings = provider.GetService<IOptions<Auth0Settings>>();
-//     var secretsProvider = provider.GetService<Auth0SecretsProvider>();
-//     return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
-// });
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddTransient<Auth0SecretsProvider, Auth0UserSecretsProvider>(provider =>
+    {
+        var config = provider.GetService<IConfiguration>();
+        return new Auth0UserSecretsProvider(config, "ClientId", "ClientSecret");
+    });
+}
+else
+{
+    builder.Services.AddTransient<Auth0SecretsProvider, Auth0AWSSecretsProvider>(provider =>
+    {
+        var secretsManager = new AmazonSecretsManagerClient();
+        return new Auth0AWSSecretsProvider(secretsManager, "CulinaCloud/API/OAuthSecrets");
+    });
+}
+builder.Services.AddSingleton<ITokenServiceManager, Auth0TokenServiceManager>(provider =>
+{
+    var dateTime = provider.GetService<IDateTime>();
+    var settings = provider.GetService<IOptions<Auth0Settings>>();
+    var secretsProvider = provider.GetService<Auth0SecretsProvider>();
+    return new Auth0TokenServiceManager(dateTime, settings, secretsProvider);
+});
 builder.Services.AddHttpClient<ICookBookService, CookBookService>((client, provider) =>
 {
     var settings = provider.GetService<IOptions<CookBookServiceSettings>>();
     var baseAddress = new Uri(settings?.Value.BaseAddress ?? string.Empty);
     client.BaseAddress = baseAddress;
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    return new CookBookService(client);
+    var audience = configuration["CookBookService:Audience"];
+    var tokenServiceManager = provider.GetService<ITokenServiceManager>();
+    var tokenService = tokenServiceManager.GetTokenService(audience);
+    return new CookBookService(client, tokenService);
 });
 builder.Services.AddHttpClient<IUsersService, UsersService>((client, provider) =>
 {

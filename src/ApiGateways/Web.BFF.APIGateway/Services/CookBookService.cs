@@ -6,15 +6,24 @@ public class CookBookService : ICookBookService
 {
     private const string ServiceName = "CookBook";
     private readonly HttpClient _httpClient;
+    private readonly ITokenService _tokenService;
 
-    public CookBookService(HttpClient httpClient)
+    public CookBookService(HttpClient httpClient, ITokenService tokenService)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
     }
 
     public async Task<RecipeDto> GetRecipeAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{id}");
+        var token = await _tokenService.GetToken(cancellationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{id}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
@@ -45,7 +54,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync("/recipes", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/recipes")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         if (!response.IsSuccessStatusCode)
         {
@@ -71,7 +89,14 @@ public class CookBookService : ICookBookService
             new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}") ;
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeResults = JsonSerializer.Deserialize<PaginatedDto<RecipesDto>>(responseContent,
@@ -95,7 +120,14 @@ public class CookBookService : ICookBookService
         }
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}");
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeResults = JsonSerializer.Deserialize<PaginatedDto<RecipesDto>>(responseContent,
@@ -115,7 +147,16 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipe = JsonSerializer.Deserialize<RecipeDto>(responseContent,
             new JsonSerializerOptions
@@ -133,8 +174,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/nutrition", 
-            requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/recipes/{recipeId}/nutrition")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdRecipeNutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
             new JsonSerializerOptions
@@ -146,7 +195,15 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeNutritionDto> GetRecipeNutritionAsync(Guid recipeId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/nutrition", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/nutrition")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var nutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
             new JsonSerializerOptions
@@ -165,8 +222,16 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/nutrition", requestContent, 
-            cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}/nutrition")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipeNutrition = JsonSerializer.Deserialize<RecipeNutritionDto>(responseContent,
             new JsonSerializerOptions
@@ -177,7 +242,15 @@ public class CookBookService : ICookBookService
 
     public async Task<List<RecipeStepDto>> GetRecipeStepsAsync(Guid recipeId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/steps", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/steps")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var steps = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
             new JsonSerializerOptions
@@ -189,7 +262,15 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeStepDto> GetRecipeStepAsync(Guid recipeId, int order, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/steps/{order}", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/steps/{order}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var step = JsonSerializer.Deserialize<RecipeStepDto>(responseContent,
             new JsonSerializerOptions
@@ -208,8 +289,16 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/steps", requestContent, 
-            cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}/steps")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipeNutrition = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
             new JsonSerializerOptions
@@ -227,7 +316,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/images", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/recipes/{recipeId}/images")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdRecipeImage = JsonSerializer.Deserialize<RecipeImageDto>(responseContent,
             new JsonSerializerOptions
@@ -239,7 +337,15 @@ public class CookBookService : ICookBookService
 
     public async Task<List<RecipeImageDto>> GetRecipeImagesAsync(Guid recipeId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/images", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/images")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var images = JsonSerializer.Deserialize<List<RecipeImageDto>>(responseContent,
             new JsonSerializerOptions
@@ -257,8 +363,16 @@ public class CookBookService : ICookBookService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/images", requestContent, 
-            cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}/images")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipeNutrition = JsonSerializer.Deserialize<List<RecipeStepDto>>(responseContent,
             new JsonSerializerOptions
@@ -269,7 +383,15 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeImageDto> GetRecipeImageAsync(Guid recipeId, Guid imageId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/images/{imageId}", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/images/{imageId}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var image = JsonSerializer.Deserialize<RecipeImageDto>(responseContent,
             new JsonSerializerOptions
@@ -281,7 +403,15 @@ public class CookBookService : ICookBookService
 
     public async Task<List<RecipeIngredientDto>> GetRecipeIngredientsAsync(Guid recipeId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/ingredients", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/ingredients")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var ingredients = JsonSerializer.Deserialize<List<RecipeIngredientDto>>(responseContent,
             new JsonSerializerOptions
@@ -301,8 +431,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response =
-            await _httpClient.PostAsync($"/recipes/{recipeId}/ingredients", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/recipes/{recipeId}/ingredients")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdRecipeIngredient = JsonSerializer.Deserialize<RecipeIngredientDto>(responseContent,
             new JsonSerializerOptions
@@ -321,8 +459,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/ingredients",
-            requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}/ingredients")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipeIngredients = JsonSerializer.Deserialize<List<RecipeIngredientDto>>(responseContent,
             new JsonSerializerOptions
@@ -334,8 +480,15 @@ public class CookBookService : ICookBookService
     public async Task<RecipeIngredientDto> GetRecipeIngredientAsync(Guid recipeId, Guid recipeIngredientId, 
         CancellationToken cancellation = default)
     {
-        using var response =
-            await _httpClient.GetAsync($"/recipes/{recipeId}/ingredients/{recipeIngredientId}", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/ingredients/{recipeIngredientId}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeIngredient = JsonSerializer.Deserialize<RecipeIngredientDto>(responseContent,
             new JsonSerializerOptions
@@ -347,7 +500,15 @@ public class CookBookService : ICookBookService
 
     public async Task<List<RecipeTagDto>> GetRecipeTagsAsync(Guid recipeId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/tags", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/tags")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var tags = JsonSerializer.Deserialize<List<RecipeTagDto>>(responseContent,
             new JsonSerializerOptions
@@ -367,7 +528,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PostAsync($"/recipes/{recipeId}/tags", requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/recipes/{recipeId}/tags")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var createdRecipeTag = JsonSerializer.Deserialize<RecipeTagDto>(responseContent,
             new JsonSerializerOptions
@@ -386,8 +556,16 @@ public class CookBookService : ICookBookService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-        using var response = await _httpClient.PutAsync($"/recipes/{recipeId}/tags",
-            requestContent, cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/recipes/{recipeId}/tags")
+        {
+            Content = requestContent,
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var updatedRecipeTags = JsonSerializer.Deserialize<List<RecipeTagDto>>(responseContent,
             new JsonSerializerOptions
@@ -398,7 +576,15 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeTagDto> GetRecipeTagAsync(Guid recipeId, Guid tagId, CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/recipes/{recipeId}/tags/{tagId}", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/recipes/{recipeId}/tags/{tagId}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeTag = JsonSerializer.Deserialize<RecipeTagDto>(responseContent,
             new JsonSerializerOptions
@@ -410,7 +596,15 @@ public class CookBookService : ICookBookService
 
     public async Task<RecipeStatisticsDto> GetRecipeStatisticsAsync(CancellationToken cancellation = default)
     {
-        using var response = await _httpClient.GetAsync($"/statistics", cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/statistics")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         var recipeStatistics = JsonSerializer.Deserialize<RecipeStatisticsDto>(responseContent,
             new JsonSerializerOptions
@@ -422,6 +616,7 @@ public class CookBookService : ICookBookService
 
     public async Task<PaginatedDto<IngredientDto>> GetIngredientsAsync(string name, int page, int limit, CancellationToken cancellation = default)
     {
+        var token = await _tokenService.GetToken(cancellation);
         var urlParams = new List<KeyValuePair<string, string>>
         {
             new("limit", limit.ToString()),
@@ -433,7 +628,13 @@ public class CookBookService : ICookBookService
         }
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/ingredients?{query}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/ingredients?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         if (!response.IsSuccessStatusCode)
@@ -451,6 +652,7 @@ public class CookBookService : ICookBookService
 
     public async Task<PaginatedDto<TagDto>> GetTagsAsync(string name, int page, int limit, CancellationToken cancellation = default)
     {
+        var token = await _tokenService.GetToken(cancellation);
         var urlParams = new List<KeyValuePair<string, string>>
         {
             new("limit", limit.ToString()),
@@ -462,7 +664,13 @@ public class CookBookService : ICookBookService
         }
         using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/tags?{query}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/tags?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
         using var response = await _httpClient.SendAsync(request, cancellation);
         var responseContent = await response.Content.ReadAsStringAsync(cancellation);
         if (!response.IsSuccessStatusCode)

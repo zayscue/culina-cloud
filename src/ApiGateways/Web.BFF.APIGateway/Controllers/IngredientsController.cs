@@ -13,6 +13,7 @@
         }
 
         [HttpGet]
+        [Authorize("read:ingredients")]
         public async Task<ActionResult> GetIngredients([FromQuery] string name = "", [FromQuery] int page = 1,
             [FromQuery] int limit = 100)
         {

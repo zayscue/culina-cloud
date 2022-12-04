@@ -13,6 +13,7 @@
         }
 
         [HttpGet]
+        [Authorize("read:tags")]
         public async Task<ActionResult> GetTags([FromQuery] string name = "", [FromQuery] int page = 1,
             [FromQuery] int limit = 100)
         {

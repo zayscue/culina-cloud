@@ -7,10 +7,12 @@ using CulinaCloud.CookBook.Application.RecipeTags.Commands.CreateRecipeTag;
 using CulinaCloud.CookBook.Application.RecipeTags.Commands.DeleteRecipeTag;
 using CulinaCloud.CookBook.Application.RecipeTags.Queries.GetRecipeTag;
 using CulinaCloud.CookBook.Application.RecipeTags.Queries.GetRecipeTags;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipeTagsController : ApiControllerBase
     {

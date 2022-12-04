@@ -4,10 +4,12 @@ using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.RecipeNutritionFacts.Commands.CreateRecipeNutrition;
 using CulinaCloud.CookBook.Application.RecipeNutritionFacts.Commands.UpdateRecipeNutrition;
 using CulinaCloud.CookBook.Application.RecipeNutritionFacts.Queries.GetRecipeNutrition;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("recipes")]
     public class RecipeNutritionFactsController : ApiControllerBase
     {

@@ -6,9 +6,11 @@ using CulinaCloud.CookBook.Application.Ingredients.Commands.CreateIngredient;
 using CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredient;
 using CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredients;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
     [Route("ingredients")]
     public class IngredientsController : ApiControllerBase
     {
