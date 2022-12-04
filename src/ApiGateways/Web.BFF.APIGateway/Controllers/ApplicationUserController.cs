@@ -14,6 +14,7 @@
         }
 
         [HttpGet("me")]
+        [Authorize("read:me")]
         public async Task<ActionResult> Me()
         {
             var userId = _currentUserService.UserId;

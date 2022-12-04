@@ -118,6 +118,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("recommended")]
+    [Authorize("read:recommended_recipes")]
     public async Task<ActionResult> GetPersonalRecipeFeed([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -163,6 +164,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("favorites")]
+    [Authorize("read:favorite_recipes")]
     public async Task<ActionResult> GetFavoriteRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -204,6 +206,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("mine")]
+    [Authorize("read:my_recipes")]
     public async Task<ActionResult> GetMyRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -288,6 +291,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("recent")]
+    [Authorize("read:recent_recipes")]
     public async Task<ActionResult> GetRecentRecipes([FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -330,6 +334,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize("read:recipes")]
     public async Task<ActionResult> GetRecipes([FromQuery] string name = "", [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -444,6 +449,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}")]
+    [Authorize("read:recipe")]
     public async Task<ActionResult> GetRecipe([FromRoute] Guid recipeId)
     {
         async Task<object?> GetData(Guid id)
@@ -505,6 +511,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}")]
+    [Authorize("update:recipe")]
     public async Task<ActionResult> UpdateRecipe([FromRoute] Guid recipeId, [FromBody] RecipeDto recipe)
     {
         var user = _currentUserService.UserId;
@@ -571,6 +578,8 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/nutrition")]
+    [Authorize("create:recipe_nutrition")]
+    
     public async Task<ActionResult> CreateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
     {
@@ -586,6 +595,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/nutrition")]
+    [Authorize("read:recipe_nutrition")]
     public async Task<ActionResult> GetRecipeNutrition([FromRoute] Guid recipeId)
     {
         async Task<object?> GetData(Guid id)
@@ -609,6 +619,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/nutrition")]
+    [Authorize("update:recipe_nutrition")]
     public async Task<ActionResult> UpdateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
     {
@@ -621,6 +632,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/steps")]
+    [Authorize("read:recipe_steps")]
     public async Task<ActionResult> GetRecipeSteps([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
@@ -644,6 +656,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/steps/{order:int}")]
+    [Authorize("read:recipe_step")]
     public async Task<ActionResult> GetRecipeStep([FromRoute] Guid recipeId, [FromRoute] int order)
     {
         var userId = _currentUserService.UserId;
@@ -667,6 +680,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/steps")]
+    [Authorize("update:recipe_steps")]
     public async Task<ActionResult> BatchUpdateRecipeSteps([FromRoute] Guid recipeId,
         [FromBody] List<RecipeStepDto> steps)
     {
@@ -682,6 +696,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/ingredients")]
+    [Authorize("read:recipe_ingredients")]
     public async Task<ActionResult> GetRecipeIngredients([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
@@ -705,6 +720,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/ingredients")]
+    [Authorize("create:recipe_ingredient")]
     public async Task<ActionResult> CreateRecipeIngredient([FromRoute] Guid recipeId,
         [FromBody] RecipeIngredientDto recipeIngredient)
     {
@@ -728,6 +744,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/ingredients")]
+    [Authorize("update:recipe_ingredients")]
     public async Task<ActionResult> BatchUpdateRecipeIngredients([FromRoute] Guid recipeId,
         [FromBody] List<RecipeIngredientDto> ingredients)
     {
@@ -744,6 +761,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/ingredients/{recipeIngredientId:guid}")]
+    [Authorize("read:recipe_ingredient")]
     public async Task<ActionResult> GetRecipeIngredient([FromRoute] Guid recipeId, [FromRoute] Guid recipeIngredientId)
     {
         var userId = _currentUserService.UserId;
@@ -767,6 +785,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/images")]
+    [Authorize("read:recipe_images")]
     public async Task<ActionResult> GetRecipeImages([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
@@ -790,6 +809,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/images")]
+    [Authorize("create:recipe_image")]
     public async Task<ActionResult> CreateRecipeImage([FromRoute] Guid recipeId, [FromBody] RecipeImageDto image)
     {
         var user = _currentUserService.UserId;
@@ -804,6 +824,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/images")]
+    [Authorize("update:recipe_images")]
     public async Task<ActionResult> BatchUpdateRecipeImages([FromRoute] Guid recipeId,
         [FromBody] List<RecipeImageDto> images)
     {
@@ -819,6 +840,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/images/{imageId:guid}")]
+    [Authorize("read:recipe_image")]
     public async Task<ActionResult> GetRecipeImage([FromRoute] Guid recipeId, [FromRoute] Guid imageId)
     {
         var userId = _currentUserService.UserId;
@@ -842,6 +864,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/tags")]
+    [Authorize("read:recipe_tags")]
     public async Task<ActionResult> GetRecipeTags([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
@@ -869,6 +892,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/tags")]
+    [Authorize("create:recipe_tag")]
     public async Task<ActionResult> CreateRecipeTag([FromRoute] Guid recipeId, [FromBody] RecipeTagDto tag)
     {
         var user = _currentUserService.UserId;
@@ -883,6 +907,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/tags")]
+    [Authorize("update:recipe_tags")]
     public async Task<ActionResult> BatchUpdateRecipeTags([FromRoute] Guid recipeId, [FromBody] List<RecipeTagDto> tags)
     {
         var user = _currentUserService.UserId;
@@ -897,6 +922,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/tags/{tagId:guid}")]
+    [Authorize("read:recipe_tag")]
     public async Task<ActionResult> GetRecipeTag([FromRoute] Guid recipeId, [FromRoute] Guid tagId)
     {
         var recipeTag = await _cookBookService.GetRecipeTagAsync(recipeId, tagId);
@@ -905,6 +931,7 @@ public class RecipesController : ControllerBase
 
 
     [HttpGet("{recipeId:guid}/similar")]
+    [Authorize("read:similar_recipes")]
     public async Task<ActionResult> GetSimilarRecipes([FromRoute] Guid recipeId,
         [FromQuery] int page = 1, [FromQuery] int limit = 20)
     {
@@ -949,6 +976,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/reviews")]
+    [Authorize("read:recipe_reviews")]
     public async Task<ActionResult> GetRecipeReviews([FromRoute] Guid recipeId, [FromQuery] int page = 1,
         [FromQuery] int limit = 10)
     {
@@ -957,6 +985,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/reviews")]
+    [Authorize("create:recipe_review")]
     public async Task<ActionResult> CreateRecipeReview([FromRoute] Guid recipeId, [FromBody] ReviewDto review)
     {
         var user = _currentUserService.UserId;
@@ -983,6 +1012,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("{recipeId:guid}/share")]
+    [Authorize("read:recipe_entitlements")]
     public async Task<ActionResult> GetRecipeShares([FromRoute] Guid recipeId, [FromQuery] int page = 1, [FromQuery] int limit = 100)
     {
         var userId = _currentUserService.UserId;
@@ -1027,6 +1057,7 @@ public class RecipesController : ControllerBase
 
 
     [HttpPost("{recipeId:guid}/share")]
+    [Authorize("create:recipe_entitlement")]
     public async Task<ActionResult> CreateRecipeShare([FromRoute] Guid recipeId, [FromBody] ShareRecipeRequest request)
     {
         var userId = _currentUserService.UserId;
@@ -1071,6 +1102,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:guid}/share/{recipeShareId:guid}")]
+    [Authorize("update:recipe_entitlement")]
     public async Task<ActionResult> UpdateRecipeShare([FromRoute] Guid recipeId, [FromRoute] Guid recipeShareId, [FromBody] ShareRecipeRequest request)
     {
         var userId = _currentUserService.UserId;
@@ -1108,6 +1140,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/favorite")]
+    [Authorize("create:recipe_favorite")]
     public async Task<ActionResult> FavoriteRecipe([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
@@ -1129,6 +1162,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost("{recipeId:guid}/un-favorite")]
+    [Authorize("delete:recipe_favorite")]
     public async Task<ActionResult> UnFavoriteRecipe([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;

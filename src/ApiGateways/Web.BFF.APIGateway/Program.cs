@@ -47,6 +47,72 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("permissions", "read:popular_recipes"));
     options.AddPolicy("create:recipe", policy =>
         policy.RequireClaim("permissions", "create:recipe"));
+    options.AddPolicy("read:me", policy =>
+        policy.RequireClaim("permissions", "read:me"));
+    options.AddPolicy("read:recommended_recipes", policy =>
+        policy.RequireClaim("permissions", "read:recommended_recipes"));
+    options.AddPolicy("read:favorite_recipes", policy =>
+        policy.RequireClaim("permissions", "read:favorite_recipes"));
+    options.AddPolicy("read:my_recipes", policy =>
+        policy.RequireClaim("permissions", "read:my_recipes"));
+    options.AddPolicy("read:recent_recipes", policy =>
+        policy.RequireClaim("permissions", "read:recent_recipes"));
+    options.AddPolicy("read:recipes", policy =>
+        policy.RequireClaim("permissions", "read:recipes"));
+    options.AddPolicy("read:recipe", policy =>
+        policy.RequireClaim("permissions", "read:recipe"));
+    options.AddPolicy("update:recipe", policy =>
+        policy.RequireClaim("permissions", "update:recipe"));
+    options.AddPolicy("create:recipe_nutrition", policy =>
+        policy.RequireClaim("permissions", "create:recipe_nutrition"));
+    options.AddPolicy("read:recipe_nutrition", policy =>
+        policy.RequireClaim("permissions", "read:recipe_nutrition"));
+    options.AddPolicy("read:recipe_steps", policy =>
+        policy.RequireClaim("permissions", "read:recipe_steps"));
+    options.AddPolicy("read:recipe_step", policy =>
+        policy.RequireClaim("permissions", "read:recipe_step"));
+    options.AddPolicy("update:recipe_steps", policy =>
+        policy.RequireClaim("permissions", "update:recipe_steps"));
+    options.AddPolicy("read:recipe_ingredients", policy =>
+        policy.RequireClaim("permissions", "read:recipe_ingredients"));
+    options.AddPolicy("create:recipe_ingredient", policy =>
+        policy.RequireClaim("permissions", "create:recipe_ingredient"));
+    options.AddPolicy("update:recipe_ingredients", policy =>
+        policy.RequireClaim("permissions", "update:recipe_ingredients"));
+    options.AddPolicy("read:recipe_ingredient", policy =>
+        policy.RequireClaim("permissions", "read:recipe_ingredient"));
+    options.AddPolicy("read:recipe_images", policy =>
+        policy.RequireClaim("permissions", "read:recipe_images"));
+    options.AddPolicy("create:recipe_image", policy =>
+        policy.RequireClaim("permissions", "create:recipe_image"));
+    options.AddPolicy("update:recipe_images", policy =>
+        policy.RequireClaim("permissions", "update:recipe_images"));
+    options.AddPolicy("read:recipe_image", policy =>
+        policy.RequireClaim("permissions", "read:recipe_image"));
+    options.AddPolicy("read:recipe_tags", policy => 
+        policy.RequireClaim("permissions", "read:recipe_tags"));
+    options.AddPolicy("create:recipe_tag", policy =>
+        policy.RequireClaim("permissions", "create:recipe_tag"));
+    options.AddPolicy("update:recipe_tags", policy =>
+        policy.RequireClaim("permissions", "update:recipe_tags"));
+    options.AddPolicy("read:recipe_tag", policy =>
+        policy.RequireClaim("permissions", "read:recipe_tag"));
+    options.AddPolicy("read:similar_recipes", policy =>
+        policy.RequireClaim("permissions", "read:similar_recipes"));
+    options.AddPolicy("read:recipe_reviews", policy =>
+        policy.RequireClaim("permissions", "read:recipe_reviews"));
+    options.AddPolicy("create:recipe_review", policy =>
+        policy.RequireClaim("permissions", "create:recipe_review"));
+    options.AddPolicy("read:recipe_entitlements", policy => 
+        policy.RequireClaim("permissions", "read:recipe_entitlements"));
+    options.AddPolicy("create:recipe_entitlement", policy =>
+        policy.RequireClaim("permissions", "create:recipe_entitlement"));
+    options.AddPolicy("update:recipe_entitlement", policy =>
+        policy.RequireClaim("permissions", "update:recipe_entitlement"));
+    options.AddPolicy("create:recipe_favorite", policy =>
+        policy.RequireClaim("permissions", "create:recipe_favorite"));
+    options.AddPolicy("delete:recipe_favorite", policy =>
+        policy.RequireClaim("permissions", "delete:recipe_favorite"));
 });
 builder.Services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
 builder.Services.Configure<CookBookServiceSettings>(configuration.GetSection("CookBookService"));
@@ -55,6 +121,7 @@ builder.Services.Configure<AnalyticsServiceSettings>(configuration.GetSection("A
 builder.Services.Configure<InteractionsServiceSettings>(configuration.GetSection("InteractionsService"));
 builder.Services.Configure<ImagesServiceSettings>(configuration.GetSection("ImagesService"));
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHealthChecks();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 if (builder.Environment.IsDevelopment())
@@ -144,7 +211,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHealthChecks("/health");
+    endpoints.MapControllers();
+});
 
 if (app.Environment.IsDevelopment())
 {
