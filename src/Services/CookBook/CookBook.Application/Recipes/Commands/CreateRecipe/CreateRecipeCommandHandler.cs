@@ -124,6 +124,11 @@ namespace CulinaCloud.CookBook.Application.Recipes.Commands.CreateRecipe
                 }
             }
 
+            if (request.ImageUrls == null || request.ImageUrls.Count == 0)
+            {
+                request.ImageUrls = new List<string>
+                    {"https://geniuskitchen.sndimg.com/fdc-new/img/fdc-shareGraphic.png"};
+            }
             if (request.ImageUrls != null)
             {
                 foreach (var imageUrl in request.ImageUrls)

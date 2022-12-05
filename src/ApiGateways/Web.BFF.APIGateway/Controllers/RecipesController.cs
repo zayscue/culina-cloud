@@ -90,6 +90,11 @@ public class RecipesController : ControllerBase
         return recipePolicy.Item2.CanEdit;
     }
 
+    private bool CanUserEditRecipe(RecipePolicy policy)
+    {
+        return policy.CanEdit;
+    }
+
     private async Task<bool> CanUserShareRecipe(string userId, Guid recipeId)
     {
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
@@ -97,11 +102,21 @@ public class RecipesController : ControllerBase
         return recipePolicy.Item2.CanShare;
     }
 
+    private bool CanUserShareRecipe(RecipePolicy policy)
+    {
+        return policy.CanShare;
+    }
+
     private async Task<bool> IsUserTheRecipeOwner(string userId, Guid recipeId)
     {
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
         var recipePolicy = await getRecipePolicyTask;
         return recipePolicy.Item2.IsOwner;
+    }
+
+    private bool IsUserTheRecipeOwner(RecipePolicy policy)
+    {
+        return policy.IsOwner;
     }
 
     private async Task<bool> DoesRecipeExist(Guid recipeId)
@@ -579,18 +594,24 @@ public class RecipesController : ControllerBase
 
     [HttpPost("{recipeId:guid}/nutrition")]
     [Authorize("create:recipe_nutrition")]
-    
     public async Task<ActionResult> CreateRecipeNutrition([FromRoute] Guid recipeId,
         [FromBody] RecipeNutritionDto nutrition)
     {
         var user = _currentUserService.UserId;
-        var canUserEditRecipe = await CanUserEditRecipe(user, recipeId);
+        var getRecipePolicy = await GetRecipePolicy(user, recipeId);
+        var canUserEditRecipe = CanUserEditRecipe(getRecipePolicy.Item2);
         if (!canUserEditRecipe) return Forbid();
+        nutrition.CreatedBy = user;
+        nutrition.RecipeId = recipeId;
         var createdNutrition = await _cookBookService.CreateRecipeNutritionAsync(recipeId, nutrition);
         return CreatedAtAction(
             nameof(GetRecipeNutrition),
             new { },
-            createdNutrition
+            new RecipeAPIResponse
+            {
+                Policy = getRecipePolicy.Item2,
+                Data = createdNutrition
+            }
         );
     }
 
@@ -626,6 +647,7 @@ public class RecipesController : ControllerBase
         var user = _currentUserService.UserId;
         var canUserEditRecipe = await CanUserEditRecipe(user, recipeId);
         if (!canUserEditRecipe) return Forbid();
+        nutrition.RecipeId = recipeId;
         nutrition.LastModifiedBy = user;
         await _cookBookService.UpdateRecipeNutritionAsync(recipeId, nutrition);
         return Ok();
@@ -636,23 +658,18 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeSteps([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
-        async Task<object?> GetData(Guid id)
-        {
-            var steps = await _cookBookService.GetRecipeStepsAsync(id);
-            return steps;
-        };
-        var getDataTask = GetData(recipeId);
+;
+        var getDataTask = _cookBookService.GetRecipeStepsAsync(recipeId);
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
 
         var getDataResult = await getDataTask;
         var getRecipePolicyResult = await getRecipePolicyTask;
 
-        var response = new RecipeAPIResponse
+        return Ok(getDataResult.Select(x => new RecipeAPIResponse
         {
-            Policy = getRecipePolicyResult.Item2,
-            Data = getDataResult
-        };
-        return Ok(response);
+            Data = x,
+            Policy = getRecipePolicyResult.Item2
+        }));
     }
 
     [HttpGet("{recipeId:guid}/steps/{order:int}")]
@@ -689,6 +706,7 @@ public class RecipesController : ControllerBase
         if (!canUserEditRecipe) return Forbid();
         foreach (var step in steps)
         {
+            step.RecipeId = recipeId;
             step.CreatedBy = user;
         }
         await _cookBookService.BatchUpdateRecipeStepsAsync(recipeId, steps);
@@ -700,23 +718,17 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeIngredients([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
-        async Task<object?> GetData(Guid id)
-        {
-            var ingredients = await _cookBookService.GetRecipeIngredientsAsync(id);
-            return ingredients;
-        };
-        var getDataTask = GetData(recipeId);
+        var getDataTask = _cookBookService.GetRecipeIngredientsAsync(recipeId);
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
 
         var getDataResult = await getDataTask;
         var getRecipePolicyResult = await getRecipePolicyTask;
 
-        var response = new RecipeAPIResponse
+        return Ok(getDataResult.Select(x => new RecipeAPIResponse
         {
-            Policy = getRecipePolicyResult.Item2,
-            Data = getDataResult
-        };
-        return Ok(response);
+            Data = x,
+            Policy = getRecipePolicyResult.Item2
+        }));
     }
 
     [HttpPost("{recipeId:guid}/ingredients")]
@@ -725,7 +737,8 @@ public class RecipesController : ControllerBase
         [FromBody] RecipeIngredientDto recipeIngredient)
     {
         var user = _currentUserService.UserId;
-        var canUserEditRecipe = await CanUserEditRecipe(user, recipeId);
+        var getRecipePolicy = await GetRecipePolicy(user, recipeId);
+        var canUserEditRecipe = CanUserEditRecipe(getRecipePolicy.Item2);
         if (!canUserEditRecipe) return Forbid();
         recipeIngredient.CreatedBy = user;
         recipeIngredient.RecipeId = recipeId;
@@ -733,13 +746,17 @@ public class RecipesController : ControllerBase
         return CreatedAtAction(
             nameof(GetRecipeIngredient),
             new {recipeId, recipeIngredientId = createdRecipeIngredient.Id},
-            new
+            new RecipeAPIResponse
             {
-                createdRecipeIngredient.Id,
-                createdRecipeIngredient.Quantity,
-                createdRecipeIngredient.Part,
-                createdRecipeIngredient.IngredientId,
-                createdRecipeIngredient.IngredientName
+                Policy = getRecipePolicy.Item2,
+                Data = new
+                {
+                    createdRecipeIngredient.Id,
+                    createdRecipeIngredient.Quantity,
+                    createdRecipeIngredient.Part,
+                    createdRecipeIngredient.IngredientId,
+                    createdRecipeIngredient.IngredientName
+                }
             });
     }
 
@@ -789,23 +806,17 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeImages([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
-        async Task<object?> GetData(Guid _recipeId)
-        {
-            var images = await _cookBookService.GetRecipeImagesAsync(_recipeId);
-            return images;
-        };
-        var getDataTask = GetData(recipeId);
+        var getDataTask = _cookBookService.GetRecipeImagesAsync(recipeId);
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
 
         var getDataResult = await getDataTask;
         var getRecipePolicyResult = await getRecipePolicyTask;
 
-        var response = new RecipeAPIResponse
+        return Ok(getDataResult.Select(x => new RecipeAPIResponse
         {
-            Policy = getRecipePolicyResult.Item2,
-            Data = getDataResult
-        };
-        return Ok(response);
+            Data = x,
+            Policy = getRecipePolicyResult.Item2
+        }));
     }
 
     [HttpPost("{recipeId:guid}/images")]
@@ -813,14 +824,19 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> CreateRecipeImage([FromRoute] Guid recipeId, [FromBody] RecipeImageDto image)
     {
         var user = _currentUserService.UserId;
-        var canUserEditRecipe = await CanUserEditRecipe(user, recipeId);
+        var getRecipePolicy = await GetRecipePolicy(user, recipeId);
+        var canUserEditRecipe = CanUserEditRecipe(getRecipePolicy.Item2);
         if (!canUserEditRecipe) return Forbid();
         image.CreatedBy = user;
         var createdRecipeImage = await _cookBookService.CreateRecipeImageAsync(recipeId, image);
         return CreatedAtAction(
             nameof(GetRecipeImage),
             new {recipeId, imageId = image.ImageId},
-            createdRecipeImage);
+            new RecipeAPIResponse
+            {
+                Policy = getRecipePolicy.Item2,
+                Data = createdRecipeImage
+            });
     }
 
     [HttpPut("{recipeId:guid}/images")]
@@ -868,27 +884,17 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> GetRecipeTags([FromRoute] Guid recipeId)
     {
         var userId = _currentUserService.UserId;
-        async Task<object?> GetData(Guid _recipeId)
-        {
-            var tags = await _cookBookService.GetRecipeTagsAsync(_recipeId);
-            return tags.Select(x => new
-            {
-                x.TagId,
-                x.TagName
-            });
-        };
-        var getDataTask = GetData(recipeId);
+        var getDataTask = _cookBookService.GetRecipeTagsAsync(recipeId);
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
 
         var getDataResult = await getDataTask;
         var getRecipePolicyResult = await getRecipePolicyTask;
 
-        var response = new RecipeAPIResponse
+        return Ok(getDataResult.Select(x => new RecipeAPIResponse
         {
-            Policy = getRecipePolicyResult.Item2,
-            Data = getDataResult
-        };
-        return Ok(response);
+            Data = x,
+            Policy = getRecipePolicyResult.Item2
+        }));
     }
 
     [HttpPost("{recipeId:guid}/tags")]
@@ -896,14 +902,18 @@ public class RecipesController : ControllerBase
     public async Task<ActionResult> CreateRecipeTag([FromRoute] Guid recipeId, [FromBody] RecipeTagDto tag)
     {
         var user = _currentUserService.UserId;
-        var canUserEditRecipe = await CanUserEditRecipe(user, recipeId);
+        var getRecipePolicy = await GetRecipePolicy(user, recipeId);
+        var canUserEditRecipe = CanUserEditRecipe(getRecipePolicy.Item2);
         if (!canUserEditRecipe) return Forbid();
         var createdRecipeTag = await _cookBookService.CreateRecipeTagAsync(recipeId, tag);
         return CreatedAtAction(
             nameof(GetRecipeTag),
             new {recipeId, tagId = tag.TagId},
-            createdRecipeTag
-        );
+            new RecipeAPIResponse
+            {
+                Policy = getRecipePolicy.Item2,
+                Data = createdRecipeTag
+            });
     }
 
     [HttpPut("{recipeId:guid}/tags")]
@@ -925,8 +935,18 @@ public class RecipesController : ControllerBase
     [Authorize("read:recipe_tag")]
     public async Task<ActionResult> GetRecipeTag([FromRoute] Guid recipeId, [FromRoute] Guid tagId)
     {
+        var userId = _currentUserService.UserId;
+        var getRecipePolicyTask = await GetRecipePolicy(userId, recipeId);
         var recipeTag = await _cookBookService.GetRecipeTagAsync(recipeId, tagId);
-        return Ok(new { recipeTag.TagId, recipeTag.TagName });
+        return Ok(new RecipeAPIResponse
+        {
+            Policy = getRecipePolicyTask.Item2,
+            Data = new
+            {
+                recipeTag.TagId,
+                recipeTag.TagName
+            }
+        });
     }
 
 

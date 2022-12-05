@@ -10,8 +10,11 @@ public class InternalServiceException : Exception
     public InternalServiceException(string serviceName, HttpStatusCode code, string httpErrorResponseContent) : base(GetMessage(serviceName, code, httpErrorResponseContent))
     {
         if (string.IsNullOrWhiteSpace(httpErrorResponseContent)) return;
-        var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent)
-                       ?? new InternalServiceError();
+        var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new InternalServiceError();
         ErrorCode = document.ErrorCode;
         ErrorMessage = document.Message;
         ValidationErrors = document.ValidationErrors;
@@ -23,8 +26,12 @@ public class InternalServiceException : Exception
         {
             return $"An internal error has occurred with status code {code} in the {serviceName} service";
         }
-        var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent)
-                       ?? new InternalServiceError();
+
+        var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new InternalServiceError();
         return string.IsNullOrWhiteSpace(document.Message)
             ? $"An internal error has occurred with status code {code} in the {serviceName} service" 
             : $"An internal error has occurred with status code {code} in the {serviceName} service:{Environment.NewLine}{document.ErrorCode}{Environment.NewLine}{document.Message}";
