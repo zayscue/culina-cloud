@@ -1,0 +1,14 @@
+.recipe-grid-title {
+  text-align: center;
+  font-size: x-large;
+}
+
+.page-loader {
+  top:50%;
+  left:50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  height: 20em;
+  width: 5em;
+  transform: translateY(-50%);
+}

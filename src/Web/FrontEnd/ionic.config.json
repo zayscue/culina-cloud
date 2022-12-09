@@ -1,0 +1,7 @@
+{
+  "name": "culina",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

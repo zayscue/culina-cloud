@@ -1,0 +1,33 @@
+.recipe-photo {
+  height: 280px;
+  object-fit: fill;
+}
+
+ion-item {
+  --inner-border-width: 0 0 0 0;
+  --inner-padding-end: 0 0 0 0;
+  --padding-start: 0;
+}
+
+.recipe-name {
+  width: 100%;
+}
+
+.recipe-name-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: smaller;
+}
+
+.recipe-like-button {
+  position: absolute;
+  font-size: 32px;
+  top: 5px;
+  right: 5px;
+  border-style: none !important;
+}
+
+.recipe-like-button:hover {
+  transition: font-size .50s;
+  font-size: 48px;
+}

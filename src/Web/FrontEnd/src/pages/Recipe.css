@@ -1,0 +1,30 @@
+/* iOS places the subtitle above the title */
+ion-card-header.ios {
+  display: flex;
+  flex-flow: column-reverse;
+}
+
+.oya {
+  display: grid;
+  height: 100%;
+  grid-template-columns: auto auto;
+  grid-template-rows: max-content auto auto;
+}
+
+ion-item {
+  --highlight-height: 2px;
+  --highlight-color-focused: #686868;
+}
+
+.recipe-like-button {
+  position: absolute;
+  font-size: 32px;
+  top: 5px;
+  right: 5px;
+  border-style: none !important;
+}
+
+.recipe-like-button:hover {
+  transition: font-size .50s;
+  font-size: 48px;
+}

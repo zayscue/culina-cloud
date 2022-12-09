@@ -71,7 +71,7 @@ $Version = Get-Version
 # Get Solution File Info
 $SolutionFile = Get-Solution-File
 
-if (!$SkipServiceDeploy) {
+if ($SkipServiceDeploy -eq $false) {
   # Build Solution
   Write-Output "Building Culina Cloud Services Version: $($Version.SemVer)`n"
   dotnet.exe build $SolutionFile.Name -p:Version=$($Version.SemVer)
@@ -105,7 +105,7 @@ if (!$SkipServiceDeploy) {
   }
 }
 
-if ($SkipInfrastructureDeploy) {
+if ($SkipInfrastructureDeploy -eq $false) {
   # Apply Cloudformation Template
-aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
+  aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
 }

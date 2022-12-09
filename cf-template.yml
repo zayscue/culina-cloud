@@ -871,13 +871,13 @@ Resources:
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
             - Name: 'CookBookService:BaseAddress'
-              Value: 'http://cookbookapi.http-api.local'
+              Value: 'http://cookbook.http-api.local'
             - Name: 'AnalyticsService:BaseAddress'
-              Value: 'http://analyticsapi.http-api.local'
+              Value: 'http://analytics.http-api.local'
             - Name: 'InteractionsService:BaseAddress'
-              Value: 'http://interactionsapi.http-api.local'
+              Value: 'http://interactions.http-api.local'
             - Name: 'UsersService:BaseAddress'
-              Value: 'http://usersapi.http-api.local'
+              Value: 'http://users.http-api.local'
           LogConfiguration:
             LogDriver: awslogs
             Options:
