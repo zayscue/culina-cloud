@@ -1,4 +1,9 @@
 #! /usr/bin/pwsh
+Param(
+  $SkipServiceDeploy = $false,
+  $SkipInfrastructureDeploy = $false
+)
+
 function Get-Version {
   return dotnet-gitversion | ConvertFrom-Json
 }
@@ -66,37 +71,41 @@ $Version = Get-Version
 # Get Solution File Info
 $SolutionFile = Get-Solution-File
 
-# Build Solution
-Write-Output "Building Culina Cloud Services Version: $($Version.SemVer)`n"
-dotnet.exe build $SolutionFile.Name -p:Version=$($Version.SemVer)
-Write-Output "`n"
-
-# Run Tests
-Write-Output "Testing Culina Cloud Services Version: $($Version.SemVer)`n"
-dotnet.exe test $SolutionFile.Name
-Write-Output "`n"
-
-# Login to ECR Repository
-$AWSAccountInfo = Get-AWS-Account-Info
-aws.exe ecr get-login-password --region $AWSAccountInfo.Region | docker.exe login --username AWS --password-stdin "$($AWSAccountInfo.AccountId).dkr.ecr.$($AWSAccountInfo.Region).amazonaws.com"
-Write-Output "`n"
-
-# Deploying Services
-$Services = Get-Services -Version $Version
-foreach ($Service in $Services) {
-  Write-Output "Ensuring that the ECR Repository Exists for the $($Service.ServiceName) Service"
-  $RepositoryInfo = Get-ECR-Repo -RepositoryName $Service.RepositoryName
-
-  Write-Output "Packaging the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe build --build-arg dll_version=$($Service.Tag) -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
-  docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):$($Service.Tag)"
-  docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):latest"
+if (!$SkipServiceDeploy) {
+  # Build Solution
+  Write-Output "Building Culina Cloud Services Version: $($Version.SemVer)`n"
+  dotnet.exe build $SolutionFile.Name -p:Version=$($Version.SemVer)
   Write-Output "`n"
 
-  Write-Output "Deploying the $($Service.ServiceName) Service Version: $($Service.Tag)"
-  docker.exe push "$($RepositoryInfo.repositoryUri)" --all-tags
+  # Run Tests
+  Write-Output "Testing Culina Cloud Services Version: $($Version.SemVer)`n"
+  dotnet.exe test $SolutionFile.Name
   Write-Output "`n"
+
+  # Login to ECR Repository
+  $AWSAccountInfo = Get-AWS-Account-Info
+  aws.exe ecr get-login-password --region $AWSAccountInfo.Region | docker.exe login --username AWS --password-stdin "$($AWSAccountInfo.AccountId).dkr.ecr.$($AWSAccountInfo.Region).amazonaws.com"
+  Write-Output "`n"
+
+  # Deploying Services
+  $Services = Get-Services -Version $Version
+  foreach ($Service in $Services) {
+    Write-Output "Ensuring that the ECR Repository Exists for the $($Service.ServiceName) Service"
+    $RepositoryInfo = Get-ECR-Repo -RepositoryName $Service.RepositoryName
+
+    Write-Output "Packaging the $($Service.ServiceName) Service Version: $($Service.Tag)"
+    docker.exe build --build-arg dll_version=$($Service.Tag) -t $Service.ImageName -f "$($Service.ProjectDirectory)/Dockerfile" .
+    docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):$($Service.Tag)"
+    docker.exe tag $Service.ImageName "$($RepositoryInfo.repositoryUri):latest"
+    Write-Output "`n"
+
+    Write-Output "Deploying the $($Service.ServiceName) Service Version: $($Service.Tag)"
+    docker.exe push "$($RepositoryInfo.repositoryUri)" --all-tags
+    Write-Output "`n"
+  }
 }
 
-# Apply Cloudformation Template
+if ($SkipInfrastructureDeploy) {
+  # Apply Cloudformation Template
 aws.exe cloudformation deploy --template-file .\cf-template.yml --stack-name culina-cloud --capabilities CAPABILITY_NAMED_IAM
+}

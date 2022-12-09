@@ -16,16 +16,12 @@ var configuration = GetConfiguration();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddCors(options =>
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
 {
-    options.AddDefaultPolicy(
-        builder =>
-        {
-            builder.WithOrigins(configuration["AllowedHosts"])
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
+    builder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+}));
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -206,7 +202,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("CorsPolicy");
 //app.UseResponseCompression();
 app.ConfigureExceptionHandler(app.Environment);
 

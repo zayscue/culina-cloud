@@ -380,17 +380,17 @@ Resources:
       HealthCheckIntervalSeconds: 300
       HealthCheckPath: /health
       HealthCheckTimeoutSeconds: 120
-  CookBookAPIServiceTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub ${AWS::StackName}-cookbookapi-tg
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref 'VPC'
-      TargetType: ip
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /health
-      HealthCheckTimeoutSeconds: 120
+  # CookBookAPIServiceTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     Name: !Sub ${AWS::StackName}-cookbookapi-tg
+  #     Port: 80
+  #     Protocol: HTTP
+  #     VpcId: !Ref 'VPC'
+  #     TargetType: ip
+  #     HealthCheckIntervalSeconds: 300
+  #     HealthCheckPath: /health
+  #     HealthCheckTimeoutSeconds: 120
 #  EventStoreAPIServiceTargetGroup:
 #    Type: AWS::ElasticLoadBalancingV2::TargetGroup
 #    Properties:
@@ -402,39 +402,39 @@ Resources:
 #      HealthCheckIntervalSeconds: 300
 #      HealthCheckPath: /health
 #      HealthCheckTimeoutSeconds: 120
-  AnalyticsAPIServiceTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub ${AWS::StackName}-analyticsapi-tg
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref 'VPC'
-      TargetType: ip
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /health
-      HealthCheckTimeoutSeconds: 120
-  InteractionsAPIServiceTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub ${AWS::StackName}-interactionsapi-tg
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref 'VPC'
-      TargetType: ip
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /health
-      HealthCheckTimeoutSeconds: 120
-  UsersAPIServiceTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub ${AWS::StackName}-usersapi-tg
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref 'VPC'
-      TargetType: ip
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /health
-      HealthCheckTimeoutSeconds: 120
+  # AnalyticsAPIServiceTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     Name: !Sub ${AWS::StackName}-analyticsapi-tg
+  #     Port: 80
+  #     Protocol: HTTP
+  #     VpcId: !Ref 'VPC'
+  #     TargetType: ip
+  #     HealthCheckIntervalSeconds: 300
+  #     HealthCheckPath: /health
+  #     HealthCheckTimeoutSeconds: 120
+  # InteractionsAPIServiceTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     Name: !Sub ${AWS::StackName}-interactionsapi-tg
+  #     Port: 80
+  #     Protocol: HTTP
+  #     VpcId: !Ref 'VPC'
+  #     TargetType: ip
+  #     HealthCheckIntervalSeconds: 300
+  #     HealthCheckPath: /health
+  #     HealthCheckTimeoutSeconds: 120
+  # UsersAPIServiceTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     Name: !Sub ${AWS::StackName}-usersapi-tg
+  #     Port: 80
+  #     Protocol: HTTP
+  #     VpcId: !Ref 'VPC'
+  #     TargetType: ip
+  #     HealthCheckIntervalSeconds: 300
+  #     HealthCheckPath: /health
+  #     HealthCheckTimeoutSeconds: 120
   ApplicationLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -445,18 +445,30 @@ Resources:
       LoadBalancerArn: !Ref ApplicationLoadBalancer
       Port: 80
       Protocol: HTTP
-  ApplicationLoadBalancerListenerCookBookAPIServiceRule:
+  ApplicationLoadBalancerListenerWebAPIGatewayServiceRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Priority: 1
       ListenerArn: !Ref ApplicationLoadBalancerListener
       Actions:
-        - TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+        - TargetGroupArn: !Ref WebAPIGatewayServiceTargetGroup
           Type: forward
       Conditions:
         - Field: 'path-pattern'
           Values:
-            - '/cookbook*'
+            - '/*'
+  # ApplicationLoadBalancerListenerCookBookAPIServiceRule:
+  #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  #   Properties:
+  #     Priority: 1
+  #     ListenerArn: !Ref ApplicationLoadBalancerListener
+  #     Actions:
+  #       - TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+  #         Type: forward
+  #     Conditions:
+  #       - Field: 'path-pattern'
+  #         Values:
+  #           - '/cookbook*'
 #  ApplicationLoadBalancerListenerEventStoreAPIServiceRule:
 #    Type: AWS::ElasticLoadBalancingV2::ListenerRule
 #    Properties:
@@ -469,42 +481,42 @@ Resources:
 #        - Field: 'path-pattern'
 #          Values:
 #            - '/eventstore*'
-  ApplicationLoadBalancerListenerAnalyticsAPIServiceRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Priority: 2
-      ListenerArn: !Ref ApplicationLoadBalancerListener
-      Actions:
-        - TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
-          Type: forward
-      Conditions:
-        - Field: 'path-pattern'
-          Values:
-            - '/analytics*'
-  ApplicationLoadBalancerListenerInteractionsAPIServiceRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Priority: 3
-      ListenerArn: !Ref ApplicationLoadBalancerListener
-      Actions:
-        - TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
-          Type: forward
-      Conditions:
-        - Field: 'path-pattern'
-          Values:
-            - '/interactions*'
-  ApplicationLoadBalancerListenerUsersAPIServiceRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Priority: 4
-      ListenerArn: !Ref ApplicationLoadBalancerListener
-      Actions:
-        - TargetGroupArn: !Ref UsersAPIServiceTargetGroup
-          Type: forward
-      Conditions:
-        - Field: 'path-pattern'
-          Values:
-            - '/users*'
+  # ApplicationLoadBalancerListenerAnalyticsAPIServiceRule:
+  #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  #   Properties:
+  #     Priority: 2
+  #     ListenerArn: !Ref ApplicationLoadBalancerListener
+  #     Actions:
+  #       - TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
+  #         Type: forward
+  #     Conditions:
+  #       - Field: 'path-pattern'
+  #         Values:
+  #           - '/analytics*'
+  # ApplicationLoadBalancerListenerInteractionsAPIServiceRule:
+  #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  #   Properties:
+  #     Priority: 3
+  #     ListenerArn: !Ref ApplicationLoadBalancerListener
+  #     Actions:
+  #       - TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
+  #         Type: forward
+  #     Conditions:
+  #       - Field: 'path-pattern'
+  #         Values:
+  #           - '/interactions*'
+  # ApplicationLoadBalancerListenerUsersAPIServiceRule:
+  #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  #   Properties:
+  #     Priority: 4
+  #     ListenerArn: !Ref ApplicationLoadBalancerListener
+  #     Actions:
+  #       - TargetGroupArn: !Ref UsersAPIServiceTargetGroup
+  #         Type: forward
+  #     Conditions:
+  #       - Field: 'path-pattern'
+  #         Values:
+  #           - '/users*'
   DHCPOptions:
     Type: AWS::EC2::DHCPOptions
     Properties:
@@ -606,6 +618,39 @@ Resources:
               - 'logs:CreateLogGroup'
               - 'logs:PutLogEvents'
             Resource: '*'
+  WebAPIGatewayServiceECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: WebAPIGatewayServiceECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+        - PolicyName: WebAPIGatewayServiceECSTaskSecretsManagerPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/API/*
   CookBookAPIECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -746,44 +791,49 @@ Resources:
                 Action:
                   - 'secretsmanager:GetSecretValue'
                 Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CulinaCloud/UsersAPI/*
-  EventStoreAPIECSTaskExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service: [ecs-tasks.amazonaws.com]
-          Action: ['sts:AssumeRole']
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
-      Policies:
-        - PolicyName: EventStoreAPIECSTaskExecutionRolePolicy
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-                # Allow the ECS Tasks to download images from ECR
-                - 'ecr:GetAuthorizationToken'
-                - 'ecr:BatchCheckLayerAvailability'
-                - 'ecr:GetDownloadUrlForLayer'
-                - 'ecr:BatchGetImage'
+  # EventStoreAPIECSTaskExecutionRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Statement:
+  #       - Effect: Allow
+  #         Principal:
+  #           Service: [ecs-tasks.amazonaws.com]
+  #         Action: ['sts:AssumeRole']
+  #     Path: /
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/AmazonRDSDataFullAccess
+  #     Policies:
+  #       - PolicyName: EventStoreAPIECSTaskExecutionRolePolicy
+  #         PolicyDocument:
+  #           Statement:
+  #           - Effect: Allow
+  #             Action:
+  #               # Allow the ECS Tasks to download images from ECR
+  #               - 'ecr:GetAuthorizationToken'
+  #               - 'ecr:BatchCheckLayerAvailability'
+  #               - 'ecr:GetDownloadUrlForLayer'
+  #               - 'ecr:BatchGetImage'
 
-                # Allow the ECS tasks to upload logs to CloudWatch
-                - 'logs:CreateLogStream'
-                - 'logs:PutLogEvents'
-              Resource: '*'
+  #               # Allow the ECS tasks to upload logs to CloudWatch
+  #               - 'logs:CreateLogStream'
+  #               - 'logs:PutLogEvents'
+  #             Resource: '*'
+  WebAPIGatewayServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'webapigw']]]]
+        RetentionInDays: 14
   CookBookAPIServiceLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
         LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'cookbookapi']]]]
         RetentionInDays: 14
-  EventStoreAPIServiceLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-        LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
-        RetentionInDays: 14
+  # EventStoreAPIServiceLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   Properties:
+  #       LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
+  #       RetentionInDays: 14
   AnalyticsAPIServiceLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -799,6 +849,41 @@ Resources:
     Properties:
         LogGroupName: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'usersapi']]]]
         RetentionInDays: 14
+  WebAPIGatewayServiceECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', 'webapigw']]
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref WebAPIGatewayServiceECSTaskExecutionRole
+      TaskRoleArn: !Ref WebAPIGatewayServiceECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: webapigw
+          Cpu: 512
+          Memory: 1024
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/webbffapigateway:latest
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: 'Production'
+            - Name: 'CookBookService:BaseAddress'
+              Value: 'http://cookbookapi.http-api.local'
+            - Name: 'AnalyticsService:BaseAddress'
+              Value: 'http://analyticsapi.http-api.local'
+            - Name: 'InteractionsService:BaseAddress'
+              Value: 'http://interactionsapi.http-api.local'
+            - Name: 'UsersService:BaseAddress'
+              Value: 'http://usersapi.http-api.local'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'webapigw']]]]
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
   CookBookAPIECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -822,43 +907,41 @@ Resources:
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
-            - Name: 'EventStore:BaseAddress'
-              Value: 'http://eventstore.http-api.local'
           LogConfiguration:
             LogDriver: awslogs
             Options:
               awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'cookbookapi']]]]
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
-  EventStoreAPIECSTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]
-      Cpu: 512
-      Memory: 1024
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      ExecutionRoleArn: !Ref EventStoreAPIECSTaskExecutionRole
-      TaskRoleArn: !Ref 'AWS::NoValue'
-      ContainerDefinitions:
-        - Name: eventstoreapi
-          Cpu: 512
-          Memory: 1024
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/eventstoreapi:latest
-          PortMappings:
-            - ContainerPort: 80
-          Environment:
-            - Name: ConnectionString
-              Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
-            - Name: ASPNETCORE_ENVIRONMENT
-              Value: 'Production'
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: ecs
+  # EventStoreAPIECSTaskDefinition:
+  #   Type: AWS::ECS::TaskDefinition
+  #   Properties:
+  #     Family: !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]
+  #     Cpu: 512
+  #     Memory: 1024
+  #     NetworkMode: awsvpc
+  #     RequiresCompatibilities:
+  #       - FARGATE
+  #     ExecutionRoleArn: !Ref EventStoreAPIECSTaskExecutionRole
+  #     TaskRoleArn: !Ref 'AWS::NoValue'
+  #     ContainerDefinitions:
+  #       - Name: eventstoreapi
+  #         Cpu: 512
+  #         Memory: 1024
+  #         Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/culinacloud/eventstoreapi:latest
+  #         PortMappings:
+  #           - ContainerPort: 80
+  #         Environment:
+  #           - Name: ConnectionString
+  #             Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
+  #           - Name: ASPNETCORE_ENVIRONMENT
+  #             Value: 'Production'
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-group: !Join ['/', [ecs, !Join ['-', [!Ref 'AWS::StackName', 'eventstoreapi']]]]
+  #             awslogs-region: !Ref AWS::Region
+  #             awslogs-stream-prefix: ecs
   AnalyticsAPIECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -911,10 +994,6 @@ Resources:
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
-            - Name: 'EventStore:BaseAddress'
-              Value: 'http://eventstore.http-api.local'
-            - Name: 'RecipesService:BaseAddress'
-              Value: 'http://cookbook.http-api.local'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -944,8 +1023,6 @@ Resources:
               Value: !Join [';', [!Join ['=', ['Host', !GetAtt PostgresDB.Endpoint.Address]],!Join ['=', ['Port', '5432']], !Join ['=', ['Database', 'CulinaCloudDB']], !Join ['=', ['Username', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:username}}']], !Join ['=', ['Password', '{{resolve:secretsmanager:CulinaCloudDBSecrets:SecretString:password}}']]]]
             - Name: ASPNETCORE_ENVIRONMENT
               Value: 'Production'
-            - Name: 'RecipesService:BaseAddress'
-              Value: 'http://cookbook.http-api.local'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -971,19 +1048,19 @@ Resources:
         FailureThreshold: 1
       Name: 'cookbook'
       NamespaceId: !GetAtt DNSNamespace.Id
-  EventStoreAPIServiceCloudMapService:
-    Type: AWS::ServiceDiscovery::Service
-    Properties:
-      DnsConfig:
-        DnsRecords:
-          - TTL: 60
-            Type: A
-        NamespaceId: !GetAtt DNSNamespace.Id
-        RoutingPolicy: 'MULTIVALUE'
-      HealthCheckCustomConfig:
-        FailureThreshold: 1
-      Name: 'eventstore'
-      NamespaceId: !GetAtt DNSNamespace.Id
+  # EventStoreAPIServiceCloudMapService:
+  #   Type: AWS::ServiceDiscovery::Service
+  #   Properties:
+  #     DnsConfig:
+  #       DnsRecords:
+  #         - TTL: 60
+  #           Type: A
+  #       NamespaceId: !GetAtt DNSNamespace.Id
+  #       RoutingPolicy: 'MULTIVALUE'
+  #     HealthCheckCustomConfig:
+  #       FailureThreshold: 1
+  #     Name: 'eventstore'
+  #     NamespaceId: !GetAtt DNSNamespace.Id
   AnalyticsAPIServiceCloudMapService:
     Type: AWS::ServiceDiscovery::Service
     Properties:
@@ -1023,6 +1100,33 @@ Resources:
         FailureThreshold: 1
       Name: 'users'
       NamespaceId: !GetAtt DNSNamespace.Id
+  WebAPIGatewayService:
+    Type: AWS::ECS::Service
+    DependsOn: ApplicationLoadBalancerListener
+    Properties:
+      ServiceName: webapigw
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnetOne
+            - !Ref PrivateSubnetTwo
+            - !Ref PrivateSubnetThree
+      # ServiceRegistries:
+      #   - RegistryArn: !GetAtt CookBookAPIServiceCloudMapService.Arn
+      TaskDefinition: !Ref WebAPIGatewayServiceECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: webapigw
+          ContainerPort: 80
+          TargetGroupArn: !Ref WebAPIGatewayServiceTargetGroup
   CookBookAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -1046,37 +1150,37 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt CookBookAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref CookBookAPIECSTaskDefinition
-      LoadBalancers:
-        - ContainerName: cookbookapi
-          ContainerPort: 80
-          TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
-  EventStoreAPIService:
-    Type: AWS::ECS::Service
-    DependsOn: ApplicationLoadBalancerListener
-    Properties:
-      ServiceName: eventstoreapi
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 75
-      DesiredCount: 1
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
-          SecurityGroups:
-            - !Ref FargateContainerSecurityGroup
-          Subnets:
-            - !Ref PrivateSubnetOne
-            - !Ref PrivateSubnetTwo
-            - !Ref PrivateSubnetThree
-      ServiceRegistries:
-        - RegistryArn: !GetAtt EventStoreAPIServiceCloudMapService.Arn
-      TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
-#      LoadBalancers:
-#        - ContainerName: eventstoreapi
-#          ContainerPort: 80
-#          TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
+      # LoadBalancers:
+      #   - ContainerName: cookbookapi
+      #     ContainerPort: 80
+      #     TargetGroupArn: !Ref CookBookAPIServiceTargetGroup
+  # EventStoreAPIService:
+  #   Type: AWS::ECS::Service
+  #   DependsOn: ApplicationLoadBalancerListener
+  #   Properties:
+  #     ServiceName: eventstoreapi
+  #     Cluster: !Ref ECSCluster
+  #     LaunchType: FARGATE
+  #     DeploymentConfiguration:
+  #       MaximumPercent: 200
+  #       MinimumHealthyPercent: 75
+  #     DesiredCount: 1
+  #     NetworkConfiguration:
+  #       AwsvpcConfiguration:
+  #         AssignPublicIp: DISABLED
+  #         SecurityGroups:
+  #           - !Ref FargateContainerSecurityGroup
+  #         Subnets:
+  #           - !Ref PrivateSubnetOne
+  #           - !Ref PrivateSubnetTwo
+  #           - !Ref PrivateSubnetThree
+  #     ServiceRegistries:
+  #       - RegistryArn: !GetAtt EventStoreAPIServiceCloudMapService.Arn
+  #     TaskDefinition: !Ref EventStoreAPIECSTaskDefinition
+  #     LoadBalancers:
+  #       - ContainerName: eventstoreapi
+  #         ContainerPort: 80
+  #         TargetGroupArn: !Ref EventStoreAPIServiceTargetGroup
   AnalyticsAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -1100,10 +1204,10 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt AnalyticsAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref AnalyticsAPIECSTaskDefinition
-      LoadBalancers:
-        - ContainerName: analyticsapi
-          ContainerPort: 80
-          TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
+      # LoadBalancers:
+      #   - ContainerName: analyticsapi
+      #     ContainerPort: 80
+      #     TargetGroupArn: !Ref AnalyticsAPIServiceTargetGroup
   InteractionsAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -1127,10 +1231,10 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt InteractionsAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref InteractionsAPIECSTaskDefinition
-      LoadBalancers:
-        - ContainerName: interactionsapi
-          ContainerPort: 80
-          TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
+      # LoadBalancers:
+      #   - ContainerName: interactionsapi
+      #     ContainerPort: 80
+      #     TargetGroupArn: !Ref InteractionsAPIServiceTargetGroup
   UsersAPIService:
     Type: AWS::ECS::Service
     DependsOn: ApplicationLoadBalancerListener
@@ -1154,12 +1258,12 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt UsersAPIServiceCloudMapService.Arn
       TaskDefinition: !Ref UsersAPIECSTaskDefinition
-      LoadBalancers:
-        - ContainerName: usersapi
-          ContainerPort: 80
-          TargetGroupArn: !Ref UsersAPIServiceTargetGroup
+      # LoadBalancers:
+      #   - ContainerName: usersapi
+      #     ContainerPort: 80
+      #     TargetGroupArn: !Ref UsersAPIServiceTargetGroup
 
-  #Database
+#Database
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -1196,6 +1300,7 @@ Resources:
       SourceSecurityGroupId: !Ref FargateContainerSecurityGroup
   PostgresDB:
     Type: AWS::RDS::DBInstance
+    DependsOn: DBSubnetGroup
     Properties:
       AllocatedStorage: 20
       AutoMinorVersionUpgrade: true
