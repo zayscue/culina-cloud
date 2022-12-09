@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using CulinaCloud.CookBook.Application.Common.Exceptions;
+using CulinaCloud.BuildingBlocks.Application.Common.Exceptions;
 using CulinaCloud.CookBook.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

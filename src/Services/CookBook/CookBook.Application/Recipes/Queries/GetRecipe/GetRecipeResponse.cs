@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
-using CulinaCloud.CookBook.Application.Common.Mapping;
+using CulinaCloud.BuildingBlocks.Application.Common.Mapping;
 using CulinaCloud.CookBook.Domain.Entities;
 
 namespace CulinaCloud.CookBook.Application.Recipes.Queries.GetRecipe

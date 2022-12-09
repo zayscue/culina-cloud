@@ -16,11 +16,14 @@ namespace CulinaCloud.Analytics.Infrastructure
 
         public class ModelInput
         {
-            [ColumnName(@"user_id")] public string User_id { get; set; }
+            [LoadColumn(0)]
+            public string User_id { get; set; }
 
-            [ColumnName(@"recipe_id")] public string Recipe_id { get; set; }
+            [LoadColumn(1)]
+            public string Recipe_id { get; set; }
 
-            [ColumnName(@"rating")] public float Rating { get; set; }
+            [LoadColumn(2)]
+            public float Rating { get; set; }
         }
 
         #endregion

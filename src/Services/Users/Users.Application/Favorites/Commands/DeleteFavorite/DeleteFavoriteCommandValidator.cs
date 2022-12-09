@@ -8,6 +8,9 @@ namespace CulinaCloud.Users.Application.Favorites.Commands.DeleteFavorite
         {
             RuleFor(c => c.RecipeId)
                 .NotEmpty();
+
+            RuleFor(c => c.UserId)
+                .NotEmpty();
         }
     }
 }

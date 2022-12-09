@@ -35,6 +35,8 @@ namespace CulinaCloud.Users.Infrastructure.Persistence
         }
 
         public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<RecipeEntitlement> RecipeEntitlements { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {

@@ -4,38 +4,55 @@ services:
   postgres:
     image: postgres
     hostname: postgres
-  eventstoreapi:
-    image: ${DOCKER_REGISTRY-}eventstoreapi
-    build:
-      context: .
-      dockerfile: src/Services/EventStore/EventStore.API/Dockerfile
-    depends_on:
-      - postgres
+  #eventstoreapi:
+  #  image: ${DOCKER_REGISTRY-}eventstoreapi
+  #  build:
+  #    context: .
+  #    dockerfile: src/Services/EventStore/EventStore.API/Dockerfile
+  #  depends_on:
+  #    - postgres
   cookbookapi:
     image: ${DOCKER_REGISTRY-}cookbookapi
     build:
       context: .
       dockerfile: src/Services/CookBook/CookBook.API/Dockerfile
+    depends_on:
+      - postgres
+      #- eventstoreapi
   interactionsapi:
     image: ${DOCKER_REGISTRY-}interactionsapi
     build:
       context: .
       dockerfile: src/Services/Interactions/Interactions.API/Dockerfile
+    depends_on:
+      - postgres
+      #- eventstoreapi
   analyticsapi:
     image: ${DOCKER_REGISTRY-}analyticsapi
     build:
       context: .
       dockerfile: src/Services/Analytics/Analytics.API/Dockerfile
+    depends_on:
+      - postgres
+      #- eventstoreapi
   usersapi:
     image: ${DOCKER_REGISTRY-}usersapi
     build:
       context: .
       dockerfile: src/Services/Users/Users.API/Dockerfile
+    depends_on:
+      - postgres
+      #- eventstoreapi
+  webapigw:
+    image: ${DOCKER_REGISTRY-}webapigw
+    build:
+      context: .
+      dockerfile: src/ApiGateways/Web.BFF.APIGateway/Dockerfile
+    depends_on:
+      - cookbookapi
+      - interactionsapi
+      - analyticsapi
+      - usersapi
 
 volumes:
   postgres-data:
-
-
-
-
-

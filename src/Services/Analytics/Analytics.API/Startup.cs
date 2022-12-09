@@ -38,18 +38,6 @@ namespace CulinaCloud.Analytics.API
                 options.Authority = Configuration["Auth0:Domain"];
                 options.Audience = Configuration["Auth0:Audience"];
             });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CreateRecipePopularity", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_popularity")));
-                options.AddPolicy("CreateRecipeSimilarity", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("create:recipe_similarity")));
-                options.AddPolicy("ReadPersonalRecipeRecommendations", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("read:personal_recipe_recommendations")));
-                options.AddPolicy("ReadSimilarRecipes", policy =>
-                    policy.Requirements.Add(new HasScopeRequirement("read:similar_recipes")));
-            });
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
             services.AddHttpContextAccessor();
@@ -57,16 +45,23 @@ namespace CulinaCloud.Analytics.API
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Analytics.API", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseResponseCompression();
+            app.UseCors("CorsPolicy");
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
 

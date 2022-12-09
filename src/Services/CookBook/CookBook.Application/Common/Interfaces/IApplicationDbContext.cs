@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using CulinaCloud.BuildingBlocks.Common;
 using CulinaCloud.CookBook.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -20,7 +19,6 @@ namespace CulinaCloud.CookBook.Application.Common.Interfaces
         DbSet<RecipeTag> RecipeTags { get; set; }
         DbSet<Tag> Tags { get; set; }
         DbSet<Image> Images { get; set; }
-        DbSet<AggregateEventEntity> EventOutbox { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

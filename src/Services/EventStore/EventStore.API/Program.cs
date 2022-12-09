@@ -67,6 +67,12 @@ try
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddControllers();
             services.AddResponseCompression();
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         })
         .Configure((WebHostBuilderContext webHostBuilderContext, IApplicationBuilder app) =>
         {
@@ -75,7 +81,7 @@ try
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors("CorsPolicy");
             app.UseResponseCompression();
 
             app.UseRouting();

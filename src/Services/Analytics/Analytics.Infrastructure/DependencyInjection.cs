@@ -29,7 +29,7 @@ namespace CulinaCloud.Analytics.Infrastructure
                     CollaborativeFilteringRecipeRecommendations.
                     ModelInput,
                     CollaborativeFilteringRecipeRecommendations.
-                    ModelOutput>().FromFile("CollaborativeFilteringRecipeRecommendations.zip");
+                    ModelOutput>().FromUri(configuration["ModelUri"]);
 
             services.AddTransient<ICollaborativeFilteringModel, CollaborativeFilteringModel>();
             services.AddTransient<IRecommendationService, RecommendationService>();

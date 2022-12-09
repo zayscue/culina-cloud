@@ -1,0 +1,9 @@
+data/raw/recipes.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/interactions_test.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/interactions_train.csv filter=lfs diff=lfs merge=lfs -text
+data/ml/CollaborativeFilteringRecipeRecommendations.zip filter=lfs diff=lfs merge=lfs -text
+data/ml/recipe_ingredient_similarity.csv filter=lfs diff=lfs merge=lfs -text
+data/ml/recipe_popularity.csv filter=lfs diff=lfs merge=lfs -text
+data/ml/recipe_tag_similarity.csv filter=lfs diff=lfs merge=lfs -text
+data/db/cookbook_culinacloud_db.dump filter=lfs diff=lfs merge=lfs -text
+data/db/analytics_culinacloud_db.dump filter=lfs diff=lfs merge=lfs -text

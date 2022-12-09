@@ -9,12 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.Analytics.API.Controllers
 {
+    [Authorize]
     [Route("analytics/recommendations")]
     public class RecommendationsController : ApiControllerBase
     {
         [HttpGet("personal-recipe-recommendations")]
-        [Authorize(Policy = "ReadPersonalRecipeRecommendations")]
-        public async Task<ActionResult<PaginatedList<Guid>>> GetPersonalRecipeRecommendations(
+        //[Authorize(Policy = "ReadPersonalRecipeRecommendations")]
+        public async Task<ActionResult<PaginatedList<PersonalRecipeRecommendationsResponse>>> GetPersonalRecipeRecommendations(
             [FromQuery] GetPersonalRecipeRecommendationsQuery query)
         {
             var response = await Mediator.Send(query);
@@ -22,7 +23,7 @@ namespace CulinaCloud.Analytics.API.Controllers
         }
 
         [HttpGet("similar-recipes")]
-        [Authorize(Policy = "ReadSimilarRecipes")]
+        //[Authorize(Policy = "ReadSimilarRecipes")]
         public async Task<ActionResult<PaginatedList<GetRecipeSimilaritiesResponse>>> GetSimilarRecipes([FromQuery] GetRecipeSimilaritiesQuery query)
         {
             var response = await Mediator.Send(query);

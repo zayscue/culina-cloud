@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.Analytics.API.Controllers
 {
+    [Authorize]
     [Route("analytics/recipe-similarity")]
     public class RecipeSimilarityController : ApiControllerBase
     {

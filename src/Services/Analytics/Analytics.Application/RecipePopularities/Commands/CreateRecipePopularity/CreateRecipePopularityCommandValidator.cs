@@ -9,20 +9,26 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Commands.CreateRe
             RuleFor(c => c.RecipeId)
                 .NotEmpty();
 
-            RuleFor(c => c.Submitted)
-                .NotEmpty();
-
             RuleFor(c => c.RatingCount)
                 .GreaterThanOrEqualTo(0);
 
             RuleFor(c => c.RatingSum)
                 .GreaterThanOrEqualTo(0);
 
-            RuleFor(c => c.RatingAverage)
-                .GreaterThanOrEqualTo(0);
+            RuleFor(c => c.CreatedBy)
+                .NotEmpty();
 
-            RuleFor(c => c.RatingWeightedAverage)
-                .GreaterThanOrEqualTo(0);
+            When(c => c.RatingAverage.HasValue, () =>
+            {
+                RuleFor(c => c.RatingAverage.Value)
+                    .GreaterThanOrEqualTo(0);
+            });
+
+            When(c => c.RatingAverage.HasValue, () =>
+            {
+                RuleFor(c => c.RatingWeightedAverage.Value)
+                    .GreaterThanOrEqualTo(0);
+            });
         }
     }
 }

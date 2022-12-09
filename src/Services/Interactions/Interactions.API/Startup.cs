@@ -41,29 +41,31 @@ namespace CulinaCloud.Interactions.API
                 options.Authority = Configuration["Auth0:Domain"];
                 options.Audience = Configuration["Auth0:Audience"];
             });
+
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
-            services.Configure<PostMasterBackgroundServiceSettings>(
-                Configuration.GetSection("PostMaster:BackgroundServiceSettings"));
-            services.AddScoped<IEventOutboxDbContext>(provider => provider.GetService<IApplicationDbContext>());
-            services.AddScoped<IDeliveryService, DeliveryService>();
-            services.AddHostedService<PostMasterBackgroundService>();
             services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
-            services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interactions.API", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseResponseCompression();
+            app.UseCors("CorsPolicy");
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
 

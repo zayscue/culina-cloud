@@ -16,14 +16,8 @@ namespace CulinaCloud.Interactions.Infrastructure.Persistence
             return new ApplicationDbContext(
                 optionsBuilder.Options,
                 new LoggerFactory(),
-                new DesignTimeCurrentUserService(),
                 new DateTimeService()
             );
         }
-    }
-
-    public class DesignTimeCurrentUserService : ICurrentUserService
-    {
-        public string UserId => throw new System.NotImplementedException();
     }
 }

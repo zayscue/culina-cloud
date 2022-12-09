@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CulinaCloud.CookBook.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.Tags.Commands.CreateTag;
 using CulinaCloud.CookBook.Application.Tags.Queries.GetTag;
 using CulinaCloud.CookBook.Application.Tags.Queries.GetTags;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
+    [Route("tags")]
     public class TagsController : ApiControllerBase
     {
         [HttpGet]

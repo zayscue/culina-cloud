@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>CulinaCloud.BuildingBlocks.EventStore.Abstractions</RootNamespace>
     <AssemblyName>CulinaCloud.BuildingBlocks.EventStore.Abstractions</AssemblyName>
   </PropertyGroup>

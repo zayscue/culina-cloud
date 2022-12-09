@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CulinaCloud.CookBook.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.Application.Common.Models;
+using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.CookBook.Application.Ingredients.Commands.CreateIngredient;
 using CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredient;
 using CulinaCloud.CookBook.Application.Ingredients.Queries.GetIngredients;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CulinaCloud.CookBook.API.Controllers
 {
+    [Authorize]
+    [Route("ingredients")]
     public class IngredientsController : ApiControllerBase
     {
         [HttpGet]
