@@ -32,13 +32,23 @@ namespace CulinaCloud.Interactions.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = Configuration["Auth0:Domain"];
+                options.Audience = Configuration["Auth0:Audience"];
+            });
+
             services.AddApplication();
             services.AddInfrastructure(Configuration, Environment.IsDevelopment());
             services.AddHttpContextAccessor();
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interactions.API", Version = "v1" });
@@ -55,9 +65,12 @@ namespace CulinaCloud.Interactions.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors("CorsPolicy");
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

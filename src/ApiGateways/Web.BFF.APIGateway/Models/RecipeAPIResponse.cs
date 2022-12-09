@@ -3,6 +3,7 @@
     public record RecipeAPIResponse
     {
         public RecipePolicy? Policy { get; init; }
+        public RecipePopularityDto? Popularity { get; init; }
         public object? Data { get; init; }
     }
 

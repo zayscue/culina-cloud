@@ -1,3 +1,5 @@
+using CulinaCloud.Web.BFF.APIGateway.Extensions;
+
 IConfiguration GetConfiguration()
 {
     var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -122,6 +124,7 @@ builder.Services.Configure<InteractionsServiceSettings>(configuration.GetSection
 builder.Services.Configure<ImagesServiceSettings>(configuration.GetSection("ImagesService"));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
+//builder.Services.AddResponseCompression();
 builder.Services.AddTransient<IDateTime, DateTimeService>();
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 if (builder.Environment.IsDevelopment())
@@ -204,6 +207,9 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCors();
+//app.UseResponseCompression();
+app.ConfigureExceptionHandler(app.Environment);
+
 app.UseHttpsRedirection();
 app.UsePathBase(new PathString("/app"));
 app.UseRouting();
@@ -217,10 +223,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.Run();

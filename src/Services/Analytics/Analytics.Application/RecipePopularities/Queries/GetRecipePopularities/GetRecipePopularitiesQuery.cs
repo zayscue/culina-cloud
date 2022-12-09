@@ -17,6 +17,7 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
     {
         public int Page { get; set; } = 1;
         public int? Limit { get; set; } = 10000;
+        public List<Guid> RecipeIds { get; set; } = new();
         public string OrderBy { get; set; }
         public bool Descending { get; set; } = true;
     }
@@ -37,6 +38,10 @@ namespace CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipe
             var query = _context.RecipePopularity
                 .AsNoTracking()
                 .AsQueryable();
+            if (request.RecipeIds is {Count: > 0})
+            {
+                query = query.Where(x => request.RecipeIds.Contains(x.RecipeId));
+            }
             switch (request.OrderBy)
             {
                 case "submitted":

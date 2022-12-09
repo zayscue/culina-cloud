@@ -369,6 +369,17 @@ Resources:
       - PrivateSubnetOne
       - PrivateSubnetTwo
       - PrivateSubnetThree
+  WebAPIGatewayServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-webapigw-tg
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VPC'
+      TargetType: ip
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /health
+      HealthCheckTimeoutSeconds: 120
   CookBookAPIServiceTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -428,7 +439,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - FixedResponseConfig: 
+        - FixedResponseConfig:
             StatusCode: 200
           Type: fixed-response
       LoadBalancerArn: !Ref ApplicationLoadBalancer

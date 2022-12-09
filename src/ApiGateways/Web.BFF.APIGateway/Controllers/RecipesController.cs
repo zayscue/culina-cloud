@@ -144,16 +144,25 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         var recipesDict = recipes.Items?
             .ToDictionary(x => x.Id, x => x) ?? new Dictionary<Guid, RecipesDto>();
+
+
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x)
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
         var feedItems = recipeRecommendations.Items.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.RecipeId],
+                Popularity = recipePopularitiesDict.ContainsKey(x.RecipeId)
+                    ? recipePopularitiesDict[x.RecipeId]
+                    : null,
                 Data = new
                 {
                     Id = x.RecipeId,
@@ -190,15 +199,22 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x) 
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
 
         var items = recipes.Items?.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.Id],
+                Popularity = recipePopularitiesDict.ContainsKey(x.Id)
+                    ? recipePopularitiesDict[x.Id]
+                    : null,
                 Data = new
                 {
                     x.Id,
@@ -231,14 +247,21 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x)
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
         var items = recipes.Items?.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.Id],
+                Popularity = recipePopularitiesDict.ContainsKey(x.Id)
+                    ? recipePopularitiesDict[x.Id]
+                    : null,
                 Data = new
                 {
                     x.Id,
@@ -271,16 +294,23 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x)
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
         var items = popularRecipes.Items.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.RecipeId],
+                Popularity = recipePopularitiesDict.ContainsKey(x.RecipeId)
+                    ? recipePopularitiesDict[x.RecipeId]
+                    : null,
                 Data = new
                 {
                     Id = x.RecipeId,
@@ -316,16 +346,23 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x)
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
         var items = recentRecipes.Items.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.RecipeId],
+                Popularity = recipePopularitiesDict.ContainsKey(x.RecipeId)
+                    ? recipePopularitiesDict[x.RecipeId]
+                    : null,
                 Data = new
                 {
                     Id = x.RecipeId,
@@ -513,13 +550,16 @@ public class RecipesController : ControllerBase
         var userId = _currentUserService.UserId;
         var getDataTask = GetData(recipeId);
         var getRecipePolicyTask = GetRecipePolicy(userId, recipeId);
+        var getRecipePopularityTask = _analyticsService.GetRecipePopularityAsync(recipeId);
 
         var getDataResult = await getDataTask;
         var getRecipePolicyResult = await getRecipePolicyTask;
+        var getRecipePopularityResult = await getRecipePopularityTask;
 
         var response = new RecipeAPIResponse
         {
             Policy = getRecipePolicyResult.Item2,
+            Popularity = getRecipePopularityResult,
             Data = getDataResult
         };
         return Ok(response);
@@ -962,16 +1002,23 @@ public class RecipesController : ControllerBase
 
         var getRecipePoliciesTask = GetRecipePolicies(userId, recipeIds);
         var getRecipesTask = _cookBookService.GetRecipesAsync(recipeIds, 1, limit);
+        var getRecipePopularitiesTask = _analyticsService.GetRecipePopularitiesAsync(recipeIds);
 
         var recipes = await getRecipesTask;
         recipes.Items ??= new List<RecipesDto>();
         var recipesDict = recipes.Items.ToDictionary(x => x.Id, x => x);
         var recipePoliciesDict = await getRecipePoliciesTask;
+        var recipePopularities = await getRecipePopularitiesTask;
+        var recipePopularitiesDict = recipePopularities.Items?.ToDictionary(x => x.RecipeId, x => x)
+                                     ?? new Dictionary<Guid, RecipePopularityDto>();
 
         var items = similarRecipes.Items.Select(x =>
             new RecipeAPIResponse
             {
                 Policy = recipePoliciesDict[x.SimilarRecipeId],
+                Popularity = recipePopularitiesDict.ContainsKey(x.SimilarRecipeId) 
+                    ? recipePopularitiesDict[x.SimilarRecipeId] 
+                    : null,
                 Data = new
                 {
                     Id = x.SimilarRecipeId,

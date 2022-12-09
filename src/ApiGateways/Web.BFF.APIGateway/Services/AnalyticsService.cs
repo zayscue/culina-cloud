@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -87,6 +89,60 @@ public class AnalyticsService : IAnalyticsService
             new ("page", page.ToString()),
             new ("limit", limit.ToString())
         });
+        var query = await urlContent.ReadAsStringAsync(cancellation);
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recipe-popularity?{query}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        var popularRecipes = JsonSerializer.Deserialize<PaginatedDto<RecipePopularityDto>>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new PaginatedDto<RecipePopularityDto>();
+        return popularRecipes;
+    }
+
+    public async Task<RecipePopularityDto?> GetRecipePopularityAsync(Guid recipeId, CancellationToken cancellation = default)
+    {
+        var token = await _tokenService.GetToken(cancellation);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recipe-popularity/{recipeId}")
+        {
+            Headers =
+            {
+                { HttpRequestHeader.Authorization.ToString(), $"{token.TokenType} {token.AccessToken}" }
+            }
+        };
+        using var response = await _httpClient.SendAsync(request, cancellation);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellation);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == HttpStatusCode.NotFound) return null;
+            throw new InternalServiceException(ServiceName, response.StatusCode, responseContent);
+        }
+        var recipePopularityDto = JsonSerializer.Deserialize<RecipePopularityDto>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        return recipePopularityDto;
+    }
+
+    public async Task<PaginatedDto<RecipePopularityDto>> GetRecipePopularitiesAsync(List<Guid> recipeIds, CancellationToken cancellation = default)
+    {
+        var urlParams = new List<KeyValuePair<string, string>>
+        {
+            new ("page", "1"),
+            new ("limit", recipeIds.Count.ToString())
+        };
+        urlParams.AddRange(recipeIds.Select(recipeId =>
+            new KeyValuePair<string, string>("recipeIds", recipeId.ToString())));
+        using var urlContent = new FormUrlEncodedContent(urlParams);
         var query = await urlContent.ReadAsStringAsync(cancellation);
         var token = await _tokenService.GetToken(cancellation);
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/analytics/recipe-popularity?{query}")

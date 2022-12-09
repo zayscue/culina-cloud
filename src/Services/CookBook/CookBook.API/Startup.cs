@@ -41,7 +41,7 @@ namespace CulinaCloud.CookBook.API
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CookBook.Service", Version = "v1" });
@@ -50,7 +50,7 @@ namespace CulinaCloud.CookBook.API
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
 

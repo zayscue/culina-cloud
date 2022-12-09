@@ -34,7 +34,7 @@ namespace CulinaCloud.Analytics.Application.RecipeSimilarities.Queries.GetRecipe
         {
             var response = await _context.RecipeSimilarity
                 .Join(_context.RecipePopularity, 
-                    similarity => similarity.RecipeId,
+                    similarity => similarity.SimilarRecipeId,
                     popularity => popularity.RecipeId,
                     (similarity, popularity) => new { Similarity = similarity, Popularity = popularity})
                 .AsNoTracking()

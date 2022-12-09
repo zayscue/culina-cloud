@@ -5,10 +5,13 @@ public class InternalServiceException : Exception
     public string? ErrorCode { get; set; }
     public string? ErrorMessage { get; set; }
 
+    public HttpStatusCode StatusCode { get; set; }
+
     public Dictionary<string, string[]>? ValidationErrors { get; set; }
 
     public InternalServiceException(string serviceName, HttpStatusCode code, string httpErrorResponseContent) : base(GetMessage(serviceName, code, httpErrorResponseContent))
     {
+        StatusCode = code;
         if (string.IsNullOrWhiteSpace(httpErrorResponseContent)) return;
         var document = JsonSerializer.Deserialize<InternalServiceError>(httpErrorResponseContent,
             new JsonSerializerOptions

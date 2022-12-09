@@ -56,7 +56,7 @@ namespace CulinaCloud.Users.API
                 .AddDbContextCheck<ApplicationDbContext>();
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddControllers();
-            services.AddResponseCompression();
+            //services.AddResponseCompression();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users.API", Version = "v1" });
@@ -73,7 +73,7 @@ namespace CulinaCloud.Users.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors("CorsPolicy");
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
             app.ConfigureExceptionHandler(env);
             app.UseRouting();
 

@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using CulinaCloud.Analytics.Application.RecipePopularities.Commands.CreateRecipePopularity;
 using CulinaCloud.Analytics.Application.RecipePopularities.Commands.UpdateRecipePopularity;
 using CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipePopularities;
+using CulinaCloud.Analytics.Application.RecipePopularities.Queries.GetRecipePopularity;
 using CulinaCloud.BuildingBlocks.API.Controllers;
 using CulinaCloud.BuildingBlocks.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +16,18 @@ namespace CulinaCloud.Analytics.API.Controllers
     public class RecipePopularityController : ApiControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PaginatedList<GetRecipePopularitiesResponse>>> Get([FromQuery] int? limit,
-            [FromQuery] string orderBy = "", [FromQuery] bool descending = false, [FromQuery] int page = 1)
+        public async Task<ActionResult<PaginatedList<GetRecipePopularitiesResponse>>> Get([FromQuery] GetRecipePopularitiesQuery query)
         {
-            var response = await Mediator.Send(new GetRecipePopularitiesQuery
+            var response = await Mediator.Send(query);
+            return Ok(response);
+        }
+
+        [HttpGet("{recipeId:guid}")]
+        public async Task<ActionResult<GetRecipePopularityQuery>> Get(Guid recipeId)
+        {
+            var response = await Mediator.Send(new GetRecipePopularityQuery
             {
-                Limit = limit,
-                Page = page,
-                OrderBy = orderBy,
-                Descending = descending
+                RecipeId = recipeId
             });
             return Ok(response);
         }
